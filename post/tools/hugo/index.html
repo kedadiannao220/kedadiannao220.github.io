@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>使用Hugo&amp;GitPage写博客 | penggy Blog</title>
+    <meta property="og:title" content="使用Hugo&amp;GitPage写博客 - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2019-02-22T18:47:21&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-12-22T18:26:23&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="使用Hugo&amp;GitPage写博客">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/tools/hugo/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">使用Hugo&amp;GitPage写博客</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2019年2月22日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/tool'>tool</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <p>本文主要是介绍一下我是怎么写博客，并且发布的。</p>
+<h3 id="最早方式">最早方式</h3>
+<p>早期入了<code>emacs</code>的坑，喜欢上了 <a href="http://orgmode.org/worg/org-tutorials/">Org-mode</a>(org-mode十分强大，尤其它的<code>Agenda</code>、<code>TODO</code>管理功能)所以写东西一般都是使用<code>emacs</code>的<code>org-mode</code>，然后使用 <a href="https://github.com/sillykelvin/org-page">org-page</a>进行发布。</p>
+<p>后来发现了Hugo，最早版本支持org，所以就拿来用了一下，但是后来好像支持力度不算非常的友好，自己的文档也不算太多，就转了<code>markdown</code>，但是有一些大牛写了一些转换的组件，若有兴趣可以去参考 <a href="https://emacs-china.org/t/topic/5427">使用 orgmode &amp; hugo 撰写博文的流程介绍</a>；并且org本身也支持转换markdown(<a href="https://ox-hugo.scripter.co/">https://ox-hugo.scripter.co/</a>)</p>
+<h3 id="hugo">Hugo</h3>
+<p>Hugo是一个go语言写的静态博客生成器，与业界里面的Jeklly、Hexo等类似，但Hugo更快，并且早期版本的Hugo支持 <a href="http://orgmode.org/worg/org-tutorials/">Org-mode</a> 现在对<code>markdown</code>更加友好</p>
+<p><a href="https://gohugo.io/getting-started/quick-start/">quick-start</a>可以快速入门进行使用，Hugo还自带命令行工具</p>
+<h3 id="主题">主题</h3>
+<p>最早找了许多的主题，但是最终选择了广东一个哥们的 <a href="https://blog.coderzh.com/">blog</a>，他是做游戏的，我用他的主题 <a href="https://themes.gohugo.io/hugo-pacman-theme/">hugo-pacman-theme</a>的原因就是支持归档，支持标签，看着色彩也还可以。我用了大概两年的时间；</p>
+<p>后来看到阿里的一位大牛的博客 <a href="https://github.com/rujews/maupassant-hugo">飞雪无情</a>，感觉非常好看，所以就拿过来用了一下 <a href="https://github.com/rujews/maupassant-hugo">maupassant-hugo</a>；于2019年2月份左右迁移完成。</p>
+<p>也有一些比较好的主题推荐</p>
+<ul>
+<li><a href="https://github.com/digitalcraftsman/hugo-material-docs">hugo-material-docs</a>，用于生成文档，比gitbook好看；</li>
+<li><a href="https://github.com/yoshiharuyamashita/blackburn">blackburn</a>，<code>go-restful</code><a href="http://ernestmicklei.com/">作者使用的一个主题</a></li>
+</ul>
+<h3 id="增强配置">增强配置</h3>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1">## 添加GA分析，参考文章https://note.qidong.name/2017/07/05/google-analytics-in-hugo</span>
+<span class="nv">googleAnalytics</span> <span class="o">=</span> <span class="s2">&#34;xxxx&#34;</span>
+<span class="c1">## 添加不蒜子</span>
+<span class="o">[</span>params<span class="o">]</span>
+  <span class="nv">busuanzi</span> <span class="o">=</span> <span class="nb">true</span>
+<span class="c1">## 添加评论</span>
+<span class="nv">disqusShortname</span> <span class="o">=</span> <span class="s2">&#34;xibolun&#34;</span>
+</code></pre></div><h3 id="发布">发布</h3>
+<p>Hugo官网文档里面有许多的发布方式 <a href="https://gohugo.io/hosting-and-deployment/">hosting-and-deploymeng</a>，</p>
+<p>说一下大概的思路：如果你自己部署你需要以下操作</p>
+<ul>
+<li>申请一台云服务器，阿里云/腾讯云/&hellip;&hellip;</li>
+<li>将<code>hugo build</code>出来的文件放在服务器上面，使用nginx做代理</li>
+<li>如果你想用网址域名，那你需要去买一个域名，然后再进行备案</li>
+</ul>
+<p>而github推出的有 <a href="https://pages.github.com">gitpage</a>，相当于以上的所有东西都给你提供了，只需要你将静态文件上传即可；</p>
+<p>使用Gitpage的过程如下：</p>
+<ul>
+<li>在github上建立一个你自己帐户的仓库，比如github帐号为<code>xx</code>，创建一个 <code>xx.github.io</code>的仓库</li>
+<li>然后将<code>hugo build</code>出来的<code>public</code>目录下的文件<code>push</code>至该仓库的<code>master</code>分支，只能是<code>master</code></li>
+<li>然后进行仓库配置的gitpage里面进行配置即可，参见(<a href="https://pages.github.com/#project-site">https://pages.github.com/#project-site</a>)</li>
+<li>官网里面也介绍的非常详细(<a href="https://pages.github.com/">https://pages.github.com</a>)</li>
+</ul>
+<h3 id="脚本">脚本</h3>
+<p>每次发布我觉得太麻烦了，因为你的blog是一个仓库，而静态文件是另外一个仓库，所以我写了一个简单的脚本</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="nb">echo</span> <span class="s2">&#34;---------------- start --------------------&#34;</span>
+git add .
+
+git commit -am <span class="s2">&#34;commit message: </span><span class="nv">$1</span><span class="s2">&#34;</span>
+
+git push origin master
+
+<span class="nb">echo</span> <span class="s2">&#34;---------------- remove public-------------&#34;</span>
+rm -rf public/* -y
+
+<span class="nb">echo</span> <span class="s2">&#34;---------------- generate public-----------&#34;</span>
+hugo
+
+<span class="nb">echo</span> <span class="s2">&#34;---------------- cd   public---------------&#34;</span>
+<span class="nb">cd</span> public
+
+<span class="nb">echo</span> <span class="s2">&#34;---------------- commit public-------------&#34;</span>
+git add .
+git commit -am  <span class="s2">&#34;commit blog&#34;</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;---------------- push public---------------&#34;</span>
+git push -f
+
+<span class="nb">echo</span> <span class="s2">&#34;---------------- end  --------------------&#34;</span>
+</code></pre></div>
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="https://xibolun.github.io/post/tools/%E5%88%A9%E5%99%A8/">利器</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/tools/spacemacs/">Spacemacs</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/tools/curl/">curl学习</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/tools/trash/">mac避免rm -rf悲剧</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/hugo'>hugo</a></li>
+                
+                <li><a href='https://xibolun.github.io/tags/tool'>tool</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

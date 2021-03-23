@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>深入理解Java虚拟机--第7章 虚拟机类加载机制 | penggy Blog</title>
+    <meta property="og:title" content="深入理解Java虚拟机--第7章 虚拟机类加载机制 - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2017-07-10T23:36:24&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2017-07-10T23:36:24&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="深入理解Java虚拟机--第7章 虚拟机类加载机制">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/jvm/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3java%E8%99%9A%E6%8B%9F%E6%9C%BA-jvm%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E7%AC%AC7%E7%AB%A0-%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">深入理解Java虚拟机--第7章 虚拟机类加载机制</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2017年7月10日
+        </date>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <h1 id="第7章-虚拟机类加载机制">第7章 虚拟机类加载机制</h1>
+<h2 id="71-概述">7.1 概述</h2>
+<ul>
+<li>jvm是怎么加载这些Class文件信息的？</li>
+<li>Class文件进入jvm会发生什么变化？</li>
+<li>jvm把类的数据从Class文件添加到内存，并对数据进行校验，转换解析和初始化，最终形成可以被jvm直接使用的java类型，这就是jvm的类加载机制</li>
+<li>类型的加载、连接和初始化都是在运行期间完成的，这样做可以动态扩展，但会开销一些性能问题</li>
+</ul>
+<h2 id="72-类加载时机">7.2 类加载时机</h2>
+<ul>
+<li>类的生命周期
+加载(loading)、验证(Verification)、准备(Preparation)、解析(Resolution)、初始化(Initialization)、使用(Using)、卸载(Unloading)七个阶段。</li>
+<li>其中验证、准备、解析统称为连接，解析有可能在初始化的时候才开始</li>
+<li>什么时候开始初始化：1)遇到new、getstatic、putstatic或invokestatic这4条字节码指令
+2)使用reflect包的方法对类进行反射调用时 3)父类没有初始化
+4)需要执行含有main方法主类 5)MethodHandle实例所调用的类</li>
+</ul>
+<pre><code class="language-{.java}" data-lang="{.java}">public class SuperClassLoad {
+    static int value = 1000;
+
+    static {
+        System.out.println(&quot;SuperClass init!&quot;);
+    }
+}
+
+class SubClass extends SuperClassLoad {
+    static {
+        System.out.println(&quot;SubClass init!&quot;);
+    }
+}
+
+class mainTest {
+    public static void main(String[] args) {
+        /**
+         * 没有使用SubClass当中的属性,所以不会被加载,不会输出SubClass init
+         * SuperClass init!
+         * 1000
+         */
+        System.out.println(SubClass.value);
+    }
+}
+</code></pre><pre><code class="language-{.java}" data-lang="{.java}">public class ConstantLoad {
+    public static final String CODE = &quot;Java&quot;;
+
+    static {
+        System.out.println(&quot;ConstantLoad init!&quot;);
+    }
+}
+
+class ConstantRef {
+    public static void main(String[] args) {
+        /**
+         * 不会输出Constant init,因为CODE被放在了常量池当中
+         */
+        System.out.println(ConstantLoad.CODE);
+    }
+}
+
+</code></pre><ul>
+<li>接口也有初始化，接口当中不能使用static{}语句块，但编译器仍然会为接口生成构造方法用于初始化接口当中的成员变量，并且只有使用到了父接口的时候才会初始化其父接口</li>
+</ul>
+<h2 id="73-类加载过程">7.3 类加载过程</h2>
+<h3 id="731-加载">7.3.1 加载</h3>
+<ul>
+<li>加载阶段，虚拟机完成3件事情：</li>
+<li>
+<ol>
+<li>通过一个类的全限定名来获取定义此类的二进制字节流</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>将此字节流所代码的静态存储结构转化为方法区的运行时数据结构</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>内存中生成一个代表这个类的java.lang.Class对象，作为方法区这个类的各种数据访问入口</li>
+</ol>
+</li>
+<li>数组类不能通过类加载器创建，是由jvm直接创建的</li>
+<li>连接阶段与加载可以是交叉进行的</li>
+</ul>
+<h3 id="732-验证">7.3.2 验证</h3>
+<ul>
+<li>验证Class文件的字节流包含的信息是符合jvm的要求，并且不会危害jvm自身的安全</li>
+<li>验证不是一定必须的，但非常重要</li>
+</ul>
+<h4 id="jvm检验的动作">jvm检验的动作</h4>
+<ul>
+<li>文件格式，是否以魔数cafebase开头，主次版本号的大小是合规，常量池里面有没有不支持的类型等</li>
+<li>元数据验证：对字节码的语义分析，比如是否有父类，是否继承了final的父类等</li>
+<li>字节码验证：最复杂的阶段，通过数据流和控制流确定程序是合法，符合逻辑</li>
+<li>符号引用验证：声明的字符串是否可以被当前类进行访问等，作用是保证解析动作可以正常执行</li>
+</ul>
+<h3 id="733-准备">7.3.3 准备</h3>
+<ul>
+<li>为类变量分配内存并设置类变量的初始值的阶段，会将static声明的基础数据类型初始化零值</li>
+<li>实际的值是putstatic指令编译后放在类构造器方法当中的</li>
+<li>若变量被final生成，则准备阶段将对应的value直接赋值</li>
+</ul>
+<h3 id="734-解析">7.3.4 解析</h3>
+<ul>
+<li>解析阶段是jvm将常量池内的符号引用替换为直接引用的过程</li>
+<li>符号引用：以一组符号来描述所引用的目标</li>
+<li>直接引用：直接指向目标指针、相对偏移量或是一个能间接定位到目标的句柄</li>
+<li>同一个符号引用可能会多次解析请求</li>
+<li>解析动作主要针对类或接口、字段、类方法、接口方法、方法类型、方法句柄和方法点限定符</li>
+</ul>
+<h3 id="735-初始化">7.3.5 初始化</h3>
+<ul>
+<li>初始化是真正开始执行类定义的Java程序代码（字节码）</li>
+<li>真正给初始化变量和其他资源赋非零值，即执行&lt;clinit&gt;的过程</li>
+<li>&lt;clinit&gt;是怎么产生的？编译器自动收集类中的所有类变量的赋值动作和静态语句块中的语句合并产生的</li>
+</ul>
+<h2 id="74-类加载器">7.4 类加载器</h2>
+<ul>
+<li>类加载器用于类层次划分、OSGi、热部署、代码加密等领域</li>
+</ul>
+<h3 id="741-类与类加载器">7.4.1 类与类加载器</h3>
+<ul>
+<li>通过类加载器加载的类在jvm里面保证唯一性，不同的jvm的类加载器加载的相同的类文件是不相等的，相等就是equals、isInstance等方法返回的值是相同的</li>
+</ul>
+<h3 id="742-双亲委派模型">7.4.2 双亲委派模型</h3>
+<ul>
+<li>jvm有两种不同的类加载器：启动类加载器(Bootstrp
+ClassLoader)，由C++实现，是jvm的一部分；另一种就是所有其他的类加载，都由Java语言实现，不属于jvm，都继承于java.lang.ClassLoader</li>
+<li>启动类加载器(Boostrap
+ClassLoader):类加载器存放于lib中或者被-Xbootclasspath参数指定的路径中，并且是被虚拟机识别的如rt.jar，lib目录下面的名称如果不符合也不会被加载，类加载器无法被java程序直接调用</li>
+<li>扩展类加载器(Extension ClassLoader):
+此加载器由sun.misc.Launcher$ExtClassLoader实现，负责加载lib\ext或者被java.ext.dirs系统变量所指定的路径中的所有类库中，可以被开发者直接使用</li>
+<li>应用程序类加载器(Application ClassLoader):
+由sun.misc.Launcher$AppClassLoader实现，由ClassLoader当中的getSystemClassLoader()方法返回，负载加载用户类路径上所指定的类库</li>
+<li>自定义类加载器：最底层的加载器，是用户自己可以录入的</li>
+<li>什么是双亲委派：除了顶层的启动类加载器，其他的类加载器都要有自己的父类加载器，类加载器之间的父子关系一般不会以继承的关系来实现，都是以组合的关系来利用父加载器的代码</li>
+<li>在双亲委派的工作模型当中，一个类加载器收到类加载请求，自己不会尝试加载，而是去委派给父类加载完成，只有当父类无法完成的时候，子加载器也会尝试自己加载</li>
+<li>双亲委派的好处就是Java类随着它的类加载器有了优先级的层次，java.lang.Object存放的rt.jar当中</li>
+<li>类加载器的代码在java.lang.ClassLoader的loadClass方法</li>
+</ul>
+<h3 id="743-破坏双亲委派模型">7.4.3 破坏双亲委派模型</h3>
+<ul>
+<li>JDK1.0的历史原因，JDK1.2需要做兼容处理</li>
+<li>基础类无法调用用户的代码</li>
+<li>如何做到Hotswap和HostDeployment</li>
+</ul>
+
+        </div>
+
+        
+
+
+        
+
+
+        <div class="post-meta meta-tags">
+            
+            没有标签
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

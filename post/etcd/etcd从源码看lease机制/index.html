@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>etcd––从源码看lease机制 | penggy Blog</title>
+    <meta property="og:title" content="etcd––从源码看lease机制 - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-07-08T17:44:23&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-07-08T17:44:23&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="etcd lease">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Blease%E6%9C%BA%E5%88%B6/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">etcd––从源码看lease机制</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年7月8日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/etcd'>etcd</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h3 id="lease使用">Lease使用</h3>
+<p>先声明一个指定过期时间<code>ttl</code>的<code>lease</code>，再将<code>lease</code>绑定到一个<code>key</code>上面，<code>ttl</code>到期后将<code>key</code>移除，这中间有哪些操作呢？</p>
+<h3 id="lease构成">Lease构成</h3>
+<h4 id="lessor">lessor</h4>
+<p><code>lessor</code>是一个接口，实现了对<code>lease</code>的<code>grant</code>、<code>revoke</code>、<code>attach</code>等一系列的操作；在<code>server.go NewServer</code>的时候，会新建一个<code>lessor</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="c1">// always recover lessor before kv. When we recover the mvcc.KV it will reattach keys to its leases.
+</span><span class="c1"></span>	<span class="c1">// If we recover mvcc.KV first, it will attach the keys to the wrong lessor before it recovers.
+</span><span class="c1"></span>	<span class="nx">srv</span><span class="p">.</span><span class="nx">lessor</span> <span class="p">=</span> <span class="nx">lease</span><span class="p">.</span><span class="nf">NewLessor</span><span class="p">(</span>
+		<span class="nx">srv</span><span class="p">.</span><span class="nf">getLogger</span><span class="p">(),</span>
+    <span class="c1">// 这个be是一个后端的backend，可以认为是存储操作，是内存或者boltdb
+</span><span class="c1"></span>		<span class="nx">srv</span><span class="p">.</span><span class="nx">be</span><span class="p">,</span>
+		<span class="nx">lease</span><span class="p">.</span><span class="nx">LessorConfig</span><span class="p">{</span>
+			<span class="nx">MinLeaseTTL</span><span class="p">:</span>                <span class="nb">int64</span><span class="p">(</span><span class="nx">math</span><span class="p">.</span><span class="nf">Ceil</span><span class="p">(</span><span class="nx">minTTL</span><span class="p">.</span><span class="nf">Seconds</span><span class="p">())),</span>
+			<span class="nx">CheckpointInterval</span><span class="p">:</span>         <span class="nx">cfg</span><span class="p">.</span><span class="nx">LeaseCheckpointInterval</span><span class="p">,</span>
+			<span class="nx">ExpiredLeasesRetryInterval</span><span class="p">:</span> <span class="nx">srv</span><span class="p">.</span><span class="nx">Cfg</span><span class="p">.</span><span class="nf">ReqTimeout</span><span class="p">(),</span>
+		<span class="p">})</span>
+</code></pre></div><h4 id="lease-queue">lease queue</h4>
+<p>租约队列，实现了<code>go heap</code>的接口，有<code>pop</code>、<code>push</code>、<code>swap</code>、<code>len</code>操作，本质上是一个数组 <code>[]*LeaseWithTime</code>，其构成如下</p>
+<ul>
+<li><code>id</code>:leaseId，由系统生成，<code>int64</code></li>
+<li><code>time</code>：即<code>ttl（Time To Live）</code>，还有多久过期</li>
+<li><code>index</code>：在<code>queue</code>当中的序号，当队列重新排队的时候，会被修改</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">LeaseWithTime</span> <span class="kd">struct</span> <span class="p">{</span>
+   <span class="nx">id</span> <span class="nx">LeaseID</span>
+   <span class="c1">// Unix nanos timestamp.
+</span><span class="c1"></span>   <span class="nx">time</span>  <span class="kt">int64</span>
+   <span class="nx">index</span> <span class="kt">int</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="leaseexpirednotifier">LeaseExpiredNotifier</h4>
+<p>这是一个对象，包含<code>lease queue</code>和一个<code>map</code>，这个<code>map</code>是<code>leaseId: LeaseWithTime</code>，方便进行索引</p>
+<h3 id="实现过程">实现过程</h3>
+<h4 id="grant">grant</h4>
+<ul>
+<li>创建一个<code>lease</code>对象</li>
+<li>组装<code>LeaseWithTime</code></li>
+<li>将其放入<code>queue</code>当中，在lease queue当中实现对元素的push和重排序操作
+<ul>
+<li>为什么会有重排序？因为有可能添加了续约的时间，这个时间time被更新了</li>
+</ul>
+</li>
+<li>落盘，根据创建时的<code>backend</code>进行持久化操作</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">le</span> <span class="o">*</span><span class="nx">lessor</span><span class="p">)</span> <span class="nf">Grant</span><span class="p">(</span><span class="nx">id</span> <span class="nx">LeaseID</span><span class="p">,</span> <span class="nx">ttl</span> <span class="kt">int64</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">Lease</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+  <span class="o">......</span>
+	<span class="nx">le</span><span class="p">.</span><span class="nx">leaseMap</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span> <span class="p">=</span> <span class="nx">l</span>
+	<span class="nx">item</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">LeaseWithTime</span><span class="p">{</span><span class="nx">id</span><span class="p">:</span> <span class="nx">l</span><span class="p">.</span><span class="nx">ID</span><span class="p">,</span> <span class="nx">time</span><span class="p">:</span> <span class="nx">l</span><span class="p">.</span><span class="nx">expiry</span><span class="p">.</span><span class="nf">UnixNano</span><span class="p">()}</span>
+	<span class="nx">le</span><span class="p">.</span><span class="nx">leaseExpiredNotifier</span><span class="p">.</span><span class="nf">RegisterOrUpdate</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span>
+	<span class="nx">l</span><span class="p">.</span><span class="nf">persistTo</span><span class="p">(</span><span class="nx">le</span><span class="p">.</span><span class="nx">b</span><span class="p">)</span>
+  <span class="o">...</span><span class="p">..</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="ttl处理">ttl处理</h4>
+<ul>
+<li>在<code>leasor</code>启动的时候，早早地创建好了<code>loop</code>，对<code>queue</code>里面的元素进行监听</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">le</span> <span class="o">*</span><span class="nx">lessor</span><span class="p">)</span> <span class="nf">runLoop</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">defer</span> <span class="nb">close</span><span class="p">(</span><span class="nx">le</span><span class="p">.</span><span class="nx">doneC</span><span class="p">)</span>
+
+	<span class="k">for</span> <span class="p">{</span>
+		<span class="nx">le</span><span class="p">.</span><span class="nf">revokeExpiredLeases</span><span class="p">()</span>
+		<span class="nx">le</span><span class="p">.</span><span class="nf">checkpointScheduledLeases</span><span class="p">()</span>
+
+		<span class="k">select</span> <span class="p">{</span>
+		<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">time</span><span class="p">.</span><span class="nf">After</span><span class="p">(</span><span class="mi">500</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">):</span>
+		<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">le</span><span class="p">.</span><span class="nx">stopC</span><span class="p">:</span>
+			<span class="k">return</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><ul>
+<li>每500ms对<code>lease queue</code>进行一次<code>revoke expired lease</code>操作，这个逻辑也比较简单
+<ul>
+<li>查看<code>lease queue</code>里面是否存在过期的<code>lease</code>，其实就是取第一个，因为每次写入操作都会对队列进行排序，所以第一个就是快过期的；</li>
+<li>判断时间是否过期，若过期，则将其从<code>lease queue</code>当中<code>pop</code>掉</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bwatch%E6%9C%BA%E5%88%B6/">etcd––从源码看watch机制</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bstorage/">etcd––从源码看Storage</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8B%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6/">etcd––从源码看日志复制</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Braft%E9%80%89%E4%B8%BE/">etcd––从源码看raft选举</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/etcd/etcd%E5%85%A5%E9%97%A8/">etcd––入门</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/etcd'>etcd</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

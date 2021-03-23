@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>GitBook使用Dockerfile | penggy Blog</title>
+    <meta property="og:title" content="GitBook使用Dockerfile - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-11-16T14:13:01&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-11-16T14:13:01&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="GitBook使用Dockerfile">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">GitBook使用Dockerfile</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年11月16日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/docker'>docker</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h2 id="gitbook使用dockerfile">GitBook使用Dockerfile</h2>
+<p>初始化目录</p>
+<pre><code>gitbook init
+</code></pre><p>添加文件，编译启动</p>
+<pre><code>gitbook serve
+</code></pre><p>编译完成后会生成<code>_book</code>目录</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">➜ ll _book
+total <span class="m">264</span>
+-rw-r--r--   <span class="m">1</span> admin  staff    22K Nov <span class="m">16</span> 13:51 Act2API文档.html
+-rw-r--r--   <span class="m">1</span> admin  staff    78B Nov <span class="m">16</span> 13:51 Dockerfile
+drwxr-xr-x  <span class="m">13</span> admin  staff   416B Nov <span class="m">16</span> 13:51 gitbook
+-rw-r--r--   <span class="m">1</span> admin  staff   8.9K Nov <span class="m">16</span> 13:51 index.html
+-rw-r--r--   <span class="m">1</span> admin  staff    73K Nov <span class="m">16</span> 13:51 search_index.json
+-rw-r--r--   <span class="m">1</span> admin  staff    11K Nov <span class="m">16</span> 13:51 ssh通道执行流程.html
+-rw-r--r--   <span class="m">1</span> admin  staff   931B Nov <span class="m">16</span> 13:51 主机上报原理.md
+</code></pre></div><p>可以看到里面编译出来的就是<code>index.html</code>静态页面；</p>
+<p>直接可以使用<code>nginx</code>进行构建 一个镜像</p>
+<div class="highlight"><pre class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="k">FROM</span><span class="s"> nginx</span><span class="err">
+</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /usr/share/nginx/html</span><span class="err">
+</span><span class="err"></span><span class="k">ADD</span> _book/. /usr/share/nginx/html<span class="err">
+</span><span class="err"></span><span class="k">EXPOSE</span><span class="s"> 80</span><span class="err">
+</span></code></pre></div><p>编译</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker build -t registry.idcos.com/cloudpower/cloud-act2-docs:v1.0 .
+</code></pre></div><p>上传</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker push registry.idcos.com/cloudpower/cloud-act2-docs:v1.0
+</code></pre></div><p>启动</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker run -dp 80:80 --name cloud-act2-gitbook registry.idcos.com/cloudpower/cloud-act2-docs:v1.0
+</code></pre></div><p>{{ template &ldquo;_internal/disqus.html&rdquo; . }}</p>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="https://xibolun.github.io/post/docker/docker%E8%BF%9B%E7%A8%8B/">Docker守护进程</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/docker/docker%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%AE%B9%E5%99%A8%E4%BA%91%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%E4%B8%89network/">Docker容器与容器云读书笔记（三）–Network</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/docker/docker%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%AE%B9%E5%99%A8%E4%BA%91%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%E4%BA%8Ccgroup/">Docker容器与容器云读书笔记（二）–CGroup</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/docker/docker%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%AE%B9%E5%99%A8%E4%BA%91%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%E4%B8%80namespace/">Docker容器与容器云读书笔记（一）–Namespace</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/docker/docker/">Docker学习</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/docker'>docker</a></li>
+                
+                <li><a href='https://xibolun.github.io/tags/gitbook'>gitbook</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

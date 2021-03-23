@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>Docker学习 | penggy Blog</title>
+    <meta property="og:title" content="Docker学习 - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2017-06-20T23:36:24&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2021-01-05T12:53:54&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="Docker学习">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/docker/docker/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Docker学习</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2017年6月20日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/docker'>docker</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <hr>
+<h1 id="get-started">Get Started</h1>
+<h2 id="command">command</h2>
+<ol>
+<li>docker &ndash;version : docker版本</li>
+<li>docker command &ndash;help : 查看某个命令的帮助</li>
+<li>docker-compose &ndash;version : docker compose版本</li>
+<li>docker-machine &ndash;version: docker machine版本</li>
+<li>docker version: 查看docker client和server的状态</li>
+<li>docker run -h=&lsquo;cmdb&rsquo; &ndash;name cmdb -d -p 180:80 -p 122:22 dcosapp1.0</li>
+<li>docker save -o dcosapp.tar dcosapp1.0</li>
+</ol>
+<h2 id="镜像">镜像</h2>
+<ul>
+<li>docker pull ubuntu:14.04 : 下载ubuntu:14.04镜像</li>
+<li>docker images : 列出镜像</li>
+<li>docker images -q : 只列出镜像ID</li>
+<li>docker images -f since=hello-world : -f 过滤出某些镜像；since/before</li>
+<li>docker的镜像放在镜像源当中</li>
+</ul>
+<h2 id="容器">容器</h2>
+<h3 id="启动容器">启动容器</h3>
+<ol>
+<li>docker run -it ubuntu:14.04 : 启动一个容器</li>
+<li>docker run -itd ubuntu:14.04 : 启动一个detach的容器，可以使用docker
+attach或者docker exec重新连接</li>
+<li>docker run -it -n pengganyu : 启动容器时添加容器名称</li>
+<li>docker run -it -v /tmp ubuntu:14.04 : 创建容器时添加Volumn</li>
+<li>docker run -it -v /tmp:/tmp ubuntu:14.04 :
+创建容器时添加/tmp卷，同时连接host的/tmp目录，host的/tmp与容器里面的/tmp共享</li>
+</ol>
+<h3 id="其他">其他</h3>
+<ol>
+<li><code>docker logs ubuntu:14.04 </code> ： 输出容器log日志信息</li>
+<li><code>docker create ubuntu:14.04</code> : 创建一个容器</li>
+<li><code>docker ps</code> : 查看running状态的docker运行状态；</li>
+<li><code>docker ps -a </code>: 查看所有的容器列表，包括没有运行的和已经Exited</li>
+<li><code>docker run -it ubuntu:14.04 /bin/bash</code> : 启动一个bash终端，退出则容器销毁</li>
+<li><code>docker exec -it de2ef4052dce /bin/bash</code>: 进入某个docker容器</li>
+<li><code>docker rm bfa78720b949</code> : 删除某个容器，其中bfa78720b949为容器的ID号，结合stop命令使用，先stop再rm</li>
+<li><code>ctrl+d</code> :  退出容器，此时容器也就不再running了，若想重新再running，可以使用<code>docker start</code></li>
+<li><code>docker export de2ef4052dce &amp;gt; test.tar</code> : 将容器导出至tar</li>
+<li><code>docker import test.tar - test/ubuntu:v1.0</code> : 导入容器</li>
+<li><code>docker rename a b</code> ：重命名容器</li>
+</ol>
+<h4 id="进入关闭的container">进入关闭的container</h4>
+<pre><code>➜  ~ docker ps -a
+CONTAINER ID        IMAGE               COMMAND               CREATED             STATUS                     PORTS               NAMES
+e60e84b8f06d        centos              &quot;/bin/bash&quot;           4 days ago          Exited (130) 4 days ago                        determined_austin
+7e02d7cc602a        centos:7            &quot;/bin/bash&quot;           2 weeks ago         Up 3 minutes                                   golang
+➜  ~ docker start golang 
+golang
+➜  ~ docker ps 
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+7e02d7cc602a        centos:7            &quot;/bin/bash&quot;         2 weeks ago         Up 9 seconds                            golang
+➜  ~ docker exec -it golang /bin/bash
+[root@7e02d7cc602a /]# 
+</code></pre><h2 id="数据管理">数据管理</h2>
+<h3 id="创建docker与本地主机的共享">创建docker与本地主机的共享</h3>
+<ol>
+<li>docker run -it -v /tmp:/tmp ubuntu:14.04 :
+创建容器时添加/tmp卷，同时连接host的/tmp目录，host的/tmp与容器里面的/tmp共享</li>
+<li>第一个tmp为docker里面的数据卷，第二个/tmp为本机的/tmp目录</li>
+<li>本机目录必须为绝对路径</li>
+</ol>
+<h4 id="修改docker默认的uuid">修改docker默认的uuid</h4>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># cat /proc/sys/kernel/random/uuid &gt; /var/tmp/product_uuid ( uuidgen &gt; /var/tmp/product_uuid)</span>
+<span class="c1"># docker run --rm -ti -v /var/tmp/product_uuid:/sys/class/dmi/id/product_uuid centos bash</span>
+</code></pre></div><h3 id="创建docker与其他docker的共享">创建docker与其他docker的共享</h3>
+<ol>
+<li>创建docker hf-csa-manager ： docker run -it -v hf-csa-manager &ndash;name
+hf-csa-manager ubuntu:14.04 /bin/bash</li>
+<li>创建docker hf-cmdb : docker run -it &ndash;volumes-from hf-csa-manager
+&ndash;name hf-cmdb ubuntu:14.04 /bin/bash</li>
+<li>两个docker的hf-csa-manager目录数据即可共享</li>
+</ol>
+<h3 id="docker文件提取">docker文件提取</h3>
+<pre><code>docker cp 85638d3a995e:/root/dellemc-openmanage-ansible-modules /tmp  
+docker cp dellemc-openmanage-ansible-modules f2bea7859ce6:/root
+</code></pre><h2 id="网络配置">网络配置</h2>
+
+        </div>
+
+        
+
+
+        
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/docker'>docker</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

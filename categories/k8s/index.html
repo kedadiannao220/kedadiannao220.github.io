@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>k8s | penggy Blog</title>
+    <meta property="og:title" content="k8s - penggy Blog">
+    <meta property="og:type" content="article">
+        
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="k8s">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/categories/k8s/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <h3 class="archive-title">
+        分类
+        <span class="keyword">k8s</span>
+        中的文章
+    </h3>
+    
+
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/">k8s—admission controllers</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年12月20日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://xibolun.github.io/categories/k8s'>k8s</a>
+            
+        </div>
+        
+        <div class="post-content">
+            什么是K8s admission controller admission controllers可以对api请求进行校验和变更；整个API请求的流程如下： k8s里面有许多的 admission controllers……
+            <p class="readmore"><a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/">k8s—强制删除namespace</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年12月3日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://xibolun.github.io/categories/k8s'>k8s</a>
+            
+        </div>
+        
+        <div class="post-content">
+            在学习Operator的时候，使用kubectl创建了一个namespace，但是删除的时候无法被删除，状态一直是Terminating； ➜……
+            <p class="readmore"><a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://xibolun.github.io/post/k8s/k8soperator%E5%BC%80%E5%8F%91/">k8s—Operator开发</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年3月17日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://xibolun.github.io/categories/k8s'>k8s</a>
+            
+        </div>
+        
+        <div class="post-content">
+            Operator 关于Operator的作用就略过，官方介绍有，下面是自己实战的一个过程； 实战过程 下载安装 ✗ brew install operator-sdk 初始化项目 固定在某一个gopath下面，这……
+            <p class="readmore"><a href="https://xibolun.github.io/post/k8s/k8soperator%E5%BC%80%E5%8F%91/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://xibolun.github.io/post/k8s/k8sinformer%E6%9C%BA%E5%88%B6/">k8s—informer机制</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年3月16日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://xibolun.github.io/categories/k8s'>k8s</a>
+            
+        </div>
+        
+        <div class="post-content">
+            K8s Informer机制 informer是k8s里面的重要通讯机制，理解了它，有助于我们对k8s进行二次开发，像operator等；看一下简单……
+            <p class="readmore"><a href="https://xibolun.github.io/post/k8s/k8sinformer%E6%9C%BA%E5%88%B6/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://xibolun.github.io/post/k8s/k8sschedule/">k8s––schedule</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年3月12日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://xibolun.github.io/categories/k8s'>k8s</a>
+            
+        </div>
+        
+        <div class="post-content">
+            源码根据k8s : v1.18.12版本 创建一个Pod的时候到底归属到哪个Node上面呢？这在k8s里面是有非常精细的一套调度逻辑； 调度原理 通过……
+            <p class="readmore"><a href="https://xibolun.github.io/post/k8s/k8sschedule/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://xibolun.github.io/post/k8s/k8s%E8%AF%81%E4%B9%A6/">k8s––证书修改</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年3月11日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://xibolun.github.io/categories/k8s'>k8s</a>
+            
+        </div>
+        
+        <div class="post-content">
+            证书列表 校验一下证书过期属性即可得到以下的证书列表，可以看到默认是一年的有效期； [root@ops-pre-4-175 pod]# kubeadm alpha certs check-expiration [check-expiration] Reading configuration from the cluster... [check-expiration] FYI: You can look at this config file with &#39;kubectl -n kube-system get cm kubeadm-config -oyaml&#39; W1209……
+            <p class="readmore"><a href="https://xibolun.github.io/post/k8s/k8s%E8%AF%81%E4%B9%A6/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://xibolun.github.io/post/k8s/k8sserviceaccount/">k8s––ServiceAccount</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年3月9日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://xibolun.github.io/categories/k8s'>k8s</a>
+            
+        </div>
+        
+        <div class="post-content">
+            ServiceAccount ServiceAccount也是一种资源，可以使用kubectl进行生命周期的管理，同时也是做为API认证的的一种方式；在每个namesp……
+            <p class="readmore"><a href="https://xibolun.github.io/post/k8s/k8sserviceaccount/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://xibolun.github.io/post/k8s/k8sjmx%E7%9B%91%E6%8E%A7/">k8s—JMX监控</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年3月7日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://xibolun.github.io/categories/k8s'>k8s</a>
+            
+        </div>
+        
+        <div class="post-content">
+            Jmx-Exporter Jmx Exporter是一个开源的jvm监控组件；原理是做为一个java agent去采集jvm运行状态的一些数据信息，并做为http服务暴露出……
+            <p class="readmore"><a href="https://xibolun.github.io/post/k8s/k8sjmx%E7%9B%91%E6%8E%A7/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://xibolun.github.io/post/k8s/k8sapi/">k8s--API</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年3月5日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://xibolun.github.io/categories/k8s'>k8s</a>
+            
+        </div>
+        
+        <div class="post-content">
+            今天想使用postman使用一下k8s的API，看看k8s的API机制是怎么样的； API启动 查看pod列表你会发现有一个api-server……
+            <p class="readmore"><a href="https://xibolun.github.io/post/k8s/k8sapi/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://xibolun.github.io/post/k8s/k8s%E5%85%ADsecret/">k8s(六)––Secret</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月16日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://xibolun.github.io/categories/k8s'>k8s</a>
+            
+        </div>
+        
+        <div class="post-content">
+            基本了解 secret是为了存储一些安全、敏感的数据信息，比如说认证信息，帐号、sshkey等；它有很多的类型 secret-types； doc……
+            <p class="readmore"><a href="https://xibolun.github.io/post/k8s/k8s%E5%85%ADsecret/">阅读全文</a></p>
+        </div>
+    </article>
+    
+
+    
+
+
+
+<ol class="page-navigator">
+    
+
+    
+    <li  class="current">
+        <a href="https://xibolun.github.io/categories/k8s/">1</a>
+    </li>
+    
+    <li >
+        <a href="https://xibolun.github.io/categories/k8s/page/2/">2</a>
+    </li>
+    
+
+    
+    <li class="next">
+        <a href="https://xibolun.github.io/categories/k8s/page/2/">下一页</a>
+    </li>
+    
+</ol>
+
+
+
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

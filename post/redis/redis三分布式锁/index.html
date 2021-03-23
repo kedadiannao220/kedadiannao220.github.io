@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>Redis(三)––分布式锁 | penggy Blog</title>
+    <meta property="og:title" content="Redis(三)––分布式锁 - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-02-27T19:49:47&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-02-27T19:49:47&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="Redis(三)––分布式锁">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/redis/redis%E4%B8%89%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Redis(三)––分布式锁</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月27日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h3 id="分布式锁演进">分布式锁演进</h3>
+<p>可以使用redis的NX来做处理，需要考虑以下事情</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="nb">set</span> key value EX expiration NX
+</code></pre></div><h4 id="锁用完了需要删除">锁用完了需要删除</h4>
+<p>代码需要做锁的释放，否则其他线程的不能获取到锁，导致死锁的情况发生；</p>
+<h4 id="若释放锁之前程序已经异常">若释放锁之前程序已经异常</h4>
+<p>刚锁上，开始执行业务代码，但是程序需要做捕获异常处理，像Java的try catch，golang的defer</p>
+<h4 id="应用宕机">应用宕机？</h4>
+<p>刚锁上，然后应用发布或者应用直接重启了，此时锁就不会再释放掉；这时可以设置锁的超时时间来解决此问题，当到了一定的时间，锁会自动过期，不会影响其他线程的使用；</p>
+<h4 id="多线程之间空锁">多线程之间空锁？</h4>
+<p>此种情况比较复杂，设置超时时间为10s，A线程拿到锁，执行可能假如是15s；此时B线程可以拿到锁，B线程执行时间为3s，这时B就有可能将A的锁给释放掉了；若多个线程在操作的时候，就可能出现一直锁不住的情况，因为大家拿到锁后会互相删除；可以对每个线程添加一个名称(随机值或者其他的标识位)，删除之间校验一下自己是否是自己的锁；</p>
+<h4 id="超时时间如何指定">超时时间如何指定？</h4>
+<p>如何把握设置长了可能会一直等待，设置短了，直接释放掉了，会导致其他的线程进入；设置长了，程序运行完了还没有释放掉；其他的线程还在等着，性能会受到影响，不过影响不算非常的大；</p>
+<p>看一下<code>Redisson</code>是如何实现的</p>
+<p><a href="https://github.com/redisson/redisson/blob/master/redisson/src/main/java/org/redisson/RedissonLock.java">RedissonLock.java</a></p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java">    <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">RFuture</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="nf">tryLockInnerAsync</span><span class="o">(</span><span class="kt">long</span> <span class="n">leaseTime</span><span class="o">,</span> <span class="n">TimeUnit</span> <span class="n">unit</span><span class="o">,</span> <span class="kt">long</span> <span class="n">threadId</span><span class="o">,</span> <span class="n">RedisStrictCommand</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">command</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">internalLockLeaseTime</span> <span class="o">=</span> <span class="n">unit</span><span class="o">.</span><span class="na">toMillis</span><span class="o">(</span><span class="n">leaseTime</span><span class="o">);</span>
+
+        <span class="k">return</span> <span class="n">commandExecutor</span><span class="o">.</span><span class="na">evalWriteAsync</span><span class="o">(</span><span class="n">getName</span><span class="o">(),</span> <span class="n">LongCodec</span><span class="o">.</span><span class="na">INSTANCE</span><span class="o">,</span> <span class="n">command</span><span class="o">,</span>
+                  <span class="s">&#34;if (redis.call(&#39;exists&#39;, KEYS[1]) == 0) then &#34;</span> <span class="o">+</span>
+                      <span class="s">&#34;redis.call(&#39;hincrby&#39;, KEYS[1], ARGV[2], 1); &#34;</span> <span class="o">+</span>
+                      <span class="s">&#34;redis.call(&#39;pexpire&#39;, KEYS[1], ARGV[1]); &#34;</span> <span class="o">+</span>
+                      <span class="s">&#34;return nil; &#34;</span> <span class="o">+</span>
+                  <span class="s">&#34;end; &#34;</span> <span class="o">+</span>
+                  <span class="s">&#34;if (redis.call(&#39;hexists&#39;, KEYS[1], ARGV[2]) == 1) then &#34;</span> <span class="o">+</span>
+                      <span class="s">&#34;redis.call(&#39;hincrby&#39;, KEYS[1], ARGV[2], 1); &#34;</span> <span class="o">+</span>
+                      <span class="s">&#34;redis.call(&#39;pexpire&#39;, KEYS[1], ARGV[1]); &#34;</span> <span class="o">+</span>
+                      <span class="s">&#34;return nil; &#34;</span> <span class="o">+</span>
+                  <span class="s">&#34;end; &#34;</span> <span class="o">+</span>
+                  <span class="s">&#34;return redis.call(&#39;pttl&#39;, KEYS[1]);&#34;</span><span class="o">,</span>
+                    <span class="n">Collections</span><span class="o">.&lt;</span><span class="n">Object</span><span class="o">&gt;</span><span class="n">singletonList</span><span class="o">(</span><span class="n">getName</span><span class="o">()),</span> <span class="n">internalLockLeaseTime</span><span class="o">,</span> <span class="n">getLockName</span><span class="o">(</span><span class="n">threadId</span><span class="o">));</span>
+    <span class="o">}</span>
+</code></pre></div><p>使用<code>luna</code>脚本对redis底层直接操作；那是如何处理时间的呢？</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">renewExpiration</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">ExpirationEntry</span> <span class="n">ee</span> <span class="o">=</span> <span class="n">EXPIRATION_RENEWAL_MAP</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">getEntryName</span><span class="o">());</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">ee</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        
+        <span class="n">Timeout</span> <span class="n">task</span> <span class="o">=</span> <span class="n">commandExecutor</span><span class="o">.</span><span class="na">getConnectionManager</span><span class="o">().</span><span class="na">newTimeout</span><span class="o">(</span><span class="k">new</span> <span class="n">TimerTask</span><span class="o">()</span> <span class="o">{</span>
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">(</span><span class="n">Timeout</span> <span class="n">timeout</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+                <span class="n">ExpirationEntry</span> <span class="n">ent</span> <span class="o">=</span> <span class="n">EXPIRATION_RENEWAL_MAP</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">getEntryName</span><span class="o">());</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">ent</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="k">return</span><span class="o">;</span>
+                <span class="o">}</span>
+                <span class="n">Long</span> <span class="n">threadId</span> <span class="o">=</span> <span class="n">ent</span><span class="o">.</span><span class="na">getFirstThreadId</span><span class="o">();</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">threadId</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="k">return</span><span class="o">;</span>
+                <span class="o">}</span>
+                
+                <span class="n">RFuture</span><span class="o">&lt;</span><span class="n">Boolean</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">renewExpirationAsync</span><span class="o">(</span><span class="n">threadId</span><span class="o">);</span>
+                <span class="n">future</span><span class="o">.</span><span class="na">onComplete</span><span class="o">((</span><span class="n">res</span><span class="o">,</span> <span class="n">e</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+                    <span class="k">if</span> <span class="o">(</span><span class="n">e</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;Can&#39;t update lock &#34;</span> <span class="o">+</span> <span class="n">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34; expiration&#34;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+                        <span class="k">return</span><span class="o">;</span>
+                    <span class="o">}</span>
+                    
+                    <span class="k">if</span> <span class="o">(</span><span class="n">res</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="c1">// reschedule itself
+</span><span class="c1"></span>                        <span class="n">renewExpiration</span><span class="o">();</span>
+                    <span class="o">}</span>
+                <span class="o">});</span>
+            <span class="o">}</span>
+        <span class="o">},</span> <span class="n">internalLockLeaseTime</span> <span class="o">/</span> <span class="n">3</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span>
+        
+        <span class="n">ee</span><span class="o">.</span><span class="na">setTimeout</span><span class="o">(</span><span class="n">task</span><span class="o">);</span>
+    <span class="o">}</span>
+</code></pre></div><p>对超时时间/3，然后去起一个<code>Timer</code>做定期<code>check</code>，看看是否此线程持有的锁已经过期；若过期了，线程未执行完，则自动续租时间 ；</p>
+<p>所以思路就是，从当前持有锁的线程A当中分出一个线程B，A继续跑自己的业务代码，B代码定时去检查线程的状态和过期时间的平衡；</p>
+<h4 id="集群模式节点宕机">集群模式节点宕机</h4>
+<p>此种情形是，线程T拿到了锁，在clusterA上面，若此时clusterA宕机了，则需要分两种情况看待，一种情况A是否进行了replica操作，若操作成功，那就不影响业务，因为其他的线程也不会执行；</p>
+<p>若未操作成功，就会有一个线程P进行了锁的操作，所以当前会有两次的业务执行，这样就需要业务方的额外处理；在双11的时候，大家可能会经常遇到，钱扣了两次，然后后续会有客服给你打电话退款就是这种的情况，本人就遇到了一次；</p>
+<h3 id="基于redis实现一个分布式锁">基于redis实现一个分布式锁</h3>
+<p>//TODO</p>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="https://xibolun.github.io/post/redis/redis%E4%BA%8C%E9%9B%86%E7%BE%A4cluster/">Redis(二)––集群cluster</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/redis/redis%E4%B8%80%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">Redis(一)––入门及环境搭建</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/redis'>redis</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>Redis(二)––集群cluster | penggy Blog</title>
+    <meta property="og:title" content="Redis(二)––集群cluster - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-02-27T19:49:47&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-02-27T19:49:47&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="Redis(二)––集群cluster">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/redis/redis%E4%BA%8C%E9%9B%86%E7%BE%A4cluster/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Redis(二)––集群cluster</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月27日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h3 id="failover验证">Failover验证</h3>
+<p>在Redis<a href="https://redis.io/topics/cluster-tutorial#a-more-interesting-example-application">官网里面有一个有意思的验证方式</a>，使用 <a href="https://github.com/antirez/redis-rb-cluster">redis-rb-cluster</a></p>
+<pre><code>git clone git@github.com:antirez/redis-rb-cluster.git
+</code></pre><p>安装一下<code>ruby</code>环境，若<code>ruby</code>版本过低，<a href="https://linuxize.com/post/how-to-install-ruby-on-centos-7/">可能需要升级一下</a></p>
+<pre><code>yum install ruby -y
+</code></pre><pre><code>## 安装一下redis-rb-cluster当中的依赖
+gem install redis
+</code></pre><p>执行脚本，这个脚本就会一直跑着，模拟着外面的系统进行写和读的操作</p>
+<pre><code># ruby consistency-test.rb 127.0.0.1 7000
+715 R (0 err) | 715 W (0 err) |
+</code></pre><p>此时将<code>7001</code>，<code>7002</code>进行<code>crash</code>操作，相当于将两个<code>master</code>宕机掉，端口和进程都不再存在；</p>
+<pre><code>./redis-cli -p 7001 debug segfault
+./redis-cli -p 7002 debug segfault
+</code></pre><p>可以看到会有一些读和写的error，等过一会儿等到<code>cluster</code>恢复重建后，读写恢复正常；此进也会对<code>slot</code>进行重新分配</p>
+<pre><code>Writing: Too many Cluster redirections? (last error: MOVED 7854 127.0.0.1:7001)
+225032 R (16 err) | 225032 W (16 err) |
+Reading: Too many Cluster redirections? (last error: MOVED 6178 127.0.0.1:7001)
+Writing: Too many Cluster redirections? (last error: MOVED 6178 127.0.0.1:7001)
+225036 R (17 err) | 225036 W (17 err) |
+Reading: CLUSTERDOWN The cluster is down
+Writing: CLUSTERDOWN The cluster is down
+Writing: CLUSTERDOWN The cluster is down
+225036 R (1192 err) | 225036 W (1192 err) |
+Reading: CLUSTERDOWN The cluster is down
+228105 R (1351 err) | 228105 W (1351 err) |
+</code></pre><p>对比一下之前的<code>cluster</code></p>
+<table>
+<thead>
+<tr>
+<th>前</th>
+<th>后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7000(master) –– 7003(slave)<!-- raw HTML omitted -->7001(master) –– 7004(slave)<!-- raw HTML omitted -->7002(master) –– 7005(slave)</td>
+<td>7000(master) –– 7003(slave)<!-- raw HTML omitted -->7001(master,fail)<!-- raw HTML omitted -->7002(master,fail) <!-- raw HTML omitted -->7004(master)<!-- raw HTML omitted -->7005(master)</td>
+</tr>
+</tbody>
+</table>
+<p>启动<code>7001</code>，<code>7002</code>后的对比，此进也会对<code>slot</code>进行重新分配；</p>
+<table>
+<thead>
+<tr>
+<th>前</th>
+<th>后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7000(master) –– 7003(slave)<!-- raw HTML omitted -->7001(master) –– 7004(slave)<!-- raw HTML omitted -->7002(master) –– 7005(slave)</td>
+<td>7000(master)––7003(slave)<!-- raw HTML omitted -->7005(master)––7002(slave)<!-- raw HTML omitted -->7004(master)––7001(slave)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="新加一个节点">新加一个节点</h3>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="nb">cd</span> /usr/local/redis/cluster-test <span class="p">&amp;</span> mkdir <span class="m">7006</span>
+touch ./7006/redis_7006.conf <span class="o">&amp;&amp;</span> sed -i <span class="s1">&#39;s/7000/7006/g&#39;</span> redis.conf <span class="o">&amp;&amp;</span> cat redis.conf &gt; 7006/redis_7006.conf
+./redis-server /usr/local/redis/cluster-test/7006/redis_7006.conf
+</code></pre></div><p>添加之前请清理备份文件和数据库内容</p>
+<pre><code>rm -rf /usr/local/redis/cluster-test/data/*
+127.0.0.1:7000&gt; FLUSHDB
+OK
+</code></pre><p>两种方式添加，</p>
+<pre><code>redis-cli --cluster add-node 127.0.0.1:7006 127.0.0.1:7000 --cluster-slave
+redis-cli --cluster add-node 127.0.0.1:7006 127.0.0.1:7000 --cluster-slave --cluster-master-id {master_id}
+</code></pre><p>添加完成之后，可以看到<code>7006</code>被置为<code>slave</code>，挂在了<code>7005</code>下面</p>
+<pre><code>127.0.0.1:7000&gt; CLUSTER NODES
+c1231ec1bb8764128a1f19cfda9f473b737f5b6a 127.0.0.1:7001@17001 slave 9d8cc17f66717fc2112b23c32455072ee75afb9c 0 1582730685000 8 connected
+9d8cc17f66717fc2112b23c32455072ee75afb9c 127.0.0.1:7004@17004 master - 0 1582730686522 8 connected 5461-10922
+0009f3817e248c0f22d20e5ed0d2757c0b946867 127.0.0.1:7000@17000 myself,master - 0 1582730683000 1 connected 0-5460
+cc39143f8f704b3eb6679317ea3798c9c981e4de 127.0.0.1:7006@17006 slave 7a2ad8bc0369e3394fb48b977d9a597b33f566e6 0 1582730682315 7 connected
+e0cd923405daa6423d94d7a4e15f3dd7da8559cc 127.0.0.1:7003@17003 slave 0009f3817e248c0f22d20e5ed0d2757c0b946867 0 1582730683000 4 connected
+5d97fcd2e63c294b047502ebe0759af13b3b76a5 127.0.0.1:7002@17002 slave 7a2ad8bc0369e3394fb48b977d9a597b33f566e6 0 1582730685000 7 connected
+7a2ad8bc0369e3394fb48b977d9a597b33f566e6 127.0.0.1:7005@17005 master - 0 1582730685519 7 connected 10923-16383
+</code></pre><p>删除节点</p>
+<pre><code>./redis-cli --cluster del-node 127.0.0.1:7000 cc39143f8f704b3eb6679317ea3798c9c981e4de
+</code></pre><h3 id="segfault">Segfault</h3>
+<p>同时删除<code>master</code>和<code>slave</code>可以看到此时其他的四个节点不会发生变换，因为<code>slot</code>信息未做改变</p>
+<pre><code>127.0.0.1:7000&gt; cluster nodes
+c1231ec1bb8764128a1f19cfda9f473b737f5b6a 127.0.0.1:7001@17001 slave 9d8cc17f66717fc2112b23c32455072ee75afb9c 0 1583226378247 8 connected
+9d8cc17f66717fc2112b23c32455072ee75afb9c 127.0.0.1:7004@17004 master - 0 1583226374000 8 connected 5461-10922
+0009f3817e248c0f22d20e5ed0d2757c0b946867 127.0.0.1:7000@17000 myself,master - 0 1583226376000 1 connected 0-5460
+e0cd923405daa6423d94d7a4e15f3dd7da8559cc 127.0.0.1:7003@17003 slave 0009f3817e248c0f22d20e5ed0d2757c0b946867 0 1583226377000 4 connected
+5d97fcd2e63c294b047502ebe0759af13b3b76a5 127.0.0.1:7002@17002 slave,fail 7a2ad8bc0369e3394fb48b977d9a597b33f566e6 1583226342139 1583226341136 11 disconnected
+7a2ad8bc0369e3394fb48b977d9a597b33f566e6 127.0.0.1:7005@17005 master,fail - 1583226362223 1583226359179 11 disconnected 10923-16383
+</code></pre><p>这个时候，若先起动<code>7002 slave</code>，不会进行切换，<code>master</code>还是<code>down</code>的状态</p>
+<pre><code>127.0.0.1:7000&gt; cluster nodes
+c1231ec1bb8764128a1f19cfda9f473b737f5b6a 127.0.0.1:7001@17001 slave 9d8cc17f66717fc2112b23c32455072ee75afb9c 0 1583227221429 8 connected
+9d8cc17f66717fc2112b23c32455072ee75afb9c 127.0.0.1:7004@17004 master - 0 1583227220428 8 connected 5461-10922
+0009f3817e248c0f22d20e5ed0d2757c0b946867 127.0.0.1:7000@17000 myself,master - 0 1583227221000 1 connected 0-5460
+e0cd923405daa6423d94d7a4e15f3dd7da8559cc 127.0.0.1:7003@17003 slave 0009f3817e248c0f22d20e5ed0d2757c0b946867 0 1583227222432 4 connected
+5d97fcd2e63c294b047502ebe0759af13b3b76a5 127.0.0.1:7002@17002 slave 7a2ad8bc0369e3394fb48b977d9a597b33f566e6 0 1583227221000 11 connected
+7a2ad8bc0369e3394fb48b977d9a597b33f566e6 127.0.0.1:7005@17005 master,fail - 1583226362223 1583226359179 11 disconnected 10923-16383
+</code></pre>
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="https://xibolun.github.io/post/redis/redis%E4%B8%89%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/">Redis(三)––分布式锁</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/redis/redis%E4%B8%80%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">Redis(一)––入门及环境搭建</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/redis'>redis</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

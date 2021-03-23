@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>Lxc使用笔记 | penggy Blog</title>
+    <meta property="og:title" content="Lxc使用笔记 - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-02-16T22:11:21&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-11-27T09:12:12&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="Lxc使用笔记">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/container/lxc/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Lxc使用笔记</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月16日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h3 id="什么是lxc">什么是LXC？</h3>
+<p>
+        <img class="mx-auto" alt="lxc-logo" src="https://xibolun.github.io/img/lxc/lxc-logo.png" />   
+    </p>
+<p>LXC（Linux Container）的缩写，Linux操作系统级别的虚拟化技术，利用命名空间保证进程的隔离，及cgroup技术控制cpu\内存\硬盘IO\网络，为Linux内核操作系统虚拟化出一个用户空间的容器，里面包含着应用所需要的核心组件和一些基础的函数库，类似一个沙箱的环境；使Linux用户可以快速创建和管理容器环境；</p>
+<p>使用LXC的好处</p>
+<ul>
+<li>安全：最主要的是网络运行在容器里面，与外界保持隔离</li>
+<li>隔离：传统模式安装应用之间存在互相干扰，因为在同一台设备上面会安装多个应用；使用lxc可以创建多个container，应用与应用之间完全隔离，这些应用可以按需绑定物理资源，像网络，存储，硬盘，cpu等等</li>
+<li>透明：屏蔽掉底层的物理硬件和一些系统参数设置</li>
+</ul>
+<h3 id="环境搭建centos7">环境搭建(centos7)</h3>
+<pre><code># yum -y install epel-release
+## 最主要是安装前两个lxc lxc-template
+# yum -y install lxc lxc-templates libcap-devel libcgroup busybox wget bridge-utils lxc-extra
+</code></pre><p><code>lxc-template</code>是一系列的容器模板，centos、oracle、ubuntu等等，类似docker的基础操作系统镜像</p>
+<pre><code>[root@k8s-master ~]# ll /usr/share/lxc/templates
+总用量 372
+-rwxr-xr-x 1 root root 10579 3月   8 2019 lxc-alpine
+-rwxr-xr-x 1 root root 13537 3月   8 2019 lxc-altlinux
+-rwxr-xr-x 1 root root 10839 3月   8 2019 lxc-archlinux
+-rwxr-xr-x 1 root root  9677 3月   8 2019 lxc-busybox
+-rwxr-xr-x 1 root root 29971 3月   8 2019 lxc-centos
+-rwxr-xr-x 1 root root 29971 2月  15 15:14 lxc-centos.bak
+-rwxr-xr-x 1 root root 10486 3月   8 2019 lxc-cirros
+-rwxr-xr-x 1 root root 18342 3月   8 2019 lxc-debian
+-rwxr-xr-x 1 root root 18064 3月   8 2019 lxc-download
+-rwxr-xr-x 1 root root 49438 3月   8 2019 lxc-fedora
+-rwxr-xr-x 1 root root 28253 3月   8 2019 lxc-gentoo
+-rwxr-xr-x 1 root root 13965 3月   8 2019 lxc-openmandriva
+-rwxr-xr-x 1 root root 13882 3月   8 2019 lxc-opensuse
+-rwxr-xr-x 1 root root 35540 3月   8 2019 lxc-oracle
+-rwxr-xr-x 1 root root 12233 3月   8 2019 lxc-plamo
+-rwxr-xr-x 1 root root  6851 3月   8 2019 lxc-sshd
+-rwxr-xr-x 1 root root 24133 3月   8 2019 lxc-ubuntu
+-rwxr-xr-x 1 root root 11641 3月   8 2019 lxc-ubuntu-cloud
+</code></pre><p>安装完成后，校验环境是否支持，主要检查：namespace、cgroups、misc、Checkpoint、restore是否都支持</p>
+<pre><code># lxc-checkconfig
+</code></pre><h3 id="新建容器">新建容器</h3>
+<pre><code>## -n 名称  -t 模板名称
+# lxc-create -n c1 -t centos
+</code></pre><p>创建完成后，会提示密码内容和修改密码的方式</p>
+<pre><code>......
+The temporary root password is stored in:
+
+        '/var/lib/lxc/c1/tmp_root_pass'
+
+
+The root password is set up as expired and will require it to be changed
+at first login, which you should do as soon as possible.  If you lose the
+root password or wish to change it without starting the container, you
+can change it from the host by running the following command (which will
+also reset the expired flag):
+
+        chroot /var/lib/lxc/c1/rootfs passwd
+</code></pre><p>查看密码，也可以直接修改密码；或者copy一个centos的模板，然后将里面的密码进行自己初始化</p>
+<pre><code>[root@k8s-master ~]# cat /var/lib/lxc/c1/tmp_root_pass 
+Root-c1-VpZrdB
+</code></pre><p>创建成功的容器目录在</p>
+<pre><code>/var/lib/lxc/c1
+</code></pre><p>后台启动容器</p>
+<pre><code> lxc-start -n c1 -d
+</code></pre><p>进入容器</p>
+<pre><code># 此种方式进入需要按Ctrl+a按两次；退出Ctrl+a q
+lxc-console -n c1 -t 0
+# 此种方式进入不需要输出用户名和密码，退出Ctrl+d
+lxc-attach -n c1
+</code></pre><h3 id="常用命令">常用命令</h3>
+<pre><code># 列出现在的容器
+lxc-ls
+# 查看运行的容器
+lxc-ls --active
+# 查看运行的容器
+lxc-top
+# 查看容器详情
+lxc-info -n c1
+# 停止容器，耗费时间有点长
+lxc-stop -n c1
+# 摧毁容器
+lxc-destroy -n c1
+# 冻结容器
+lxc-freeze -n c1
+# clone容器 clone的时候需要关闭容器
+lxc-clone c1 centos_lxc_clone
+# 为容器添加快照
+lxc-snapshot -n c1
+# 查看容器的快照，可以看到备份的时间，和存储的路径
+# lxc-snapshot -L -n c1
+snap0 (/var/lib/lxcsnaps/c1) 2020:02:16 23:49:59
+# 用快照回滚容器
+lxc-snapshot -r snap0 -n c1
+</code></pre><h3 id="网络配置">网络配置</h3>
+<p>有两种方式配置，一种是借助<code>lxc-net</code>配置，一种是人工添加网卡，做桥接</p>
+<h3 id="其他设置">其他设置</h3>
+<p>开机启动</p>
+<pre><code># Enable autostart
+lxc.start.auto = 1
+</code></pre><p>设置挂载路径</p>
+<pre><code># Bind mount system path to local path
+lxc.mount.entry = /mnt mnt none bind 0 0
+</code></pre><p>图形化管理界面</p>
+<pre><code>https://github.com/lxc-webpanel/LXC-Web-Panel
+</code></pre><h3 id="参考">参考</h3>
+<ul>
+<li><a href="https://www.thegeekdiary.com/how-to-set-external-network-for-containers-in-linux-containers-lxc/">lxc容器网络配置</a></li>
+</ul>
+
+        </div>
+
+        
+
+
+        
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/lxc'>lxc</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>Go语言实战(一/二)基础 | penggy Blog</title>
+    <meta property="og:title" content="Go语言实战(一/二)基础 - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2019-05-05T07:39:43&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2019-05-05T07:39:43&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="Go语言实战(一/二)基础">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/go/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E4%B8%80%E4%BA%8C/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Go语言实战(一/二)基础</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2019年5月5日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h2 id="go语言基础">GO语言基础</h2>
+<h3 id="顺序编程">顺序编程</h3>
+<h4 id="执行">执行</h4>
+<ul>
+<li>必须在main package下面的main方法才可以运行</li>
+</ul>
+<h4 id="运算符">运算符</h4>
+<ul>
+<li><code>&amp;</code>  返回内存地址</li>
+<li><code>*  </code>  返回指针变量</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">addRessFunc</span><span class="p">()</span> <span class="p">{</span>
+
+	<span class="nx">a</span> <span class="o">:=</span> <span class="mi">1</span>
+	<span class="nx">c</span> <span class="o">:=</span> <span class="nx">a</span>
+	<span class="nx">b</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">a</span>
+	<span class="o">*</span><span class="nx">b</span> <span class="p">=</span> <span class="mi">2</span>
+
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">a</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">b</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">c</span><span class="p">)</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">c</span><span class="p">)</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="o">*</span><span class="nx">b</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span>
+<span class="p">}</span>	
+</code></pre></div><p>输出结果</p>
+<pre><code>0xc420084008 0xc420090018 0xc420084010
+0xc420084008 0xc420084008 0xc420084010
+2 2 1
+2 0xc420084008 1
+</code></pre><pre><code>func TestArrayPoint(t *testing.T) {
+	sp := [3]*string{new(string), new(string), new(string)}
+	*sp[0] = &quot;red&quot;
+	*sp[1] = &quot;blue&quot;
+	*sp[2] = &quot;green&quot;
+
+	for i, _ := range sp {
+		fmt.Printf(&quot;point value %v,real value %s\n&quot;, sp[i], *sp[i])
+	}
+}
+</code></pre><h4 id="byte">byte</h4>
+<p>怎么样创建一个指定的bytes数组？println输出了一个byte数组，但是想创建出来，需要将其添加,</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="nx">rubyBytes</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">{</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">123</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">98</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">121</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">123</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">103</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">123</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">121</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">47</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">87</span><span class="p">,</span> <span class="mi">78</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">98</span><span class="p">,</span> <span class="mi">119</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">98</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">121</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">118</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">113</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">57</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">123</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">103</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">91</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">118</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">118</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">118</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">103</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">103</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">103</span><span class="p">,</span> <span class="mi">111</span><span class="p">,</span> <span class="mi">93</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">37</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">57</span><span class="p">,</span> <span class="mi">57</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">98</span><span class="p">,</span> <span class="mi">98</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">98</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">57</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">57</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">70</span><span class="p">}</span>
+
+</code></pre></div><h4 id="iota">iota</h4>
+<h5 id="string">string</h5>
+<ul>
+<li>
+<p>len(str) :获取字符串的长度</p>
+</li>
+<li>
+<p>s[i] : 取字符串s当中的某一条字符char类型</p>
+</li>
+<li>
+<p>UTF8中3个字节</p>
+</li>
+<li>
+<p>默认值为&quot;&quot;, bool为false, int为0</p>
+</li>
+<li>
+<p>%号转义  fmt.Sprintf(&quot;%%%s%s&quot;,&ldquo;hello&rdquo;) &ndash;&gt; %hello%</p>
+</li>
+<li>
+<p><a href="https://groups.google.com/forum/#!topic/golang-nuts/WAItFEvrhmU">关于TrimRight的一个问题</a></p>
+</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">  <span class="nx">str</span> <span class="o">:=</span> <span class="s">&#34;\&#34;\&#34;aa233aa\&#34;&#34;</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Trim : %s\n&#34;</span><span class="p">,</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Trim</span><span class="p">(</span><span class="nx">str</span><span class="p">,</span> <span class="s">&#34;aa&#34;</span><span class="p">))</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;TrimSuffix : %s\n&#34;</span><span class="p">,</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimSuffix</span><span class="p">(</span><span class="nx">str</span><span class="p">,</span> <span class="s">&#34;aa&#34;</span><span class="p">))</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;trim : %s\n&#34;</span><span class="p">,</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Trim</span><span class="p">(</span><span class="s">&#34;aa,bb,cc,dd&#34;</span><span class="p">,</span> <span class="s">&#34;,&#34;</span><span class="p">))</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;TrimLeft : %s\n&#34;</span><span class="p">,</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimLeft</span><span class="p">(</span><span class="nx">str</span><span class="p">,</span> <span class="s">&#34;aa&#34;</span><span class="p">))</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;TrimRight : %s\n&#34;</span><span class="p">,</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimRight</span><span class="p">(</span><span class="nx">str</span><span class="p">,</span> <span class="s">&#34;aa&#34;</span><span class="p">))</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;trim : %s\n&#34;</span><span class="p">,</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Trim</span><span class="p">(</span><span class="nx">str</span><span class="p">,</span> <span class="s">&#34;\&#34;&#34;</span><span class="p">))</span>
+
+
+  <span class="c1">// TrimRight会截断掉给出的cutset所有的组合，以下TrimRigth都只输出A
+</span><span class="c1"></span>  <span class="c1">// 官方解释：TrimRight returns a slice of the string s, with all trailing Unicode code points     contained in cutset removed.
+</span><span class="c1"></span>
+  <span class="c1">// To remove a suffix, use TrimSuffix instead.
+</span><span class="c1"></span>  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;TrimRigth: %s\n&#34;</span><span class="p">,</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimRight</span><span class="p">(</span><span class="s">&#34;A06-09~06&#34;</span><span class="p">,</span> <span class="s">&#34;-09~06&#34;</span><span class="p">))</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;TrimRigth: %s\n&#34;</span><span class="p">,</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimRight</span><span class="p">(</span><span class="s">&#34;A-9-09~06&#34;</span><span class="p">,</span> <span class="s">&#34;-09~06&#34;</span><span class="p">))</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;TrimRigth: %s\n&#34;</span><span class="p">,</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimRight</span><span class="p">(</span><span class="s">&#34;A9-09~06&#34;</span><span class="p">,</span> <span class="s">&#34;-09~06&#34;</span><span class="p">))</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;TrimRigth: %s\n&#34;</span><span class="p">,</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimRight</span><span class="p">(</span><span class="s">&#34;A~9-09~06&#34;</span><span class="p">,</span> <span class="s">&#34;-09~06&#34;</span><span class="p">))</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;TrimRigth: %s\n&#34;</span><span class="p">,</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimRight</span><span class="p">(</span><span class="s">&#34;A69-09~06&#34;</span><span class="p">,</span> <span class="s">&#34;-09~06&#34;</span><span class="p">))</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;TrimSuffix: %s\n&#34;</span><span class="p">,</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimSuffix</span><span class="p">(</span><span class="s">&#34;A06-09~06&#34;</span><span class="p">,</span> <span class="s">&#34;-09~06&#34;</span><span class="p">))</span>
+</code></pre></div><h6 id="stringbuilder">stringbuilder</h6>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 线程不安全
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">TestBufferWrite</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">strs</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;1&#34;</span><span class="p">,</span> <span class="s">&#34;2&#34;</span><span class="p">,</span> <span class="s">&#34;3&#34;</span><span class="p">,</span> <span class="s">&#34;4&#34;</span><span class="p">,</span> <span class="s">&#34;5&#34;</span><span class="p">,</span> <span class="s">&#34;6&#34;</span><span class="p">}</span>
+
+	<span class="kd">var</span> <span class="nx">buffer</span> <span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">str</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">strs</span> <span class="p">{</span>
+		<span class="nx">buffer</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="nx">str</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nf">String</span><span class="p">())</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="切片">切片</h4>
+<ul>
+<li>cap</li>
+<li>len</li>
+<li>append</li>
+<li>append &hellip; 当添加的元素也是一个切片的时候需要加&hellip;</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">s</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="nx">s</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span>    <span class="c1">//  [0 0 0 0 0 1 2 3]
+</span><span class="c1"></span>
+    <span class="nx">s</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="nx">s</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span><span class="c1">//[1 2 3] //[1,2,3]
+</span><span class="c1"></span><span class="p">}</span>
+
+
+</code></pre></div><h5 id="切片截取性能测试">切片截取性能测试</h5>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">BenchmarkSliceCopy</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">b</span><span class="p">.</span><span class="nf">ResetTimer</span><span class="p">()</span>
+	<span class="kd">var</span> <span class="nx">a</span> <span class="p">[]</span><span class="kt">int</span>
+	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">10000000</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="nx">a</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">i</span> <span class="o">:=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="mi">1000000</span><span class="p">)</span>
+
+	<span class="nb">copy</span><span class="p">(</span><span class="nx">a</span><span class="p">[</span><span class="nx">i</span><span class="p">:],</span> <span class="nx">a</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span>
+
+	<span class="nx">a</span> <span class="p">=</span> <span class="nx">a</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">a</span><span class="p">))</span>
+
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">BenchmarkSliceSplit</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">b</span><span class="p">.</span><span class="nf">ResetTimer</span><span class="p">()</span>
+	<span class="kd">var</span> <span class="nx">a</span> <span class="p">[]</span><span class="kt">int</span>
+	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">10000000</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="nx">a</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">i</span> <span class="o">:=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="mi">1000000</span><span class="p">)</span>
+
+	<span class="nx">m</span> <span class="o">:=</span> <span class="nx">a</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nx">i</span><span class="p">]</span>
+
+	<span class="nx">c</span> <span class="o">:=</span> <span class="nx">a</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+
+	<span class="nx">a</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span> <span class="nx">c</span><span class="o">...</span><span class="p">)</span>
+
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">a</span><span class="p">))</span>
+
+<span class="p">}</span>
+
+</code></pre></div><h4 id="file">file</h4>
+<ul>
+<li>file.writeString(string) 可以append file，不会覆盖文件</li>
+</ul>
+<h4 id="map">map </h4>
+<ul>
+<li>var myMap map[string] PersonInfo  :声明一个map</li>
+<li>myMap = make(map[string] PersonInfo)  :创建一个map</li>
+<li>myMap = make(map[string] PersonInfo, 100)  :创建一个由容量的map</li>
+<li>myMap[&ldquo;1234&rdquo;] = PersonInfo{&ldquo;1&rdquo;, &ldquo;Jack&rdquo;, &ldquo;Room 101,&hellip;&quot;}  :赋值</li>
+<li>delete(myMap, &ldquo;1234&rdquo;) :删除元素</li>
+<li>value, ok := myMap[&ldquo;1234&rdquo;] :获取元素值</li>
+</ul>
+<h4 id="switch">switch </h4>
+<ul>
+<li>没有break，默认break</li>
+<li>使用fallthrough,当前case会紧跟着下一个case</li>
+</ul>
+<h4 id="loop">loop</h4>
+<ul>
+<li>不支持while和do-while</li>
+<li>支持break contiue</li>
+<li>JLoop</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="k">for</span> <span class="nx">i</span><span class="o">:=</span><span class="mi">0</span><span class="p">;</span><span class="nx">i</span><span class="p">&lt;</span><span class="mi">10</span><span class="p">;</span><span class="nx">i</span><span class="o">++</span><span class="p">{</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="nx">i</span><span class="p">,</span><span class="nx">x</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">array</span><span class="p">{</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="func">func</h4>
+<ul>
+<li>首字母小写为私有func，大写为公有func</li>
+<li>不定参数 func add(args &hellip;.int)</li>
+<li>若想要忽略某一个返回值可以使用 _ ;   a,_ :=func()</li>
+<li>匿名函数，不带函数名的函数</li>
+</ul>
+<h4 id="闭包">闭包</h4>
+<ul>
+<li><input disabled="" type="checkbox"> TODO</li>
+</ul>
+<h4 id="错误处理">错误处理</h4>
+<h4 id="转换">转换</h4>
+<pre><code>Strings.NewReader(string)  // string to reader
+bytes.NewReader([]byte)  // []byte to reader
+</code></pre><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="kt">string</span><span class="p">)</span>  <span class="c1">// string to byte
+</span></code></pre></div><pre><code>func strConvert(str, typ string) (v interface{}, err error) {
+   switch typ {
+   case reflect.Int.String():
+      v, err = strconv.ParseInt(str, 10, 0)
+   case reflect.Int8.String():
+      v, err = strconv.ParseInt(str, 10, 8)
+   case reflect.Int16.String():
+      v, err = strconv.ParseInt(str, 10, 16)
+   case reflect.Int32.String():
+      v, err = strconv.ParseInt(str, 10, 32)
+   case reflect.Int64.String():
+      v, err = strconv.ParseInt(str, 10, 64)
+   case reflect.Uint.String():
+      v, err = strconv.ParseUint(str, 10, 0)
+   case reflect.Uint8.String():
+      v, err = strconv.ParseUint(str, 10, 8)
+   case reflect.Uint16.String():
+      v, err = strconv.ParseUint(str, 10, 16)
+   case reflect.Uint32.String():
+      v, err = strconv.ParseUint(str, 10, 32)
+   case reflect.Uint64.String():
+      v, err = strconv.ParseUint(str, 10, 64)
+   case reflect.Bool.String():
+      v, err = strconv.ParseBool(str)
+   case reflect.Float32.String():
+      v, err = strconv.ParseFloat(str, 32)
+   case reflect.Float64.String():
+      v, err = strconv.ParseFloat(str, 64)
+   case &quot;reader&quot;:
+      v = strings.NewReader(str)
+   case &quot;time&quot;:
+      if strings.Contains(str, &quot;CST&quot;) {
+         v, err = time.Parse(&quot;2006-01-02 15:04:05 +0800 CST&quot;, str)
+      }
+   default:
+      v = str
+   }
+   return
+}
+</code></pre><h4 id="defer">defer</h4>
+<ul>
+<li>defer是先入后出，所以是先打印最后的</li>
+<li>defer会在return 之前被执行</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">Test_defer</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nf">deferTest</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">deferTest</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">defer</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;1&#34;</span><span class="p">)</span>
+	<span class="k">defer</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;2&#34;</span><span class="p">)</span>
+	<span class="k">defer</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;3&#34;</span><span class="p">)</span>
+
+	<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;error&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></div><h4 id="struct">struct</h4>
+<ul>
+<li>两个结构体相等，必须得是参数名一样，顺序一样</li>
+<li>若结构体当中存在map、slicen属性，则肯定不相等</li>
+</ul>
+<h3 id="面向对象编程">面向对象编程</h3>
+<h4 id="类型">类型</h4>
+<ul>
+<li>无this关键字，对象需要显式进行传递</li>
+<li>若需要改变传入对象，则需要传入对象的指针 (a *Integer)</li>
+</ul>
+<h4 id="调用形式">调用形式</h4>
+<ul>
+<li>方法（可以满足接口）</li>
+</ul>
+<pre><code>func (n1 *NameAge) doSomething(n2 int) { /* */ }
+</code></pre><ul>
+<li>函数</li>
+</ul>
+<pre><code>func doSomething(n1 *NameAge, n2 int) { /* */ }
+</code></pre><h3 id="其他库">其他库</h3>
+<h4 id="gofmt">gofmt</h4>
+<p><a href="elastic-tabstops">http://nickgravgaard.com/elastic-tabstops/</a></p>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="https://xibolun.github.io/post/go/go-rpc/">Go—RPC</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/go/go-reflect/">GO—reflect</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/go/go-stack/">GO stack</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/go/go-file/">Go File学习</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/go/go-time/">Go--time</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/go'>go</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

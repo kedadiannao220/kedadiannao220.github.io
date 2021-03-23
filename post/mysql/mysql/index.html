@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>MySql日常杂学 | penggy Blog</title>
+    <meta property="og:title" content="MySql日常杂学 - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2017-04-27T23:36:24&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-02-24T23:50:38&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="MySql日常杂学">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/mysql/mysql/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">MySql日常杂学</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2017年4月27日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h1 id="mysql日常杂学">MySql日常杂学</h1>
+<h3 id="安装">安装</h3>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
+yum -y install mysql57-community-release-el7-10.noarch.rpm
+yum -y install mysql-community-server
+</code></pre></div><h2 id="启动相关">启动相关</h2>
+<pre><code class="language-{.shell}" data-lang="{.shell}">/etc/init.d/mysqld start
+/etc/init.d/mysqld stop
+/etc/init.d/mysqld restart
+
+service mysqld restart
+service mysqld stop
+service mysqld start
+</code></pre><h2 id="其他命令">其他命令</h2>
+<pre><code class="language-{.shell}" data-lang="{.shell}">mysql -uroot -pP@ssw0rd -h55.6.8.142 hf-csa --default-character-set=utf8
+mysql -uoot -pP@ssw0rd hf-csa -default-character-set=utf8 &lt; db_qdn672.sql
+mysqldump --opt --protocol=TCP --user='root' --password='P@ssw0rd' --host='55.6.8.142' -all-databases  --result-file='20170619.sql'
+mysqldump --opt --protocol=TCP --user='root' --password='P@ssw0rd' --host='55.6.8.142' hf-csa  --result-file='20170619.sql'
+</code></pre><h2 id="index">Index</h2>
+<ul>
+<li>SHOW INDEX FROM SRV~INFO~; &ndash; 查看表里面的索引信息</li>
+<li>ALTER TABLE SRV~INFOWFNODEEXECLOG~ ADD INDEX
+SRV~INFOWFNODEEXECLOGINDEX1~(SRV~INFOWFNODEID~,FROM~STATE~,TO~STATE~);
+&ndash; 添加索引</li>
+<li>ALTER TABLE SRV~INFOWFNODEEXECLOG~ DROP INDEX
+SRV~INFOWFNODEEXECLOGINDEX1~; &ndash; 删除索引</li>
+</ul>
+<h2 id="mysql优化">MySQL优化</h2>
+<h4 id="表字段">表字段</h4>
+<ul>
+<li>整数类型不要使用INT，使用TINYINT、SMALLINT、MEDIUM~INT~,非负添加UNSIGNED</li>
+<li>VARCHAR的长度只分配真正需要的空间</li>
+<li>使用TIMESTAMP而非DATETIME</li>
+<li>单表字段不超过20</li>
+<li>用整型来存IP</li>
+</ul>
+<h4 id="查询类">查询类</h4>
+<ul>
+<li>不用SELECT *</li>
+<li>OR改写为IN: or的效率是N级别，而IN的效率是Log(n)级别</li>
+<li>WHERE的子句不用!=或者&lt;&gt;操作，否则引擎放弃使用索引而进行全表扫描</li>
+</ul>
+<h2 id="mysql-dump">Mysql Dump</h2>
+<h4 id="dump数据库">dump数据库</h4>
+<pre><code class="language-{.shell}" data-lang="{.shell}">mysqldump -uroot -p hf-csa &gt; hf-csa.sql
+</code></pre><h4 id="只dump数据库表结构--no-data--d">只dump数据库表结构（&ndash;no-data -d）</h4>
+<pre><code class="language-{.shell}" data-lang="{.shell}">mysqldump -uroot -p --no-data --add-drop-table hf-csa &gt; hf-csa.sql
+mysqldump -uroot -p -d --add-drop-table hf-csa &gt; hf-csa.sql
+</code></pre><h4 id="dump数据库表结构排除某些表">dump数据库表结构排除某些表</h4>
+<pre><code class="language-{.shell}" data-lang="{.shell}">mysqldump -uroot -p --no-data --add-drop-table hf-csa --ignore-table=hf-csa.ACT_GET_PROPERTY &gt; hf-csa.sql
+</code></pre><h4 id="dump数据库某张表表中间以空格分隔">dump数据库某张表，表中间以空格分隔</h4>
+<pre><code class="language-{.shell}" data-lang="{.shell}">mysqldump -uroot -p --no-data hf-csa SRV_INFO SRV_BP_APP_INFO &gt; hf-csa.sql
+</code></pre><h4 id="dump数据库带注释的表结构">dump数据库带注释的表结构</h4>
+<pre><code class="language-{.shell}" data-lang="{.shell}">mysqldump -uroot -p --no-data --comments hf-csa SRV_INFO SRV_BP_APP_INFO &gt; hf-csa.sql
+</code></pre><h4 id="dump数据库某表的某些数据">dump数据库某表的某些数据</h4>
+<pre><code>mysqldump -uroot -p cloudboot_216 device --where=&quot;sn='J3Q9F3X'&quot;
+</code></pre><h3 id="reload-dump-file">reload dump File</h3>
+<pre><code class="language-{.shell}" data-lang="{.shell}">shell&gt; mysql hf-csa &lt; hf-csa.sql
+shell&gt; mysql -e &quot;source hf-csa.sql&quot; hf-csa
+mysql&gt; use `hf-csa`;
+mysql&gt; source hf-csa.sql 
+</code></pre><h2 id="infomationschema">INFOMATION~SCHEMA~</h2>
+<pre><code class="language-{.sql}" data-lang="{.sql}">SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'hf-csa'; // 查询hf-csa下所有表的列
+SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'hf-csa'; // 查询hf-csa下所有的表
+</code></pre><pre><code class="language-{.sql}" data-lang="{.sql}"> SHOW FULL COLUMNS FROM table_name;                          #查看mysql某表当中的列字段，包括列的character
+ SHOW TABLE STATUS where name like 'SRV_BP_APP_NODE_VER';    # 查看某表的状态
+
+</code></pre><h4 id="修改密码">修改密码</h4>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">UPDATE user SET <span class="nv">authentication_string</span> <span class="o">=</span> PASSWORD<span class="o">(</span><span class="s1">&#39;xxxxx&#39;</span><span class="o">)</span> WHERE <span class="nv">User</span> <span class="o">=</span> <span class="s1">&#39;root&#39;</span> AND <span class="nv">Host</span> <span class="o">=</span> <span class="s1">&#39;%&#39;</span><span class="p">;</span>
+UPDATE user SET <span class="nv">authentication_string</span> <span class="o">=</span> PASSWORD<span class="o">(</span><span class="s1">&#39;xxxxx&#39;</span><span class="o">)</span> WHERE <span class="nv">User</span> <span class="o">=</span> <span class="s1">&#39;root&#39;</span> AND <span class="nv">Host</span> <span class="o">=</span> <span class="s1">&#39;localhost&#39;</span><span class="p">;</span>
+FLUSH PRIVILEGES
+</code></pre></div><h2 id="语法相关">语法相关</h2>
+<h3 id="left-joinright-join-inner-join">LEFT JOIN，RIGHT JOIN, INNER JOIN</h3>
+<ul>
+<li>LEFT JOIN：以左边的表为基准显示查询结果</li>
+<li>RIGHT JOIN：以右边的表为基准显示查询结果</li>
+<li>INNER JOIN：只显示符合条件的查询结果</li>
+</ul>
+<pre><code class="language-{.shell}" data-lang="{.shell}">SELECT ip.IP_ADDRESS,ip.ID,unit.NAME FROM SRV_BP_DEV_IP ip LEFT JOIN SRV_BP_DEV dev ON ip.SRV_BP_DEV_ID = dev.ID
+  LEFT JOIN SRV_BP_APP_DP_UNIT unit ON dev.SRV_BP_APP_DP_UNIT_ID = unit.ID WHERE
+  ip.SRV_INFO_ID = dev.SRV_INFO_ID AND dev.SRV_INFO_ID = unit.SRV_INFO_ID AND ip.SRV_INFO_ID = '9ecbd34c-3ed6-4e61-8d11-0ba526e9ca98';
+</code></pre><h2 id="问题列表">问题列表</h2>
+<h3 id="mysql的一些运维命令">mysql的一些运维命令</h3>
+<pre><code class="language-{.shell}" data-lang="{.shell}"># 查看mysql的端口监听情况
+netstate -nlt | grep 3306
+lsof -i:3306
+# 查看mysql的进程，同时可以看到mysql的一些文件位置
+ps ax | grep mysqld 
+</code></pre><h3 id="设置允许远程连接">设置允许远程连接</h3>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">GRANT</span> <span class="k">ALL</span> <span class="k">PRIVILEGES</span> <span class="k">ON</span> <span class="o">*</span><span class="p">.</span><span class="o">*</span> <span class="k">TO</span> <span class="s1">&#39;root&#39;</span><span class="o">@</span><span class="s1">&#39;%&#39;</span> <span class="n">IDENTIFIED</span> <span class="k">BY</span> <span class="s1">&#39;Yunjikeji@123&#39;</span> <span class="k">WITH</span> <span class="k">GRANT</span> <span class="k">OPTION</span><span class="p">;</span>
+
+<span class="k">update</span> <span class="k">user</span> <span class="k">set</span> <span class="n">authentication_string</span><span class="o">=</span><span class="n">PASSWORD</span><span class="p">(</span><span class="s2">&#34;Yunjikeji#123&#34;</span><span class="p">)</span> <span class="k">where</span> <span class="k">User</span><span class="o">=</span><span class="s1">&#39;root&#39;</span><span class="p">;</span>
+
+<span class="n">FLUSH</span> <span class="k">PRIVILEGES</span><span class="p">;</span>
+</code></pre></div><h3 id="error-1045-28000-access-denied-for-user-rootlocalhost-using-password-yes">ERROR 1045 (28000): Access denied for user &lsquo;root&rsquo;@&lsquo;localhost&rsquo; (using password: YES)</h3>
+<pre><code class="language-{.mysql}" data-lang="{.mysql}">-- 进入安全模式
+➜  ~ mysqld_safe --skip-grant-tables &amp;
+
+-- 直接无密码进入
+➜  ~ mysql -uroot
+
+-- 选择mysql
+mysql&gt; use mysql;
+
+-- 修改密码
+## 5.7以后 passowrd字段改为authentication_string
+mysql&gt; update user set password=PASSWORD(&quot;yunjikeji&quot;) where User = 'root';
+
+
+-- flush 生效
+mysql&gt; flush privileges;
+
+-- 再次用密码尝试登陆
+➜  ~ mysql -uroot -p
+</code></pre><h3 id="incorrect-definition-of-table-performanceschemaeventswaitscurrent-expected-column-nestingeven">Incorrect definition of table performance~schema~.events~waitscurrent~: expected column &lsquo;NESTING~EVEN~</h3>
+<p>数据库结构错误，导致mysql启动异常</p>
+<pre><code class="language-{.shell}" data-lang="{.shell}">➜  ~ mysql_upgrade -u root -p
+</code></pre><h3 id="mac-homebrew安装的mysql相关">MAC homebrew安装的mysql相关</h3>
+<ul>
+<li>my.cnf目录位于：/usr/local/Cellar/mysql/5.7.11/support-files/</li>
+<li>启动相关命令：mysql.server start|stop|staus|restart</li>
+</ul>
+<h3 id="修改timestamp类型的默认值">修改timestamp类型的默认值</h3>
+<p>无法使用</p>
+<pre><code>alter table mytable alter column updated_at SET DEFAULT current_timestamp ;
+</code></pre><p>只能使用以下来解决</p>
+<pre><code>ALTER TABLE mytable CHANGE `time` `time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+</code></pre><h3 id="data-source-rejected-establishment-of-connection-message-from-server-too-many-connections">Data source rejected establishment of connection, message from server: &ldquo;Too many connections</h3>
+<p>由于mysql的连接数过大导致，修改最大连接数即可;</p>
+<pre><code class="language-{.shell}" data-lang="{.shell}">mysql&gt; show VARIABLES  WHERE variable_name = 'max_connections';
+
+mysql&gt; set GLOBAL max_connections=200;
+</code></pre><p>但是在启动java工程的时候仍然会报错，并且重新Mysql后，此值无法生效，又变成了默认值151（有的版本为100）；就想着修改mysql的默认配置文件；去找一个mac平台里面的my.cnf，但是没有；于是从/usr/local/Cellar/mysql/5.7.11/support-files/当中copy一个conf到/etc/my.cnf当中,在my.cnf当中设置max~connections即可~，这样每次启动Mysql，都会设置为默认的值；
+在mac下/etc/my.cnf里面会自动加上权限为只读文件</p>
+<pre><code class="language-{.shell}" data-lang="{.shell}">[mysqld]
+## set column max value
+max_allowed_packet = 500M
+max_connections=200
+
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES 
+</code></pre><h3 id="mysql-lock">mysql lock</h3>
+<p><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-deadlock-example.html">An InnoDB Deadlock Example</a>
+<a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-deadlocks.html">Deadlocks in InnoDB</a></p>
+<ul>
+<li><a href="https://www.aneasystone.com/archives/2017/10/solving-dead-locks-one.html">解决死锁之路 - 学习事务与隔离级别</a></li>
+<li><a href="https://www.aneasystone.com/archives/2017/11/solving-dead-locks-two.html">解决死锁之路 - 了解常见的锁类型</a></li>
+<li><a href="https://www.aneasystone.com/archives/2017/10/solving-dead-locks-one.html">解决死锁之路 - 常见 SQL 语句的加锁分析</a></li>
+<li><a href="https://www.aneasystone.com/archives/2017/10/solving-dead-locks-one.html">解决死锁之路（终结篇） - 再见死锁</a></li>
+</ul>
+<h4 id="一个存储过程">一个存储过程</h4>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql">
+<span class="k">DELIMITER</span> <span class="p">;;</span>
+<span class="k">DROP</span> <span class="k">PROCEDURE</span> <span class="k">IF</span> <span class="k">EXISTS</span> <span class="n">DisinctInsp</span><span class="p">;</span>
+<span class="k">CREATE</span> <span class="k">PROCEDURE</span> <span class="n">DisinctInsp</span><span class="p">()</span>
+<span class="k">BEGIN</span>
+  <span class="k">DECLARE</span> <span class="n">sns</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">64</span><span class="p">);</span>
+	<span class="k">DECLARE</span> <span class="n">cur1</span> <span class="k">CURSOR</span> <span class="k">FOR</span> <span class="k">SELECT</span> <span class="n">sn</span> <span class="k">FROM</span> <span class="n">inspection</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">sn</span><span class="p">;</span>
+	<span class="k">OPEN</span> <span class="n">cur1</span><span class="p">;</span>
+	<span class="n">map_loop</span><span class="p">:</span>
+		<span class="n">LOOP</span>
+			<span class="k">FETCH</span> <span class="n">cur1</span> <span class="k">INTO</span> <span class="n">sns</span><span class="p">;</span>
+			<span class="k">DELETE</span> <span class="k">FROM</span> <span class="n">inspection_latest</span> <span class="k">WHERE</span> <span class="n">sn</span> <span class="o">=</span> <span class="n">sns</span> <span class="k">AND</span> <span class="n">id</span> <span class="o">!=</span> <span class="p">(</span><span class="k">SELECT</span> <span class="k">max</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">inspection</span> <span class="k">WHERE</span> <span class="n">sn</span> <span class="o">=</span> <span class="n">sns</span><span class="p">);</span>
+		<span class="k">END</span> <span class="n">LOOP</span> <span class="n">map_loop</span><span class="p">;</span>
+<span class="k">END</span><span class="p">;</span>
+<span class="k">DELIMITER</span> <span class="p">;;</span>
+
+
+<span class="k">CALL</span> <span class="n">DisinctInsp</span><span class="p">;</span>
+
+</code></pre></div>
+        </div>
+
+        
+
+
+        
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/mysql'>mysql</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

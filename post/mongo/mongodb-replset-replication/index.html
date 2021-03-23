@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>MongoDB ReplSet Replication | penggy Blog</title>
+    <meta property="og:title" content="MongoDB ReplSet Replication - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2017-11-15T23:36:24&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2019-10-16T15:19:39&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="MongoDB ReplSet Replication">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/mongo/mongodb-replset-replication/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">MongoDB ReplSet Replication</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2017年11月15日
+        </date>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h2 id="replset-replicatin">ReplSet Replicatin</h2>
+<p>
+        <img class="mx-auto" alt="replica-set-trigger-election" src="http://oxmycii3v.bkt.clouddn.com/img/mongodb/replica-set-trigger-election.bakedsvg.svg" />   
+    </p>
+<p>master的IP： 10.0.1.9     slave IP: 10.0.106.2、10.0.106.6</p>
+<p>以replSet形式启动master，replSet名称设置为rs0</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">mongod --dbpath /home/www/data/ --replSet rs0
+</code></pre></div><p>连接master，将自己做为一个member添加进去</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">&gt; rs.initiate<span class="o">({</span>_id:<span class="s2">&#34;rs0&#34;</span>,members:<span class="o">[{</span>_id:0,host:<span class="s2">&#34;10.0.1.9:27017&#34;</span><span class="o">}]})</span>
+<span class="o">{</span>
+        <span class="s2">&#34;info&#34;</span> : <span class="s2">&#34;Config now saved locally.  Should come online in about a minute.&#34;</span>,
+        <span class="s2">&#34;ok&#34;</span> : <span class="m">1</span>
+<span class="o">}</span>
+rs0:PRIMARY&gt; 
+</code></pre></div><p>初始化成功后，shell会发生改变为   rs0:PRIMARY，标志着replSet的名称和主server；</p>
+<p>添加成员</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">rs0:PRIMARY&gt; rs.add<span class="o">(</span><span class="s2">&#34;10.0.106.2:27017&#34;</span><span class="o">)</span>
+<span class="o">{</span> <span class="s2">&#34;ok&#34;</span> : <span class="m">1</span> <span class="o">}</span>
+rs0:PRIMARY&gt; rs.add<span class="o">(</span><span class="s2">&#34;10.0.106.6:27017&#34;</span><span class="o">)</span>
+<span class="o">{</span> <span class="s2">&#34;ok&#34;</span> : <span class="m">1</span> <span class="o">}</span>
+</code></pre></div><p>此时master的日志里面会出现以下log信息，说明已经有成员连接进来</p>
+<div class="highlight"><pre class="chroma"><code class="language-verilog" data-lang="verilog"><span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">43.995</span><span class="o">+</span><span class="mh">0800</span> <span class="p">[</span><span class="n">rsHealthPoll</span><span class="p">]</span> <span class="n">replSet</span> <span class="n">member</span> <span class="mf">10.0.106.2</span><span class="o">:</span><span class="mh">27017</span> <span class="n">is</span> <span class="n">now</span> <span class="n">in</span> <span class="n">state</span> <span class="n">SECONDARY</span>
+</code></pre></div><p>而slave的日志如下，开始连接master，然后并开始同步数据</p>
+<div class="highlight"><pre class="chroma"><code class="language-verilog" data-lang="verilog"><span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.911</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">NETWORK</span>  <span class="p">[</span><span class="n">initandlisten</span><span class="p">]</span> <span class="n">connection</span> <span class="n">accepted</span> <span class="n">from</span> <span class="mf">10.0.1.9</span><span class="o">:</span><span class="mh">54292</span> <span class="p">#</span><span class="mh">1</span> <span class="p">(</span><span class="mh">1</span> <span class="n">connection</span> <span class="n">now</span> <span class="n">open</span><span class="p">)</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.913</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">NETWORK</span>  <span class="p">[</span><span class="n">initandlisten</span><span class="p">]</span> <span class="n">connection</span> <span class="n">accepted</span> <span class="n">from</span> <span class="mf">10.0.1.9</span><span class="o">:</span><span class="mh">54293</span> <span class="p">#</span><span class="mh">2</span> <span class="p">(</span><span class="mh">2</span> <span class="n">connections</span> <span class="n">now</span> <span class="n">open</span><span class="p">)</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.917</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">ASIO</span>     <span class="p">[</span><span class="n">NetworkInterfaceASIO</span><span class="o">-</span><span class="n">Replication</span><span class="o">-</span><span class="mh">0</span><span class="p">]</span> <span class="n">Successfully</span> <span class="n">connected</span> <span class="n">to</span> <span class="mf">10.0.1.9</span><span class="o">:</span><span class="mh">27017</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.947</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">NETWORK</span>  <span class="p">[</span><span class="n">conn1</span><span class="p">]</span> <span class="k">end</span> <span class="n">connection</span> <span class="mf">10.0.1.9</span><span class="o">:</span><span class="mh">54292</span> <span class="p">(</span><span class="mh">1</span> <span class="n">connection</span> <span class="n">now</span> <span class="n">open</span><span class="p">)</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.950</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">REPL</span>     <span class="p">[</span><span class="n">replExecDBWorker</span><span class="o">-</span><span class="mh">0</span><span class="p">]</span> <span class="n">Starting</span> <span class="n">replication</span> <span class="n">applier</span> <span class="n">threads</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.950</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">REPL</span>     <span class="p">[</span><span class="n">ReplicationExecutor</span><span class="p">]</span> <span class="n">New</span> <span class="n">replica</span> <span class="n">set</span> <span class="n">config</span> <span class="n">in</span> <span class="nl">use:</span> <span class="p">{</span> <span class="nl">_id:</span> <span class="s">&#34;rs0&#34;</span><span class="p">,</span> <span class="nl">version:</span> <span class="mh">2</span><span class="p">,</span> <span class="nl">members:</span> <span class="p">[</span> <span class="p">{</span> <span class="nl">_id:</span> <span class="mh">0</span><span class="p">,</span> <span class="nl">host:</span> <span class="s">&#34;10.0.1.9:27017&#34;</span><span class="p">,</span> <span class="nl">arbiterOnly:</span> <span class="n">false</span><span class="p">,</span> <span class="nl">buildIndexes:</span> <span class="n">true</span><span class="p">,</span> <span class="nl">hidden:</span> <span class="n">false</span><span class="p">,</span> <span class="nl">priority:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">ta</span>
+<span class="nl">gs:</span> <span class="p">{},</span> <span class="nl">slaveDelay:</span> <span class="mh">0</span><span class="p">,</span> <span class="nl">votes:</span> <span class="mh">1</span> <span class="p">},</span> <span class="p">{</span> <span class="nl">_id:</span> <span class="mh">1</span><span class="p">,</span> <span class="nl">host:</span> <span class="s">&#34;10.0.106.2:27017&#34;</span><span class="p">,</span> <span class="nl">arbiterOnly:</span> <span class="n">false</span><span class="p">,</span> <span class="nl">buildIndexes:</span> <span class="n">true</span><span class="p">,</span> <span class="nl">hidden:</span> <span class="n">false</span><span class="p">,</span> <span class="nl">priority:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="nl">tags:</span> <span class="p">{},</span> <span class="nl">slaveDelay:</span> <span class="mh">0</span><span class="p">,</span> <span class="nl">votes:</span> <span class="mh">1</span> <span class="p">}</span> <span class="p">],</span> <span class="nl">settings:</span> <span class="p">{</span> <span class="nl">chainingAllowed:</span> <span class="n">true</span><span class="p">,</span> <span class="n">heartbeatIntervalMill</span>
+<span class="nl">is:</span> <span class="mh">2000</span><span class="p">,</span> <span class="nl">heartbeatTimeoutSecs:</span> <span class="mh">10</span><span class="p">,</span> <span class="nl">electionTimeoutMillis:</span> <span class="mh">10000</span><span class="p">,</span> <span class="nl">getLastErrorModes:</span> <span class="p">{},</span> <span class="nl">getLastErrorDefaults:</span> <span class="p">{</span> <span class="nl">w:</span> <span class="mh">1</span><span class="p">,</span> <span class="nl">wtimeout:</span> <span class="mh">0</span> <span class="p">}</span> <span class="p">}</span> <span class="p">}</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.950</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">REPL</span>     <span class="p">[</span><span class="n">ReplicationExecutor</span><span class="p">]</span> <span class="n">This</span> <span class="n">node</span> <span class="n">is</span> <span class="mf">10.0.106.2</span><span class="o">:</span><span class="mh">27017</span> <span class="n">in</span> <span class="n">the</span> <span class="n">config</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.950</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">REPL</span>     <span class="p">[</span><span class="n">ReplicationExecutor</span><span class="p">]</span> <span class="n">transition</span> <span class="n">to</span> <span class="n">STARTUP2</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.951</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">REPL</span>     <span class="p">[</span><span class="n">rsSync</span><span class="p">]</span> <span class="o">******</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.951</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">REPL</span>     <span class="p">[</span><span class="n">rsSync</span><span class="p">]</span> <span class="n">creating</span> <span class="n">replication</span> <span class="n">oplog</span> <span class="n">of</span> <span class="nl">size:</span> <span class="mh">990</span><span class="n">MB</span><span class="p">...</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.952</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">REPL</span>     <span class="p">[</span><span class="n">ReplicationExecutor</span><span class="p">]</span> <span class="n">Member</span> <span class="mf">10.0.1.9</span><span class="o">:</span><span class="mh">27017</span> <span class="n">is</span> <span class="n">now</span> <span class="n">in</span> <span class="n">state</span> <span class="n">PRIMARY</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.956</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">STORAGE</span>  <span class="p">[</span><span class="n">rsSync</span><span class="p">]</span> <span class="n">Starting</span> <span class="n">WiredTigerRecordStoreThread</span> <span class="n">local</span><span class="p">.</span><span class="n">oplog</span><span class="p">.</span><span class="n">rs</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.957</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">STORAGE</span>  <span class="p">[</span><span class="n">rsSync</span><span class="p">]</span> <span class="n">The</span> <span class="n">size</span> <span class="n">storer</span> <span class="n">reports</span> <span class="n">that</span> <span class="n">the</span> <span class="n">oplog</span> <span class="n">contains</span> <span class="mh">0</span> <span class="n">records</span> <span class="n">totaling</span> <span class="n">to</span> <span class="mh">0</span> <span class="n">bytes</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.957</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">STORAGE</span>  <span class="p">[</span><span class="n">rsSync</span><span class="p">]</span> <span class="n">Scanning</span> <span class="n">the</span> <span class="n">oplog</span> <span class="n">to</span> <span class="n">determine</span> <span class="n">where</span> <span class="n">to</span> <span class="n">place</span> <span class="n">markers</span> <span class="k">for</span> <span class="n">truncation</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.996</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">REPL</span>     <span class="p">[</span><span class="n">rsSync</span><span class="p">]</span> <span class="o">******</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">27.996</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">REPL</span>     <span class="p">[</span><span class="n">rsSync</span><span class="p">]</span> <span class="k">initial</span> <span class="n">sync</span> <span class="n">pending</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">28.012</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">REPL</span>     <span class="p">[</span><span class="n">ReplicationExecutor</span><span class="p">]</span> <span class="n">syncing</span> <span class="nl">from:</span> <span class="mf">10.0.1.9</span><span class="o">:</span><span class="mh">27017</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">28.017</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">REPL</span>     <span class="p">[</span><span class="n">rsSync</span><span class="p">]</span> <span class="k">initial</span> <span class="n">sync</span> <span class="n">drop</span> <span class="n">all</span> <span class="n">databases</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">28.017</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">STORAGE</span>  <span class="p">[</span><span class="n">rsSync</span><span class="p">]</span> <span class="n">dropAllDatabasesExceptLocal</span> <span class="mh">1</span>
+<span class="mh">2017</span><span class="o">-</span><span class="mh">11</span><span class="o">-</span><span class="mh">15</span><span class="nl">T10:</span><span class="mh">48</span><span class="o">:</span><span class="mf">28.017</span><span class="o">+</span><span class="mh">0800</span> <span class="n">I</span> <span class="n">REPL</span>     <span class="p">[</span><span class="n">rsSync</span><span class="p">]</span> <span class="k">initial</span> <span class="n">sync</span> <span class="n">clone</span> <span class="n">all</span> <span class="n">databases</span>
+</code></pre></div><p>mongo shell连接至slave的时候会发现shell变成了如下样式；标志着此server为rs0的replSet，为第二个节点</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">rs0:SECONDARY&gt; 
+</code></pre></div><p>查询配置信息</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">rs0:SECONDARY&gt; rs.conf<span class="o">()</span><span class="p">;</span>
+<span class="o">{</span>        <span class="s2">&#34;_id&#34;</span> : <span class="s2">&#34;rs0&#34;</span>,
+        <span class="s2">&#34;version&#34;</span> : 11,
+        <span class="s2">&#34;members&#34;</span> : <span class="o">[</span>
+                <span class="o">{</span>
+                        <span class="s2">&#34;_id&#34;</span> : 0,
+                        <span class="s2">&#34;host&#34;</span> : <span class="s2">&#34;10.0.1.9:27017&#34;</span>,
+                        <span class="s2">&#34;arbiterOnly&#34;</span> : false,
+                        <span class="s2">&#34;buildIndexes&#34;</span> : true,
+                        <span class="s2">&#34;hidden&#34;</span> : false,
+                        <span class="s2">&#34;priority&#34;</span> : 2,
+                        <span class="s2">&#34;tags&#34;</span> : <span class="o">{</span>
+
+                        <span class="o">}</span>,
+                        <span class="s2">&#34;slaveDelay&#34;</span> : NumberLong<span class="o">(</span>0<span class="o">)</span>,
+                        <span class="s2">&#34;votes&#34;</span> : <span class="m">1</span>
+                <span class="o">}</span>,
+                <span class="o">{</span>
+                        <span class="s2">&#34;_id&#34;</span> : 1,
+                        <span class="s2">&#34;host&#34;</span> : <span class="s2">&#34;10.0.106.2:27017&#34;</span>,
+                        <span class="s2">&#34;arbiterOnly&#34;</span> : false,
+                        <span class="s2">&#34;buildIndexes&#34;</span> : true,
+                        <span class="s2">&#34;hidden&#34;</span> : false,                        
+                        <span class="s2">&#34;priority&#34;</span> : 0.8,                       
+                        <span class="s2">&#34;tags&#34;</span> : <span class="o">{</span>                        
+                        <span class="o">}</span>,                       
+                        <span class="s2">&#34;slaveDelay&#34;</span> : NumberLong<span class="o">(</span>0<span class="o">)</span>,                        
+                        <span class="s2">&#34;votes&#34;</span> : <span class="m">1</span>                
+                        <span class="o">}</span>,                
+                 <span class="o">{</span>
+                        <span class="s2">&#34;_id&#34;</span> : 2,
+                        <span class="s2">&#34;host&#34;</span> : <span class="s2">&#34;10.0.106.6:27017&#34;</span>,
+                        <span class="s2">&#34;arbiterOnly&#34;</span> : false,
+                        <span class="s2">&#34;buildIndexes&#34;</span> : true,
+                        <span class="s2">&#34;hidden&#34;</span> : false,
+                        <span class="s2">&#34;priority&#34;</span> : 1,
+                        <span class="s2">&#34;tags&#34;</span> : <span class="o">{</span>
+
+                        <span class="o">}</span>,                        
+                        <span class="s2">&#34;slaveDelay&#34;</span> : NumberLong<span class="o">(</span>0<span class="o">)</span>,                        
+                        <span class="s2">&#34;votes&#34;</span> : <span class="m">1</span>                
+                  <span class="o">}</span>
+        <span class="o">]</span>,
+        <span class="s2">&#34;settings&#34;</span> : <span class="o">{</span>
+                <span class="s2">&#34;chainingAllowed&#34;</span> : true,
+                <span class="s2">&#34;heartbeatIntervalMillis&#34;</span> : 2000,
+                <span class="s2">&#34;heartbeatTimeoutSecs&#34;</span> : 10,
+                <span class="s2">&#34;electionTimeoutMillis&#34;</span> : 10000,
+                <span class="s2">&#34;getLastErrorModes&#34;</span> : <span class="o">{</span>
+
+                <span class="o">}</span>,
+                <span class="s2">&#34;getLastErrorDefaults&#34;</span> : <span class="o">{</span>
+                        <span class="s2">&#34;w&#34;</span> : 1,
+                        <span class="s2">&#34;wtimeout&#34;</span> : <span class="m">0</span>
+                <span class="o">}</span>
+        <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>查看状态</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">rs0:SECONDARY&gt; rs.status<span class="o">()</span>
+<span class="o">{</span>
+        <span class="s2">&#34;set&#34;</span> : <span class="s2">&#34;rs0&#34;</span>,
+        <span class="s2">&#34;date&#34;</span> : ISODate<span class="o">(</span><span class="s2">&#34;2017-11-15T03:20:32.831Z&#34;</span><span class="o">)</span>,
+        <span class="s2">&#34;myState&#34;</span> : 2,
+        <span class="s2">&#34;term&#34;</span> : NumberLong<span class="o">(</span>-1<span class="o">)</span>,
+        <span class="s2">&#34;heartbeatIntervalMillis&#34;</span> : NumberLong<span class="o">(</span>2000<span class="o">)</span>,
+        <span class="s2">&#34;members&#34;</span> : <span class="o">[</span>
+                <span class="o">{</span>
+                        <span class="s2">&#34;_id&#34;</span> : 0,
+                        <span class="s2">&#34;name&#34;</span> : <span class="s2">&#34;10.0.1.9:27017&#34;</span>,
+                        <span class="s2">&#34;health&#34;</span> : 1,
+                        <span class="s2">&#34;state&#34;</span> : 1,
+                        <span class="s2">&#34;stateStr&#34;</span> : <span class="s2">&#34;PRIMARY&#34;</span>,
+                        <span class="s2">&#34;uptime&#34;</span> : 973,
+                        <span class="s2">&#34;optime&#34;</span> : Timestamp<span class="o">(</span>1510714107, 1<span class="o">)</span>,
+                        <span class="s2">&#34;optimeDate&#34;</span> : ISODate<span class="o">(</span><span class="s2">&#34;2017-11-15T02:48:27Z&#34;</span><span class="o">)</span>,
+                        <span class="s2">&#34;lastHeartbeat&#34;</span> : ISODate<span class="o">(</span><span class="s2">&#34;2017-11-15T03:20:32.411Z&#34;</span><span class="o">)</span>,
+                        <span class="s2">&#34;lastHeartbeatRecv&#34;</span> : ISODate<span class="o">(</span><span class="s2">&#34;2017-11-15T03:20:32.129Z&#34;</span><span class="o">)</span>,
+                        <span class="s2">&#34;pingMs&#34;</span> : NumberLong<span class="o">(</span>0<span class="o">)</span>,
+                        <span class="s2">&#34;electionTime&#34;</span> : Timestamp<span class="o">(</span>1510715061, 1<span class="o">)</span>,
+                        <span class="s2">&#34;electionDate&#34;</span> : ISODate<span class="o">(</span><span class="s2">&#34;2017-11-15T03:04:21Z&#34;</span><span class="o">)</span>,
+                        <span class="s2">&#34;configVersion&#34;</span> : <span class="m">2</span>
+                <span class="o">}</span>,
+                <span class="o">{</span>
+                        <span class="s2">&#34;_id&#34;</span> : 1,
+                        <span class="s2">&#34;name&#34;</span> : <span class="s2">&#34;10.0.106.2:27017&#34;</span>,
+                        <span class="s2">&#34;health&#34;</span> : 1,
+                        <span class="s2">&#34;state&#34;</span> : 2,
+                        <span class="s2">&#34;stateStr&#34;</span> : <span class="s2">&#34;SECONDARY&#34;</span>,
+                        <span class="s2">&#34;uptime&#34;</span> : 974,
+                        <span class="s2">&#34;optime&#34;</span> : Timestamp<span class="o">(</span>1510714107, 1<span class="o">)</span>,
+                        <span class="s2">&#34;optimeDate&#34;</span> : ISODate<span class="o">(</span><span class="s2">&#34;2017-11-15T02:48:27Z&#34;</span><span class="o">)</span>,
+                        <span class="s2">&#34;infoMessage&#34;</span> : <span class="s2">&#34;could not find member to sync from&#34;</span>,
+                        <span class="s2">&#34;configVersion&#34;</span> : 2,
+                        <span class="s2">&#34;self&#34;</span> : <span class="nb">true</span>
+                <span class="o">}</span>
+        <span class="o">]</span>,
+        <span class="s2">&#34;ok&#34;</span> : <span class="m">1</span>
+<span class="o">}</span>
+</code></pre></div><h3 id="遇到的问题">遇到的问题</h3>
+<pre><code>&gt; rs.initiate({_id:&quot;xmdb&quot;,members:[{_id:0,host:&quot;10.0.1.9:27017&quot;}]})
+{
+        &quot;ok&quot; : 0,
+        &quot;errmsg&quot; : &quot;local.oplog.rs is not empty on the initiating member.  cannot initiate.&quot;
+}
+</code></pre><p>原因是因为本地已经存在了 replSet的opLog，所以需要去掉，再重新initiate</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">&gt; use <span class="nb">local</span>
+switched to db <span class="nb">local</span>
+&gt; db.dropDatabase<span class="o">()</span>
+<span class="o">{</span> <span class="s2">&#34;dropped&#34;</span> : <span class="s2">&#34;local&#34;</span>, <span class="s2">&#34;ok&#34;</span> : <span class="m">1</span> <span class="o">}</span>
+</code></pre></div><p>再重新启动，可以考虑换一个新的replSet的名称</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">mongod --dbpath /home/www/data/ --replSet rs0
+</code></pre></div><p>再重新初始化即可</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">&gt; rs.initiate<span class="o">({</span>_id:<span class="s2">&#34;rs0&#34;</span>,members:<span class="o">[{</span>_id:0,host:<span class="s2">&#34;10.0.1.9:27017&#34;</span><span class="o">}]})</span>
+<span class="o">{</span>
+        <span class="s2">&#34;info&#34;</span> : <span class="s2">&#34;Config now saved locally.  Should come online in about a minute.&#34;</span>,
+        <span class="s2">&#34;ok&#34;</span> : <span class="m">1</span>
+<span class="o">}</span>
+rs0:PRIMARY&gt; 
+</code></pre></div><p>或者直接强制初始化</p>
+<pre><code>rs.reconfig(config, {force: true})
+</code></pre><h3 id="设置权重">设置权重</h3>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">rs0:PRIMARY&gt; <span class="nv">cfg</span> <span class="o">=</span> rs.conf<span class="o">()</span><span class="p">;</span>
+<span class="o">{</span>
+        <span class="s2">&#34;_id&#34;</span> : <span class="s2">&#34;rs0&#34;</span>,
+        <span class="s2">&#34;version&#34;</span> : 2,
+        <span class="s2">&#34;members&#34;</span> : <span class="o">[</span>
+                <span class="o">{</span>
+                        <span class="s2">&#34;_id&#34;</span> : 0,
+                        <span class="s2">&#34;host&#34;</span> : <span class="s2">&#34;10.0.1.9:27017&#34;</span>
+                <span class="s2">&#34;uth_id&#34;</span> : 1,
+                        <span class="s2">&#34;host&#34;</span> : <span class="s2">&#34;10.0.106.2:27017&#34;</span>
+                <span class="o">}</span>
+        <span class="o">]</span>
+<span class="o">}</span>
+rs0:PRIMARY&gt; cfg.members<span class="o">[</span>0<span class="o">]</span>.priority<span class="o">=</span><span class="m">2</span>
+<span class="m">2</span>
+rs0:PRIMARY&gt; cfg.members<span class="o">[</span>1<span class="o">]</span>.priority<span class="o">=</span><span class="m">1</span>
+<span class="m">1</span>
+rs0:PRIMARY&gt; cfg.members<span class="o">[</span>2<span class="o">]</span>.priority<span class="o">=</span><span class="m">1</span>
+<span class="m">1</span>
+rs0:PRIMARY&gt; rs.reconfig<span class="o">(</span>cfg<span class="o">)</span>
+</code></pre></div><h4 id="注意事项">注意事项</h4>
+<ul>
+<li>权重的设置只能在Master当中</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">rs0:SECONDARY&gt; rs.reconfig<span class="o">(</span>cfg<span class="o">)</span>
+<span class="o">{</span>
+        <span class="s2">&#34;ok&#34;</span> : 0,
+        <span class="s2">&#34;errmsg&#34;</span> : <span class="s2">&#34;replSetReconfig command must be sent to the current replica set primary.&#34;</span>
+<span class="o">}</span>
+</code></pre></div><ul>
+<li>三个副本的replSet的名称必须一致</li>
+<li>只有两个副本集的时候，PRIMARY挂掉之后，SECONDARY是不会成为PRIMARY的，必须三个副本集以上，最多50个副本集，并且只允许7个可投票进行选举的成员</li>
+<li>priority设置为0的成员是不参与投票的</li>
+<li>当PRIMARY挂掉的时候，权重高的会被设置为PRIMARY；</li>
+<li>非PRIMARY的副本只允许查询，不允许其他的操作；</li>
+</ul>
+<h3 id="使用springboot进行操作">使用Springboot进行操作</h3>
+<p>查看rs设置</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">rs0:PRIMARY&gt; rs.conf<span class="o">()</span>
+<span class="o">{</span>
+        <span class="s2">&#34;_id&#34;</span> : <span class="s2">&#34;rs0&#34;</span>,
+        <span class="s2">&#34;version&#34;</span> : 12,
+        <span class="s2">&#34;members&#34;</span> : <span class="o">[</span>
+                <span class="o">{</span>
+                        <span class="s2">&#34;_id&#34;</span> : 0,
+                        <span class="s2">&#34;host&#34;</span> : <span class="s2">&#34;10.0.1.9:27017&#34;</span>,
+                        <span class="s2">&#34;priority&#34;</span> : <span class="m">2</span>
+                <span class="o">}</span>,
+                <span class="o">{</span>
+                        <span class="s2">&#34;_id&#34;</span> : 1,
+                        <span class="s2">&#34;host&#34;</span> : <span class="s2">&#34;10.0.106.2:27017&#34;</span>,
+                        <span class="s2">&#34;priority&#34;</span> : 0.8
+                <span class="o">}</span>,
+                <span class="o">{</span>
+                        <span class="s2">&#34;_id&#34;</span> : 2,
+                        <span class="s2">&#34;host&#34;</span> : <span class="s2">&#34;10.0.106.6:27017&#34;</span>,
+                        <span class="s2">&#34;priority&#34;</span> : 0.5
+                <span class="o">}</span>
+        <span class="o">]</span>,
+        <span class="s2">&#34;settings&#34;</span> : <span class="o">{</span>
+                <span class="s2">&#34;getLastErrorDefaults&#34;</span> : <span class="o">{</span>
+                        <span class="s2">&#34;w&#34;</span> : 1,
+                        <span class="s2">&#34;wtimeout&#34;</span> : <span class="m">0</span>
+                <span class="o">}</span>
+        <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>springboot application.properties文件配置</p>
+<pre><code class="language-properties" data-lang="properties">mongo.replicaSet=mongodb://10.0.1.9:27017,10.0.106.2:27017,10.0.106.6:27017
+</code></pre><p>PRIMARY: 10.0.1.9   SECONDARY: 10.0.106.2, 10.0.106.6</p>
+<p>当工程启动后，实验过程和结论如下</p>
+<ul>
+<li>关闭10.0.1.9
+<ul>
+<li>10.0.106.2成为PRIMARY</li>
+<li>10.0.106.2与10.0.106.6都在尝试重连10.0.1.9</li>
+<li>此时应用操作正常，后台无连数据不上的问题</li>
+</ul>
+</li>
+<li>关闭10.0.106.2
+<ul>
+<li>此时没有PRIMARY，10.0.106.6仍然是SECONDARY节点</li>
+<li>此时应用操作不正常，后台过了最大尝试重连时间后直接异常提示</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">org.springframework.dao.DataAccessResourceFailureException: Timed out after <span class="m">30000</span> ms <span class="k">while</span> waiting <span class="k">for</span> a server that matches <span class="o">{</span><span class="nv">serverSelectors</span><span class="o">=[</span>ReadPreferenceServerSelector<span class="o">{</span><span class="nv">readPreference</span><span class="o">=</span>primary<span class="o">}</span>, LatencyMinimizingServerSelector<span class="o">{</span><span class="nv">acceptableLatencyDifference</span><span class="o">=</span><span class="m">15</span> ms<span class="o">}]}</span>. Client view of cluster state is <span class="o">{</span><span class="nv">type</span><span class="o">=</span>ReplicaSet, <span class="nv">servers</span><span class="o">=[{</span><span class="nv">address</span><span class="o">=</span>10.0.1.9:27017, <span class="nv">type</span><span class="o">=</span>Unknown, <span class="nv">state</span><span class="o">=</span>Connecting, <span class="nv">exception</span><span class="o">={</span>com.mongodb.MongoException<span class="nv">$Network</span>: Exception opening the socket<span class="o">}</span>, caused by <span class="o">{</span>java.net.ConnectException: Connection refused<span class="o">}}</span>, <span class="o">{</span><span class="nv">address</span><span class="o">=</span>10.0.106.2:27017, <span class="nv">type</span><span class="o">=</span>ReplicaSetSecondary, <span class="nv">averageLatency</span><span class="o">=</span>11.9 ms, <span class="nv">state</span><span class="o">=</span>Connected<span class="o">}</span>, <span class="o">{</span><span class="nv">address</span><span class="o">=</span>10.0.106.6:27017, <span class="nv">type</span><span class="o">=</span>Unknown, <span class="nv">state</span><span class="o">=</span>Connecting, <span class="nv">exception</span><span class="o">={</span>com.mongodb.MongoException<span class="nv">$Network</span>: Exception opening the socket<span class="o">}</span>, caused by <span class="o">{</span>java.net.ConnectException: Connection refused<span class="o">}}]</span><span class="p">;</span> nested exception is com.mongodb.MongoTimeoutException: Timed out after <span class="m">30000</span> ms <span class="k">while</span> waiting <span class="k">for</span> a server that matches <span class="o">{</span><span class="nv">serverSelectors</span><span class="o">=[</span>ReadPreferenceServerSelector<span class="o">{</span><span class="nv">readPreference</span><span class="o">=</span>primary<span class="o">}</span>, LatencyMinimizingServerSelector<span class="o">{</span><span class="nv">acceptableLatencyDifference</span><span class="o">=</span><span class="m">15</span> ms<span class="o">}]}</span>. Client view of cluster state is <span class="o">{</span><span class="nv">type</span><span class="o">=</span>ReplicaSet, <span class="nv">servers</span><span class="o">=[{</span><span class="nv">address</span><span class="o">=</span>10.0.1.9:27017, <span class="nv">type</span><span class="o">=</span>Unknown, <span class="nv">state</span><span class="o">=</span>Connecting, <span class="nv">exception</span><span class="o">={</span>com.mongodb.MongoException<span class="nv">$Network</span>: Exception opening the socket<span class="o">}</span>, caused by <span class="o">{</span>java.net.ConnectException: Connection refused<span class="o">}}</span>, <span class="o">{</span><span class="nv">address</span><span class="o">=</span>10.0.106.2:27017, <span class="nv">type</span><span class="o">=</span>ReplicaSetSecondary, <span class="nv">averageLatency</span><span class="o">=</span>11.9 ms, <span class="nv">state</span><span class="o">=</span>Connected<span class="o">}</span>, <span class="o">{</span><span class="nv">address</span><span class="o">=</span>10.0.106.6:27017, <span class="nv">type</span><span class="o">=</span>Unknown, <span class="nv">state</span><span class="o">=</span>Connecting, <span class="nv">exception</span><span class="o">={</span>com.mongodb.MongoException<span class="nv">$Network</span>: Exception opening the socket<span class="o">}</span>, caused by <span class="o">{</span>java.net.ConnectException: Connection refused<span class="o">}}]</span>
+</code></pre></div><ul>
+<li>
+<p>重新启动10.0.106.2</p>
+<ul>
+<li>节点10.0.106.2变为PRIMARY</li>
+<li>此时应用开始恢复，正常操作</li>
+</ul>
+</li>
+<li>
+<p>重新启动10.0.1.9</p>
+<ul>
+<li>节点10.0.106.6变为SECONDARY，10.0.1.9变为PRIMARY</li>
+<li>此时应用正常操作</li>
+</ul>
+</li>
+<li>
+<p>当没有PRIMARY的时候，应用才会宕机</p>
+</li>
+<li>
+<p>当三个节点组成replica set的时候，集群宕机到只剩下一台机器的时候，就没有PRIMARY节点，应用也就无法正常运转</p>
+</li>
+<li>
+<p>spring配置文件当中的配置顺序没有关系</p>
+</li>
+</ul>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="https://xibolun.github.io/post/mongo/mongodb-master-slave-replication/">MongoDB Master Slave Replication</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/mongo/mongodb-%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95/">MongoDB基础学习</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/mongo/mongodb-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">MongoDB基础学习</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/mongo'>Mongo</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>Java多线程学习 | penggy Blog</title>
+    <meta property="og:title" content="Java多线程学习 - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2017-04-22T23:36:24&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2019-07-29T23:59:20&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="Java多线程学习">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/java/mulithread/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Java多线程学习</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2017年4月22日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h1 id="java多线程">Java多线程</h1>
+<h2 id="第一章-多线程技能">第一章 多线程技能</h2>
+<h3 id="线程与进程的区别">线程与进程的区别</h3>
+<ul>
+<li>一个进程的启动是由多个线程所支持的；windows进程管理器当中的第一项都一个进程，每一个进程可以由多个线程组成；每个线程的任务是不同的，互不影响</li>
+<li>进程之间的数据不可以共享，而线程可以</li>
+</ul>
+<h3 id="关键句">关键句</h3>
+<ul>
+<li>一个进程至少有一个线程在运行</li>
+<li>代码的执行结果与执行顺序和调用顺序无关（调用随机性）</li>
+<li>star方法的执行顺序不代表线程的执行顺序</li>
+<li>Thread类也实现了Runnable接口，所以Thread的构造方法当中也可以传入Threa对象</li>
+<li>数据和方法若不做设置，会出现线程不安全的情况，导致同一份数据被多个线程操作，通过在run方法前添加synchronized关键字，控制线程的执行队列，如果有其他线程在操作，那么就需要等待其他线程执行完之后当前线程才可以操作，run方法被称做“互斥区”或“临界区”</li>
+<li>虽然synchronized可以解决数据安全的问题，但如果多个线程都在排队想要操作数据,而存在一个线程在操作，一直没有结束，那么其他所有的线程都必须在排队</li>
+<li>run与start的区别是：start返回当前线程的名称是被Thread-0线程调用的结果</li>
+<li>isAlive()方法用于判断线程是否活动；true/false取决于线程是否结束</li>
+<li>getName()方法用于获取当前线程的名称</li>
+<li>sleep()方法用于休眠当前线程</li>
+<li>getId()方法用于获取当前线程的id</li>
+<li>interrupted()方法与isInterrupted()方法</li>
+<li>suspend()方法暂停线程，resume()方法恢复线程，但suspend()方法会独占公共变量，将变量永远锁住，并且会导致数据不同步的情况</li>
+<li>Thread.yield()方法会放弃当前cpu资源，让利给其他资源使用，这样会导致线程执行时间变长</li>
+<li>Thread.getPriority()方法可以获取线程的优先级，对应的setPriority()可以设置线程的优先级</li>
+<li>线程的优先级具有以下特点
+<ul>
+<li>继承性：两个线程如果是子父关系，那么priority相等</li>
+<li>规则性：优先级高的会大部分先执行完</li>
+<li>随机性：随机执行各线程，而非根据优先级高的来执行</li>
+<li>优先级高的线程执行速度要快于优先级低的</li>
+</ul>
+</li>
+<li>isDaemon()判断一个线程是否是daemon线程（守护线程）;如果是守护线程，如果线程都已经结束了，此标志才会被置为false</li>
+</ul>
+<h2 id="第二章-对象及变量的并发访问">第二章 对象及变量的并发访问</h2>
+<h3 id="21">2.1</h3>
+<ul>
+<li>方法内部的变更不存在非线程安全问题</li>
+<li>synchronized只会锁对象，不会锁方法；即创建多个对象，会产生多个锁；若只创建一个对象，则线程会顺序执行</li>
+<li>线程A调用obejct对象当中的synchronized方法时，B线程可以调用其他没有被同步的方法；如果B线程调用了其他也被synchronized声明的方法时，也需要排队等待，需要同步执行</li>
+<li>什么是脏读：因非线程安全取到的被修改过的数据；对于会产生脏读的方法需要添加synchronized</li>
+<li>什么叫锁重入：当一个synchronized声明的方法内部调用了其他被声明synchronized方法；</li>
+<li>一个线程遇到异常，它所持有的锁会全部释放</li>
+<li>同步不具有继承性；即子类的方法若没有被synchronized声明，而父类的方法被声明了，那么调用子类的时候不会排队</li>
+</ul>
+<h3 id="22">2.2</h3>
+<ul>
+<li>synchronized的弊端在于，一个方法若处理时间过长，其他线程需要排队很久；解决方法，将方法当中仅需要同步等待执行的代码声明为synchronized(同步代码块)；这样其他线程就可以访问其他没有被同步的代码</li>
+<li>synchronized(this)间具有同步性，如果在一个对象当中，那么代码块之间是同步的；即不同的线程调用同一对象的不同synchronized(this)声明代码块时会同步执行</li>
+<li>若synchronized(非this)对象，那么不周的线程操作不同的对象的代码块的时候不是同步，而是异步</li>
+<li>对于static的synchronized，有一个问题</li>
+</ul>
+<pre><code class="language-{.java}" data-lang="{.java}">package com.pgy.thread.sync;
+
+/**
+ * Created by admin on 10/05/2017.
+ */
+public class staticSyncTest {
+
+    public static void main(String[] args) {
+        ThreadA tha = new ThreadA();
+        tha.setName(&quot;tha&quot;);
+        tha.start();
+
+        ThreadB thb = new ThreadB();
+        thb.setName(&quot;thb&quot;);
+        thb.start();
+
+        ThreadC thc = new ThreadC(new Service());
+        thc.setName(&quot;thc&quot;);
+        thc.start();
+    }
+}
+
+class Service {
+    synchronized public static void printA() {
+        System.out.println(Thread.currentThread().getName() + &quot;进入printA()&quot;);
+        try {
+            Thread.sleep(3000);
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(Thread.currentThread().getName() + &quot;离开printA()&quot;);
+    }
+
+    synchronized public static void printB() {
+        System.out.println(Thread.currentThread().getName() + &quot;进入printB()&quot;);
+        System.out.println(Thread.currentThread().getName() + &quot;离开printB()&quot;);
+    }
+
+    synchronized public void printC() {
+        System.out.println(Thread.currentThread().getName() + &quot;进入printC()&quot;);
+        System.out.println(Thread.currentThread().getName() + &quot;离开printC()&quot;);
+    }
+
+    /**
+     * 为什么printC已经添加了synchronized,还是会异步执行
+     * tha进入printA()
+     * thc进入printC()
+     * thc离开printC()
+     * tha离开printA()
+     * thb进入printB()
+     * thb离开printB()
+     */
+
+}
+
+class ThreadA extends Thread {
+
+    @Override
+    public void run() {
+        super.run();
+        Service.printA();
+    }
+}
+
+class ThreadB extends Thread {
+
+    @Override
+    public void run() {
+        super.run();
+        Service.printB();
+    }
+}
+
+class ThreadC extends Thread {
+    private Service service;
+
+    public ThreadC(Service service) {
+        this.service = service;
+    }
+
+    @Override
+    public void run() {
+        super.run();
+        service.printC();
+    }
+}
+</code></pre><ul>
+<li>同步的代码块不能对String作同步；因为String有常量池的缓存功能，即&quot;A&quot;==&ldquo;A&rdquo;
+为true；这样会导致如果两个线程操作的String变更是同一值，则程序一直会被最先抢到资源的线程运行；而其他对象类型则不会；</li>
+<li>同步块可以用来解决不同程序无限等待的问题；即将可以不做同步的代码抽离出来进行处理；将需要的同步代码进行同步处理；或在对象内部new出不同的对象，对这些对象进行同步处理；</li>
+<li>若一个对象被多个线程所同步，即时属性改变，也还是同步执行</li>
+</ul>
+<h3 id="23-volatile">2.3 volatile</h3>
+<ul>
+<li>volatile的作用是让变量可以在多个线程当中可见</li>
+<li>volatile不支持原子性,即变量会被修改，无法做到变量同步</li>
+<li>线程安全的两方面：原子性和可见性</li>
+<li>volatile是让线程每次去公共内存当中取值，而不是私有的内存；所以线程拿到的变量值每次都是其他线程修改后最新的；公共内存与私有内存的区别？</li>
+<li>AtomicInteger的作用：让线程同步操作变量</li>
+<li>用原子类进行操作的时候需要注意：一个非同步的方法里面调用原子类的同步方法的时候，这时候线程是不安全的，方法体里面还是需要声明为同步</li>
+</ul>
+<h3 id="volatile与synchronized的区别">volatile与synchronized的区别</h3>
+<ul>
+<li>volatile只能声明变量，synchronized可以声明方法和变量</li>
+<li>volatile比synchronized更加轻量</li>
+<li>volatile不会导致阻塞，因为只是声明的变量，变更可以在线程当中可见；随意修改</li>
+</ul>
+<h2 id="第三章-线程间通信">第三章 线程间通信</h2>
+<h3 id="31-等待通知机制">3.1 等待/通知机制</h3>
+<ul>
+<li>wait使线程停止运行，notify使停止的线程继续运行</li>
+<li>wati和notify都需要在同步的代码块当中执行，否则会抛出InterruptedException</li>
+<li>每个锁的对象都有两个对列，一个是就绪队列，一个是唤醒队列；</li>
+<li>notify不会立即释放资源，而是需要等到同步方法执行完成之后，才会释放</li>
+<li>notify唤醒线程是随机的；多次执行notify或调用notifyAll()可以唤醒所有被等待的线程</li>
+<li>线程处理wait状态的时候，如果调用interrupt方法会抛出InterruptException异常，遇到异常，锁就会被被释放掉</li>
+<li>wait(long)在一定时间内等待，超过时间自动唤醒</li>
+<li>通过操作一个类里面的set和get对某个变量进行操作；set和get可以用wait和notify来进行交替处理</li>
+<li>可以进行一生产多消费、一生产一消费、多生产多消费（操作栈）</li>
+<li>pipedInputStream、pipedOutputStream、pipedReader、pipedWriter可以进行线程间的管道流操作；操作之前要connect</li>
+</ul>
+<pre><code class="language-{.java}" data-lang="{.java}">package com.pgy.thread.sync;
+
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+
+/**
+ * 测试线程间通信--字节流
+ * Created by admin on 12/05/2017.
+ */
+public class PipedStreamTest {
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+
+        PipedDataTest pipedDataTest = new PipedDataTest();
+
+        PipedInputStream pipedInputStream = new PipedInputStream();
+        PipedOutputStream pipedOutputStream = new PipedOutputStream();
+
+        pipedInputStream.connect(pipedOutputStream);
+
+        PipedThreadRead pipedThreadRead = new PipedThreadRead(pipedInputStream, pipedDataTest);
+        PipedThreadWrite pipedThreadWrite = new PipedThreadWrite(pipedOutputStream, pipedDataTest);
+
+        pipedThreadWrite.start();
+        pipedThreadRead.start();
+
+
+
+    }
+}
+
+class PipedThreadRead extends Thread {
+    private PipedInputStream pipedInputStream;
+    private PipedDataTest    pipedDataTest;
+
+    public PipedThreadRead(PipedInputStream pipedInputStream, PipedDataTest pipedDataTest) {
+        this.pipedInputStream = pipedInputStream;
+        this.pipedDataTest = pipedDataTest;
+    }
+
+    @Override
+    public void run() {
+        super.run();
+        PipedDataTest.readData(pipedInputStream);
+    }
+}
+
+class PipedThreadWrite extends Thread {
+    private PipedOutputStream pipedOutputStream;
+    private PipedDataTest     pipedDataTest;
+
+    public PipedThreadWrite(PipedOutputStream pipedOutputStream, PipedDataTest pipedDataTest) {
+        this.pipedOutputStream = pipedOutputStream;
+        this.pipedDataTest = pipedDataTest;
+    }
+
+    @Override
+    public void run() {
+        super.run();
+        PipedDataTest.writeData(pipedOutputStream);
+    }
+}
+
+class PipedDataTest {
+
+    public static void writeData(PipedOutputStream pipedOutputStream) {
+        try {
+            System.out.println(&quot;start write&quot;);
+            for (int i = 0; i &lt; 1000; i++) {
+                String data = i + &quot;&quot;;
+                pipedOutputStream.write(data.getBytes());
+            }
+
+            System.out.println();
+            pipedOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void readData(PipedInputStream pipedInputStream) {
+        try {
+            System.out.println(&quot;start read&quot;);
+            byte[] bytes = new byte[20];
+            int readLen = pipedInputStream.read(bytes);
+
+            while (readLen &gt; 0) {
+                String newData = new String(bytes, 0, readLen);
+                System.out.print(newData);
+                readLen = pipedInputStream.read(bytes);
+            }
+            System.out.println();
+
+            pipedInputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+}
+
+
+</code></pre><h3 id="32-join方法的使用">3.2 join方法的使用</h3>
+<ul>
+<li>join可以使当前线程阻塞，直到运行结束后才执行下面的逻辑代码</li>
+<li>join的线程若被interrupt，则会打印出InterruptException异常</li>
+<li>join(long)与sleep(long)的区别与相同
+<ul>
+<li>两者都可以对线程造成一定时间的阻塞</li>
+<li>当时间到达后，join会释放锁，而sleep不会释放锁 ？？？？</li>
+</ul>
+</li>
+</ul>
+<h3 id="33-类threadlocal的使用">3.3 类ThreadLocal的使用</h3>
+<ul>
+<li>ThreadLocal当中提供每个线程自己绑定的值；static的变量在大家共享的值</li>
+<li>ThreadLocal的存值和取值是使用了ThreadLocalMap</li>
+<li>ThreadLocal当中的变量值具有隔离性</li>
+<li>重写ThreadLocal的initialValue()方法，可以解决ThreadLocal.get()返回Null的问题</li>
+</ul>
+<h3 id="34-inheritablethreadlocal">3.4 InheritableThreadLocal</h3>
+<ul>
+<li>InheritableThreadLocal继续了ThreadLocal；目的是让子线程可以取到父线程当中的值</li>
+</ul>
+<h2 id="第四章-lock的使用">第四章 Lock的使用</h2>
+<h3 id="41-lock的使用">4.1 Lock的使用</h3>
+<ul>
+<li>使用ReentrantLock，可以在需要同步的代码前使用lock()方法，同步后使用unlock()方法，效果等同于synchronized</li>
+<li>ReentrantLock.newCondition()方法可以创建出来一个Condition对象；此对象可以使用await()方法使线程进入WAITTING状态；注意，await()之前，必须使用ReentrantLock的lock()方法，否则会有异常</li>
+<li>Condition当中的signal()方法相当于notify()方法；signalAll()方法相当于notifyAll()方法</li>
+<li>ReentrantLock的boolean类型构造方法决定是公平锁(true)还是非公平锁(false)</li>
+</ul>
+<h3 id="42-使用reentrantreadwritelock类">4.2 使用ReentrantReadWriteLock类</h3>
+<ul>
+<li>ReentrantLock的方式效率低下，而ReentrantReadWriteLock可以加速代码的运行</li>
+<li>读写锁一个是读操作相关的锁，称为共享锁；另一个是写操作相关的锁称为排他锁；多个读锁之间不互斥；多个写锁之间是互斥的；这样可以保证读的时候锁是共享的，不会wating，加快代码的运行速度</li>
+</ul>
+<h2 id="第五章-定时器timer">第五章 定时器Timer</h2>
+<h3 id="51-timer的使用">5.1 Timer的使用</h3>
+<ul>
+<li>Timer(true)构造方法将定时器设置为守护线程，运行结束后线程自己结束</li>
+<li>多个定时器在同时运行的时候，由于定时器是以队列的方式运行的；所以当前面的Timer耗时较长时，后面的任务运行时间就会被延迟</li>
+<li>Timer的cancel()方法可以取消Timer下面的所有TimerTask;而TimerTask的cancel()只会取消当前的TimerTask；其他的还是正常运行</li>
+<li>Timer的cancel()若没有取到锁，那么task信息不会被取消；而是正常执行；即Timer若不量static或者加锁的</li>
+</ul>
+<h2 id="第六章-单例模式与多线程">第六章 单例模式与多线程</h2>
+<ul>
+<li>单例模式分为懒汉（延时加载）和饿汉（立即加载）；饿汉就是getInstance()方法里面取已经实例化的对象；懒汉是若对象没有被实例化，则new出来,而懒汉违背了单例的规则，因为多线程会New出来多个实例</li>
+<li>在延迟加载的懒汉模式上，将getInstance()方法添加synchronized关键字或添加同步代码块，可以解决多线程当中不是单例的问题，但是需要此种方式效率低下，会导致多线程阻塞</li>
+<li>使用DCL(double check locking)模式来解决懒汉加载时单例的问题</li>
+<li>可以将类声明为静态的，并且在类内部当中实例化，这样就可以保证线程是安全的</li>
+<li>静态内部类可以达到线程安全问题，但是如果遇到序列化对象时，默认运行的方式结果还是多例的，将getInstance()方法放置在readResolve()当中可以解决此问题</li>
+<li>static代码块在使用类的时候已经实现了；所以可以将new
+Instance()的代码放到static当中，可以保证单例模式的安全性</li>
+</ul>
+<pre><code class="language-{.java}" data-lang="{.java}">public class StaticSingletonTest {
+    public static StaticSingletonTest str = null;
+
+    static {
+        str = new StaticSingletonTest();
+    }
+
+    public static StaticSingletonTest getInstance() {
+        return str;
+    }
+
+    public static void main(String[] args) {
+        StaticSingeltonThread staticSingeltonThread = new StaticSingeltonThread();
+        staticSingeltonThread.run();
+    }
+
+}
+
+class StaticSingeltonThread extends Thread {
+    @Override
+    public void run() {
+        for (int i = 0; i &lt; 10; i++) {
+            System.out.println(StaticSingletonTest.getInstance().hashCode());
+        }
+    }
+}
+</code></pre><ul>
+<li>由于enum的构造方法也是静态的，所以可以在一个枚举类当中，实现单例模式，效果同上</li>
+</ul>
+<h2 id="第七章-其他总结">第七章 其他总结</h2>
+<h3 id="线程的状态">线程的状态</h3>
+<ul>
+<li>线程的状态在Thread.state枚举当中;NEW、RUNNABLE、WAITING、BLOCKED、TIMED~WATING~、TERMINATED</li>
+<li>NEW：线程被实例化后，未执行start方法</li>
+<li>RUNNABLE:线程运行状态，当一个线程被实例化之后，在线程的内部的状态就是RUNNABLE（包括构造方法）</li>
+</ul>
+<pre><code class="language-{.java}" data-lang="{.java}">class StaticSingeltonThread extends Thread {
+
+    public StaticSingeltonThread() {
+        System.out.println(&quot;thread的构造方法:&quot; + Thread.currentThread().getState());//RUNNABLE
+    }
+
+    @Override
+    public void run() {
+        System.out.println(&quot;thread的run方法&quot; + Thread.currentThread().getState());//RUNNABLE
+
+    }
+}
+</code></pre><ul>
+<li>WAITING:线程操作对象执行了wait()方法之后</li>
+<li>TIMED~WAITING~:线程执行了sleep后的状态</li>
+<li>BLOCKED:当线程在等待其他线程释放锁的状态</li>
+<li>TERMINATED:线程运行结束后的状态</li>
+</ul>
+<h3 id="线程组">线程组</h3>
+<ul>
+<li>线程组的作用是批量管理线程或线程组对象，有效地对线程或线程组对象进行组织</li>
+<li>jvm当中的根线程组是system,再getParent()就会抛NPE异常</li>
+</ul>
+<h3 id="simpledataformat">simpleDataFormat</h3>
+<ul>
+<li>SimpleDataFormat是线程不安全的，因为多个线程使用的simpleDateFormat操作的format格式是不一样的</li>
+<li>解决办法，将SimpleDateFormat对象的实例化方法放到ThreadLocal当中</li>
+</ul>
+<h3 id="线程异常处理">线程异常处理</h3>
+<ul>
+<li>Thread.setDefaultUncaughtExceptionHandler()方法可以获取线程当中的异常信息</li>
+<li>TrehadGroup.uncaughtException()方法可以获取线程组当中的异常</li>
+</ul>
+<h2 id="其他">其他</h2>
+<h3 id="thread与runnable的区别---thread与runnable的区别在于runnable的线程的资源可以共享多个线程可以同时操作一个变量">Thread与Runnable的区别 - Thread与Runnable的区别在于Runnable的线程的资源可以共享，多个线程可以同时操作一个变量</h3>
+<h3 id="线程的生命周期">线程的生命周期</h3>
+<ol>
+<li>创建：new出来一个Thread</li>
+<li>就绪：加入到执行队列当中，等待获取cpu资源去执行</li>
+<li>运行：获取到了cpu资源，然后去运行线程</li>
+<li>阻塞：wait,join,sleep或者其他的操作让线程让出了cpu的资源</li>
+<li>终止：线程运行结束或者调用stop方法</li>
+</ol>
+<h3 id="守护线程">守护线程</h3>
+<h3 id="jstack">jstack</h3>
+
+        </div>
+
+        
+
+
+        
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/java'>java</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

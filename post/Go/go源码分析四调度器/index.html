@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>Go源码分析(四)调度器 | penggy Blog</title>
+    <meta property="og:title" content="Go源码分析(四)调度器 - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2019-09-10T22:52:32&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2019-09-10T22:52:32&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="Go源码分析(四)调度器">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/go/go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E5%9B%9B%E8%B0%83%E5%BA%A6%E5%99%A8/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Go源码分析(四)调度器</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2019年9月10日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h3 id="调度器">调度器</h3>
+<p>在高并发场景当中，一般会起很多的协程(goroutine)，这样一来，就会导致阻塞操作；为了解决这些问题，go语言自己实现了一套 <a href="https://docs.google.com/document/d/1TTj4T2JO42uD5ID9e89oa0sLKhJYD0Y_kqxDv3I3XMw/edit">调度器</a>，用于调度多个goroutine的执行，协程相对于线程来说很轻量，生命周期非常短暂，速度很快；所以这也就是为什么golang的执行速度非常的快的原因；</p>
+<p>那怎么样来调度呢？简单来讲就是将当前cpu核心所持有的协程给其他的cpu执行，怎么给，什么时候给呢？那就需要理解一下P、G、M、sched；</p>
+<p>golang在 <code>src/runtime/runtime2.go</code>文件当中有四个结构体类型，通过这四个结构体完成了整个调度器的建模</p>
+<ul>
+<li>shced：golang的调度器</li>
+<li>G：即goroutine</li>
+<li>M：操作系统线程</li>
+<li>P：类似CPU的核心数</li>
+</ul>
+<h3 id="sched">sched</h3>
+<p>初始化调度器<code>src/runtime/proc.go</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// The bootstrap sequence is:
+</span><span class="c1">//
+</span><span class="c1">//	call osinit
+</span><span class="c1">//	call schedinit
+</span><span class="c1">//	make &amp; queue new G
+</span><span class="c1">//	call runtime·mstart
+</span><span class="c1">//
+</span><span class="c1">// The new G calls runtime·main.
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">schedinit</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c1">// raceinit must be the first call to race detector.
+</span><span class="c1"></span>	<span class="c1">// In particular, it must be done before mallocinit below calls racemapshadow.
+</span><span class="c1"></span>	<span class="c1">// G的初始化
+</span><span class="c1"></span>	<span class="nx">_g_</span> <span class="o">:=</span> <span class="nf">getg</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">raceenabled</span> <span class="p">{</span>
+		<span class="nx">_g_</span><span class="p">.</span><span class="nx">racectx</span><span class="p">,</span> <span class="nx">raceprocctx0</span> <span class="p">=</span> <span class="nf">raceinit</span><span class="p">()</span>
+	<span class="p">}</span>
+
+	<span class="nx">sched</span><span class="p">.</span><span class="nx">maxmcount</span> <span class="p">=</span> <span class="mi">10000</span>
+	
+	<span class="c1">// M的初始化
+</span><span class="c1"></span>	<span class="nf">mcommoninit</span><span class="p">(</span><span class="nx">_g_</span><span class="p">.</span><span class="nx">m</span><span class="p">)</span>
+	<span class="c1">// cpu初始化
+</span><span class="c1"></span>	<span class="nf">cpuinit</span><span class="p">()</span>       <span class="c1">// must run before alginit
+</span><span class="c1"></span>	<span class="o">......</span><span class="p">.</span>
+	<span class="c1">// P的初始化
+</span><span class="c1"></span>	<span class="nx">procs</span> <span class="o">:=</span> <span class="nx">ncpu</span>
+	<span class="k">if</span> <span class="nx">n</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nf">atoi32</span><span class="p">(</span><span class="nf">gogetenv</span><span class="p">(</span><span class="s">&#34;GOMAXPROCS&#34;</span><span class="p">));</span> <span class="nx">ok</span> <span class="o">&amp;&amp;</span> <span class="nx">n</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="nx">procs</span> <span class="p">=</span> <span class="nx">n</span>
+	<span class="p">}</span>
+	<span class="o">......</span>
+<span class="p">}</span>
+</code></pre></div><p>看到调度器初始化的时候会将P、G、M进行初始化；</p>
+<h3 id="p">P</h3>
+<p>结构体定义</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// src/runtime/runtime2.go
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">p</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">id</span>          <span class="kt">int32</span>
+	<span class="nx">status</span>      <span class="kt">uint32</span> <span class="c1">// P的状态，pidle、prunning、pgcstop、psyscall
+</span><span class="c1"></span>	<span class="o">......</span>
+	<span class="nx">mcache</span>      <span class="o">*</span><span class="nx">mcache</span>
+	<span class="nx">raceprocctx</span> <span class="kt">uintptr</span>
+
+	<span class="c1">// PPool
+</span><span class="c1"></span>	<span class="nx">deferpool</span>    <span class="p">[</span><span class="mi">5</span><span class="p">][]</span><span class="o">*</span><span class="nx">_defer</span> <span class="c1">// pool of available defer structs of different sizes (see panic.go)
+</span><span class="c1"></span>	<span class="nx">deferpoolbuf</span> <span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">32</span><span class="p">]</span><span class="o">*</span><span class="nx">_defer</span>
+
+	<span class="c1">// Cache of goroutine ids, amortizes accesses to runtime·sched.goidgen.
+</span><span class="c1"></span>	<span class="nx">goidcache</span>    <span class="kt">uint64</span>
+	<span class="nx">goidcacheend</span> <span class="kt">uint64</span>
+
+	<span class="c1">// Queue of runnable goroutines. Accessed without lock.
+</span><span class="c1"></span>	<span class="nx">runqhead</span> <span class="kt">uint32</span>
+	<span class="nx">runqtail</span> <span class="kt">uint32</span>
+	<span class="nx">runq</span>     <span class="p">[</span><span class="mi">256</span><span class="p">]</span><span class="nx">guintptr</span>
+	<span class="c1">// runnext, if non-nil, is a runnable G that was ready&#39;d by
+</span><span class="c1"></span>	<span class="c1">// the current G and should be run next instead of what&#39;s in
+</span><span class="c1"></span>	<span class="c1">// runq if there&#39;s time remaining in the running G&#39;s time
+</span><span class="c1"></span>	<span class="c1">// slice. It will inherit the time left in the current time
+</span><span class="c1"></span>	<span class="c1">// slice. If a set of goroutines is locked in a
+</span><span class="c1"></span>	<span class="c1">// communicate-and-wait pattern, this schedules that set as a
+</span><span class="c1"></span>	<span class="c1">// unit and eliminates the (potentially large) scheduling
+</span><span class="c1"></span>	<span class="c1">// latency that otherwise arises from adding the ready&#39;d
+</span><span class="c1"></span>	<span class="c1">// goroutines to the end of the run queue.
+</span><span class="c1"></span>	<span class="nx">runnext</span> <span class="nx">guintptr</span>
+
+	<span class="c1">// Available G&#39;s (status == Gdead)
+</span><span class="c1"></span>	<span class="nx">gFree</span> <span class="kd">struct</span> <span class="p">{</span>
+		<span class="nx">gList</span>
+		<span class="nx">n</span> <span class="kt">int32</span>
+	<span class="p">}</span>
+	<span class="o">......</span>
+<span class="p">}</span>
+
+</code></pre></div><h4 id="p的生命周期状态">P的生命周期(状态)</h4>
+<ul>
+<li>新建的时候是<code>_Pgcstop</code></li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// src/runtime/proc.go
+</span><span class="c1">// init initializes pp, which may be a freshly allocated p or a
+</span><span class="c1">// previously destroyed p, and transitions it to status _Pgcstop.
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">pp</span> <span class="o">*</span><span class="nx">p</span><span class="p">)</span> <span class="nf">init</span><span class="p">(</span><span class="nx">id</span> <span class="kt">int32</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">pp</span><span class="p">.</span><span class="nx">id</span> <span class="p">=</span> <span class="nx">id</span>
+	<span class="nx">pp</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">_Pgcstop</span>
+	<span class="o">......</span>
+<span class="p">}</span>
+</code></pre></div><ul>
+<li>初始化完成后，如果有M在运行，则P的状态为<code>_Prunning</code></li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// src/runtime/proc.go  method procresize 
+</span><span class="c1"></span><span class="k">if</span> <span class="nx">_g_</span><span class="p">.</span><span class="nx">m</span><span class="p">.</span><span class="nx">p</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">_g_</span><span class="p">.</span><span class="nx">m</span><span class="p">.</span><span class="nx">p</span><span class="p">.</span><span class="nf">ptr</span><span class="p">().</span><span class="nx">id</span> <span class="p">&lt;</span> <span class="nx">nprocs</span> <span class="p">{</span>
+		<span class="c1">// continue to use the current P
+</span><span class="c1"></span>		<span class="nx">_g_</span><span class="p">.</span><span class="nx">m</span><span class="p">.</span><span class="nx">p</span><span class="p">.</span><span class="nf">ptr</span><span class="p">().</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">_Prunning</span>
+		<span class="nx">_g_</span><span class="p">.</span><span class="nx">m</span><span class="p">.</span><span class="nx">p</span><span class="p">.</span><span class="nf">ptr</span><span class="p">().</span><span class="nx">mcache</span><span class="p">.</span><span class="nf">prepareForSweep</span><span class="p">()</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+   	<span class="o">......</span><span class="p">.</span>
+		<span class="nx">p</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">_Pidle</span>
+		<span class="o">......</span>
+	<span class="p">}</span>
+</code></pre></div><ul>
+<li>上面代码当中可以看到若没有M在运行，那P的状态就置为<code>_Pidle</code>；在<code>acquirep</code>的函数实现里面，会将p的状态从<code>_Prunning</code>-&gt; <code>_Pidle</code></li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// src/runtime/proc.go  method acquirep
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">acquirep</span><span class="p">(</span><span class="nx">_p_</span> <span class="o">*</span><span class="nx">p</span><span class="p">)</span> <span class="p">{</span>
+	<span class="c1">// Do the part that isn&#39;t allowed to have write barriers.
+</span><span class="c1"></span>	<span class="nf">wirep</span><span class="p">(</span><span class="nx">_p_</span><span class="p">)</span>
+	<span class="o">...</span><span class="p">..</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nf">wirep</span><span class="p">(</span><span class="nx">_p_</span> <span class="o">*</span><span class="nx">p</span><span class="p">)</span> <span class="p">{</span>
+	<span class="o">......</span>
+	<span class="nx">_p_</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">_Prunning</span>
+<span class="p">}</span>
+</code></pre></div><ul>
+<li>通过<code>releasep</code>，将P的状态从<code>_Prunning</code>&ndash;&gt; <code>_Pidle</code></li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// src/runtime/proc.go  method releasep 
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">releasep</span><span class="p">()</span> <span class="o">*</span><span class="nx">p</span> <span class="p">{</span>
+	<span class="o">......</span>
+	<span class="nx">_p_</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">_Pidle</span>
+	<span class="k">return</span> <span class="nx">_p_</span>
+<span class="p">}</span>
+</code></pre></div><ul>
+<li><code>_Prunning</code>可以与<code>_Psyscall</code>状态进行切换</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 通过entersyscall P由_Prunning变为_Psyscall
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">entersyscall</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nf">reentersyscall</span><span class="p">(</span><span class="nf">getcallerpc</span><span class="p">(),</span> <span class="nf">getcallersp</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="c1">// 通过exitsyscall --&gt; exitsyscallfast --&gt; wirep; P由_Psyscall变为_Prunning
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">exitsyscall</span><span class="p">()</span> <span class="p">{</span>
+	<span class="o">......</span>
+	<span class="nx">exitsyscallfast</span>
+	<span class="o">...</span><span class="p">..</span>
+<span class="p">}</span>
+<span class="c1">//go:nosplit
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">exitsyscallfast</span><span class="p">(</span><span class="nx">oldp</span> <span class="o">*</span><span class="nx">p</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+<span class="o">......</span>
+<span class="c1">// Try to re-acquire the last P.
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">oldp</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="o">&amp;&amp;</span> <span class="nx">oldp</span><span class="p">.</span><span class="nx">status</span> <span class="o">==</span> <span class="nx">_Psyscall</span> <span class="o">&amp;&amp;</span> <span class="nx">atomic</span><span class="p">.</span><span class="nf">Cas</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">oldp</span><span class="p">.</span><span class="nx">status</span><span class="p">,</span> <span class="nx">_Psyscall</span><span class="p">,</span> <span class="nx">_Pidle</span><span class="p">)</span> <span class="p">{</span>
+		<span class="c1">// There&#39;s a cpu for us, so we can run.
+</span><span class="c1"></span>		<span class="nf">wirep</span><span class="p">(</span><span class="nx">oldp</span><span class="p">)</span>
+		<span class="nf">exitsyscallfast_reacquired</span><span class="p">()</span>
+		<span class="k">return</span> <span class="kc">true</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nf">wirep</span><span class="p">(</span><span class="nx">_p_</span> <span class="o">*</span><span class="nx">p</span><span class="p">)</span> <span class="p">{</span>
+	<span class="o">......</span>
+	<span class="nx">_p_</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">_Prunning</span>
+<span class="p">}</span>
+</code></pre></div><ul>
+<li>而<code>destory</code>是将P状态变为<code>_Pdead</code></li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// src/runtime/proc.go  method destroy 
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">pp</span> <span class="o">*</span><span class="nx">p</span><span class="p">)</span> <span class="nf">destroy</span><span class="p">()</span> <span class="p">{</span>
+	<span class="o">......</span>
+	<span class="nx">pp</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">_Pdead</span>
+<span class="p">}</span>
+
+</code></pre></div><p>那什么时候会执行<code>destory</code>方法呢？前置调用<code>procresize</code>的时候，(可以是设置<code>GOMAXPROCS</code>参数)若发生减少P的情况，即会销毁P</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="c1">// src/runtime/proc.go  method procresize当中有一处 
+</span><span class="c1"></span>	<span class="c1">// release resources from unused P&#39;s
+</span><span class="c1"></span>	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="nx">nprocs</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">old</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="nx">p</span> <span class="o">:=</span> <span class="nx">allp</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+		<span class="nx">p</span><span class="p">.</span><span class="nf">destroy</span><span class="p">()</span>
+		<span class="c1">// can&#39;t free P itself because it can be referenced by an M in syscall
+</span><span class="c1"></span>	<span class="p">}</span>
+</code></pre></div><h3 id="m">M</h3>
+<p>结构体定义</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// src/runtime/runtime2.go
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">m</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">g0</span>      <span class="o">*</span><span class="nx">g</span>     <span class="c1">// goroutine with scheduling stack
+</span><span class="c1"></span>	<span class="nx">morebuf</span> <span class="nx">gobuf</span>  <span class="c1">// gobuf arg to morestack
+</span><span class="c1"></span>	<span class="nx">divmod</span>  <span class="kt">uint32</span> <span class="c1">// div/mod denominator for arm - known to liblink
+</span><span class="c1"></span>
+	<span class="c1">// Fields not known to debuggers.
+</span><span class="c1"></span>	<span class="nx">procid</span>        <span class="kt">uint64</span>       <span class="c1">// for debuggers, but offset not hard-coded
+</span><span class="c1"></span>	<span class="nx">gsignal</span>       <span class="o">*</span><span class="nx">g</span>           <span class="c1">// signal-handling g
+</span><span class="c1"></span>	<span class="nx">goSigStack</span>    <span class="nx">gsignalStack</span> <span class="c1">// Go-allocated signal handling stack
+</span><span class="c1"></span>	<span class="nx">sigmask</span>       <span class="nx">sigset</span>       <span class="c1">// storage for saved signal mask
+</span><span class="c1"></span>	<span class="nx">tls</span>           <span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="kt">uintptr</span>   <span class="c1">// thread-local storage (for x86 extern register)
+</span><span class="c1"></span>	<span class="nx">mstartfn</span>      <span class="kd">func</span><span class="p">()</span>
+	<span class="nx">curg</span>          <span class="o">*</span><span class="nx">g</span>       <span class="c1">// current running goroutine
+</span><span class="c1"></span>	<span class="nx">caughtsig</span>     <span class="nx">guintptr</span> <span class="c1">// goroutine running during fatal signal
+</span><span class="c1"></span>	<span class="nx">p</span>             <span class="nx">puintptr</span> <span class="c1">// attached p for executing go code (nil if not executing go code)
+</span><span class="c1"></span><span class="o">......</span>
+	<span class="nx">spinning</span>      <span class="kt">bool</span> <span class="c1">// m is out of work and is actively looking for work
+</span><span class="c1"></span><span class="o">......</span>
+	<span class="nx">alllink</span>       <span class="o">*</span><span class="nx">m</span> <span class="c1">// on allm
+</span><span class="c1"></span>	<span class="nx">schedlink</span>     <span class="nx">muintptr</span>
+<span class="p">}</span>
+</code></pre></div><p>由上面可以看出</p>
+<ul>
+<li>一个M需要绑定一个P才会去执行，结构体里面有一个p的字段地址，如果没有执行则为nil</li>
+<li>一个M会绑定一个goroutine，即<code>curg</code>，保存着当前<code>running goroutine</code>的指针对象</li>
+<li>M去执行goroutine的时候也需要用一个goroutine，即<code>g0</code></li>
+<li>其他后续再补充&hellip;&hellip;</li>
+<li>&hellip;&hellip;</li>
+</ul>
+<h4 id="m的状态">M的状态</h4>
+<ul>
+<li>持有G，就是执行(非自旋)</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">mspinning</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c1">// startm&#39;s caller incremented nmspinning. Set the new M&#39;s spinning.
+</span><span class="c1"></span>	<span class="nf">getg</span><span class="p">().</span><span class="nx">m</span><span class="p">.</span><span class="nx">spinning</span> <span class="p">=</span> <span class="kc">true</span>
+<span class="p">}</span>
+<span class="c1">//go:nowritebarrierrec
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">startm</span><span class="p">(</span><span class="nx">_p_</span> <span class="o">*</span><span class="nx">p</span><span class="p">,</span> <span class="nx">spinning</span> <span class="kt">bool</span><span class="p">)</span> <span class="p">{}</span>
+</code></pre></div><ul>
+<li>不持有G，就是等待(自旋)，此种状态的好处就是省去创建M的开销；</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Stops execution of the current m until new work is available.
+</span><span class="c1">// Returns with acquired P.
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">stopm</span><span class="p">()</span> <span class="p">{</span><span class="o">......</span><span class="p">}</span>
+</code></pre></div><h3 id="g">G</h3>
+<p>我们会聊一个问题，goroutine与thread<a href="https://blog.nindalf.com/posts/how-goroutines-work/">有什么区别呢</a>？可以参考 <a href="https://groups.google.com/forum/#!topic/golang-nuts/j51G7ieoKh4">go-nuts</a>里面的讨论</p>
+<ul>
+<li>从内存占用上来说：一个goroutine初始化<code>stack</code>大小为2kb，而一个线程为1MB；这样会更加小的开支</li>
+<li>从创建和销毀来说：创建一个线程 需要使用cpu的调度，需要与硬件打交道，但是呢创建一个goroutine不需要，因为初始化runtime的时候线程已经创建好了，而创建的goroutine会依附的M上面去执行；</li>
+<li>从切换来讲：线程切换需要将executing的线程先放到暂存器里面，然后将runnable的线程拿过来执行；goroutine也是这样做，但是暂存器只有三种，但goroutine的切的时间远远小于线程切换时间1000-1500 纳秒，只需要 200 ns</li>
+</ul>
+<p>如何创建？</p>
+<p><code>src/runtime/proc.go</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Create a new g running fn with siz bytes of arguments.
+</span><span class="c1">// Put it on the queue of g&#39;s waiting to run.
+</span><span class="c1">// The compiler turns a go statement into a call to this.
+</span><span class="c1">// Cannot split the stack because it assumes that the arguments
+</span><span class="c1">// are available sequentially after &amp;fn; they would not be
+</span><span class="c1">// copied if a stack split occurred.
+</span><span class="c1">//go:nosplit
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">newproc</span><span class="p">(</span><span class="nx">siz</span> <span class="kt">int32</span><span class="p">,</span> <span class="nx">fn</span> <span class="o">*</span><span class="nx">funcval</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">argp</span> <span class="o">:=</span> <span class="nf">add</span><span class="p">(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">fn</span><span class="p">),</span> <span class="nx">sys</span><span class="p">.</span><span class="nx">PtrSize</span><span class="p">)</span>
+	<span class="nx">gp</span> <span class="o">:=</span> <span class="nf">getg</span><span class="p">()</span>
+	<span class="nx">pc</span> <span class="o">:=</span> <span class="nf">getcallerpc</span><span class="p">()</span>
+	<span class="nf">systemstack</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+		<span class="nf">newproc1</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="kt">uint8</span><span class="p">)(</span><span class="nx">argp</span><span class="p">),</span> <span class="nx">siz</span><span class="p">,</span> <span class="nx">gp</span><span class="p">,</span> <span class="nx">pc</span><span class="p">)</span>
+	<span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div><h3 id="调度原理">调度原理</h3>
+<h4 id="先得有g才能干活">先得有G，才能干活</h4>
+<p>首先了解一下<code>LRQ</code>本地可运行队列(LocalRunningQueue)、<code>GRQ</code>全局可运行队列(GlobalRunningQueue)</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// GRQ
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">schedt</span> <span class="kd">struct</span><span class="p">{</span>
+	<span class="o">...</span><span class="p">.</span>
+		<span class="c1">// 全局的G队列
+</span><span class="c1"></span>    <span class="nx">runq</span>     <span class="nx">gQueue</span>
+		<span class="nx">runqsize</span> <span class="kt">int32</span>
+	<span class="o">...</span><span class="p">.</span>
+<span class="p">}</span>
+
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// LRQ
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">p</span> <span class="kd">struct</span><span class="p">{</span>
+	<span class="c1">// Queue of runnable goroutines. Accessed without lock.
+</span><span class="c1"></span>	<span class="nx">runqhead</span> <span class="kt">uint32</span>
+	<span class="nx">runqtail</span> <span class="kt">uint32</span>
+	<span class="nx">runq</span>     <span class="p">[</span><span class="mi">256</span><span class="p">]</span><span class="nx">guintptr</span>
+<span class="p">}</span>
+
+</code></pre></div><ul>
+<li>A：初始化的时候先去全局里面看看有没有，<code>func globrunqget(_p_ *p, max int32) *g {...}</code>
+<ul>
+<li>如果有，放到本地的p队列里面，</li>
+<li>如果没有，那就看本地的队列里面有没有<code>func runqget(_p_ *p) (gp *g, inheritTime bool) {...}</code>
+<ul>
+<li>C：如果有，那么去执行</li>
+<li>如果没有，去看<code>poll</code>网络里面有idle
+<ul>
+<li>如果有，则C</li>
+<li>如果没有，去其他P里面去偷</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>B：本地队列执行完了怎么办？
+<ul>
+<li>再去看看全局里面有没有，即重复执行上面的<code>A</code></li>
+</ul>
+</li>
+<li>具体如何找一个G，在函数``func findrunnable() (gp *g, inheritTime bool) {&hellip;}`里面</li>
+</ul>
+<h4 id="有了g便得有m">有了G，便得有M</h4>
+<p>如果有了G，如果g绑定的M处于自旋状态，则进行<code>wakeup</code>操作</p>
+<pre><code>	if _g_.m.spinning {
+		resetspinning()
+	}
+</code></pre><h4 id="有了m再有一个p就可以干活了">有了M，再有一个P就可以干活了</h4>
+<p>如果G里面的P不是nil，则就可以直接干活，如果没有，那需要<code>wakeP</code>，<code>tryWakeP</code>就是在上面进行判断<code>g</code>的<code>p</code>是否正常</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="c1">// If about to schedule a not-normal goroutine (a GCworker or tracereader),
+</span><span class="c1"></span>	<span class="c1">// wake a P if there is one.
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">tryWakeP</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="nx">atomic</span><span class="p">.</span><span class="nf">Load</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">sched</span><span class="p">.</span><span class="nx">npidle</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">atomic</span><span class="p">.</span><span class="nf">Load</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">sched</span><span class="p">.</span><span class="nx">nmspinning</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+			<span class="nf">wakep</span><span class="p">()</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+</code></pre></div><h4 id="怎么干活">怎么干活？</h4>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="nf">execute</span><span class="p">(</span><span class="nx">gp</span><span class="p">,</span> <span class="nx">inheritTime</span><span class="p">)</span>
+</code></pre></div><p>大概步骤：</p>
+<ul>
+<li>切换<code>g</code>的状态<code>_Grunnable</code>––&gt; <code>_Grunning</code></li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="nf">casgstatus</span><span class="p">(</span><span class="nx">gp</span><span class="p">,</span> <span class="nx">_Grunnable</span><span class="p">,</span> <span class="nx">_Grunning</span><span class="p">)</span>
+</code></pre></div><ul>
+<li>将<code>gp</code>绑定到M，同时<code>gp</code>里面M也给绑定；即执行的<code>_g_</code>与需要执行的<code>gp</code>都绑定上M</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="nx">_g_</span><span class="p">.</span><span class="nx">m</span><span class="p">.</span><span class="nx">curg</span> <span class="p">=</span> <span class="nx">gp</span>
+	<span class="nx">gp</span><span class="p">.</span><span class="nx">m</span> <span class="p">=</span> <span class="nx">_g_</span><span class="p">.</span><span class="nx">m</span>
+</code></pre></div><ul>
+<li>然后进行<code>gogo</code></li>
+</ul>
+<pre><code class="language-assembly" data-lang="assembly">	gogo(&amp;gp.sched)
+
+// src/runtime/asm_amd64.s
+// func gogo(buf *gobuf)
+// restore state from Gobuf; longjmp
+TEXT runtime·gogo(SB), NOSPLIT, $16-8
+	MOVQ	buf+0(FP), BX		// gobuf
+	MOVQ	gobuf_g(BX), DX
+	MOVQ	0(DX), CX		// make sure g != nil
+	get_tls(CX)
+	MOVQ	DX, g(CX)
+	MOVQ	gobuf_sp(BX), SP	// restore SP；这个SP像一个勾子一样，执行完之后回到schedule当中
+	MOVQ	gobuf_ret(BX), AX
+	MOVQ	gobuf_ctxt(BX), DX
+	MOVQ	gobuf_bp(BX), BP
+	MOVQ	$0, gobuf_sp(BX)	// clear to help garbage collector
+	MOVQ	$0, gobuf_ret(BX)
+	MOVQ	$0, gobuf_ctxt(BX)
+	MOVQ	$0, gobuf_bp(BX)
+	MOVQ	gobuf_pc(BX), BX
+	JMP	BX
+</code></pre><ul>
+<li>最后执行<code>goexit1</code>，而<code>goexit1</code>最终调用的是<code>goexit0</code></li>
+</ul>
+<pre><code class="language-assembly" data-lang="assembly">/ 在 goroutine 返回 goexit + PCQuantum 时运行的最顶层函数。
+TEXT runtime·goexit(SB),NOSPLIT,$0-0
+	BYTE	$0x90	// NOP
+	CALL	runtime·goexit1(SB)	// 不会返回
+	// traceback from goexit1 must hit code range of goexit
+	BYTE	$0x90	// NOP
+</code></pre><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Finishes execution of the current goroutine.
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">goexit1</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">raceenabled</span> <span class="p">{</span>
+		<span class="nf">racegoend</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nx">trace</span><span class="p">.</span><span class="nx">enabled</span> <span class="p">{</span>
+		<span class="nf">traceGoEnd</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="c1">// 这里调用goexit0
+</span><span class="c1"></span>	<span class="nf">mcall</span><span class="p">(</span><span class="nx">goexit0</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// goexit continuation on g0.
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">goexit0</span><span class="p">(</span><span class="nx">gp</span> <span class="o">*</span><span class="nx">g</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">_g_</span> <span class="o">:=</span> <span class="nf">getg</span><span class="p">()</span>
+	<span class="o">......</span><span class="p">.</span>
+	<span class="nf">schedule</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div><ul>
+<li>执行<code>goexit0</code>里面的大概逻辑</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// goexit continuation on g0.
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">goexit0</span><span class="p">(</span><span class="nx">gp</span> <span class="o">*</span><span class="nx">g</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">_g_</span> <span class="o">:=</span> <span class="nf">getg</span><span class="p">()</span>
+
+	<span class="c1">// 切换gp的状态，从running变为dead
+</span><span class="c1"></span>	<span class="nf">casgstatus</span><span class="p">(</span><span class="nx">gp</span><span class="p">,</span> <span class="nx">_Grunning</span><span class="p">,</span> <span class="nx">_Gdead</span><span class="p">)</span>
+	<span class="o">......</span>
+	<span class="c1">// 解绑M
+</span><span class="c1"></span>	<span class="nx">gp</span><span class="p">.</span><span class="nx">m</span> <span class="p">=</span> <span class="kc">nil</span>
+	<span class="nx">locked</span> <span class="o">:=</span> <span class="nx">gp</span><span class="p">.</span><span class="nx">lockedm</span> <span class="o">!=</span> <span class="mi">0</span>
+	<span class="nx">gp</span><span class="p">.</span><span class="nx">lockedm</span> <span class="p">=</span> <span class="mi">0</span>
+	<span class="c1">// 清空_g_.m里面的持有g
+</span><span class="c1"></span>	<span class="nx">_g_</span><span class="p">.</span><span class="nx">m</span><span class="p">.</span><span class="nx">lockedg</span> <span class="p">=</span> <span class="mi">0</span>
+	<span class="nx">gp</span><span class="p">.</span><span class="nx">paniconfault</span> <span class="p">=</span> <span class="kc">false</span>
+	<span class="c1">// 将各种变更都置为nil
+</span><span class="c1"></span>	<span class="nx">gp</span><span class="p">.</span><span class="nx">_defer</span> <span class="p">=</span> <span class="kc">nil</span> <span class="c1">// should be true already but just in case.
+</span><span class="c1"></span>	<span class="nx">gp</span><span class="p">.</span><span class="nx">_panic</span> <span class="p">=</span> <span class="kc">nil</span> <span class="c1">// non-nil for Goexit during panic. points at stack-allocated data.
+</span><span class="c1"></span>	<span class="nx">gp</span><span class="p">.</span><span class="nx">writebuf</span> <span class="p">=</span> <span class="kc">nil</span>
+	<span class="nx">gp</span><span class="p">.</span><span class="nx">waitreason</span> <span class="p">=</span> <span class="mi">0</span>
+	<span class="nx">gp</span><span class="p">.</span><span class="nx">param</span> <span class="p">=</span> <span class="kc">nil</span>
+	<span class="nx">gp</span><span class="p">.</span><span class="nx">labels</span> <span class="p">=</span> <span class="kc">nil</span>
+	<span class="nx">gp</span><span class="p">.</span><span class="nx">timer</span> <span class="p">=</span> <span class="kc">nil</span>
+
+	<span class="c1">// Note that gp&#39;s stack scan is now &#34;valid&#34; because it has no
+</span><span class="c1"></span>	<span class="c1">// stack.
+</span><span class="c1"></span>	<span class="nx">gp</span><span class="p">.</span><span class="nx">gcscanvalid</span> <span class="p">=</span> <span class="kc">true</span>
+	<span class="c1">// 丢弃g
+</span><span class="c1"></span>	<span class="nf">dropg</span><span class="p">()</span>
+
+  <span class="c1">// 处理p里面的g队列
+</span><span class="c1"></span>	<span class="nf">gfput</span><span class="p">(</span><span class="nx">_g_</span><span class="p">.</span><span class="nx">m</span><span class="p">.</span><span class="nx">p</span><span class="p">.</span><span class="nf">ptr</span><span class="p">(),</span> <span class="nx">gp</span><span class="p">)</span>
+	<span class="o">...</span><span class="p">..</span>
+	<span class="c1">// 再次开始调度
+</span><span class="c1"></span>	<span class="nf">schedule</span><span class="p">()</span>
+<span class="p">}</span>
+
+</code></pre></div><p>以上为自己的学习笔记，可能会有错误或者理解不到位的地方，参考资料里面写的有很多；</p>
+<h3 id="参考资料">参考资料</h3>
+<ul>
+<li><a href="https://qcrao.com/2019/09/02/dive-into-go-scheduler/">深度解密Go语言之scheduler</a></li>
+<li><a href="https://speakerdeck.com/retervision/go-runtime-scheduler">go-runtime-scheduler</a></li>
+<li><a href="http://www.cs.columbia.edu/~aho/cs6998/reports/12-12-11_DeshpandeSponslerWeiss_GO.pdf">Analysis of the Go runtime scheduler</a></li>
+<li><a href="https://changkun.de/golang/zh-cn/part2runtime/ch06sched/exec/">《Go Under The Hoold》–– 调度循环</a></li>
+</ul>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="https://xibolun.github.io/post/go/go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B8%89%E4%BB%8Emain.go%E5%BC%80%E5%A7%8B/">Go源码分析(三)从main.go开始</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/go/go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%BA%8Cdebug%E5%B7%A5%E5%85%B7/">Go源码分析(二)Debug工具</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/go/go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B8%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">Go源码分析(一)环境搭建</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/go/go-pprof/">Go pprof</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/go/go%E5%B9%B6%E5%8F%91%E7%9A%84%E6%B5%8B%E9%AA%8C/">关于Go并发的测验</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/go'>go</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

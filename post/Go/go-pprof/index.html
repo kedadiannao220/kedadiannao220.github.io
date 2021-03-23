@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>Go pprof | penggy Blog</title>
+    <meta property="og:title" content="Go pprof - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2019-08-29T19:08:49&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2019-09-01T00:05:59&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="Go pprof">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/go/go-pprof/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Go pprof</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2019年8月29日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h3 id="什么是pprof">什么是pprof</h3>
+<p>pprof是一个收集profiling数据样本，用于可视化展示和分析程序性能的工具，有cpu、内存、trace、Goroutine等。</p>
+<p>go语言的工具包里面的自带pprof；</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">➜  darwin_amd64 <span class="nb">pwd</span>
+/usr/local/go1.12.0/pkg/tool/darwin_amd64
+➜  darwin_amd64 ll
+......
+-rwxr-xr-x  <span class="m">1</span> root  wheel    14M Jul  <span class="m">9</span> 05:30 pprof
+</code></pre></div><pre><code>➜  ~ go tool pprof --help                                                      
+usage:                                                                         
+                                                                               
+Produce output in the specified format.                                        
+                                                                               
+   pprof &lt;format&gt; [options] [binary] &lt;source&gt; ...                              
+                                                                               
+Omit the format to get an interactive shell whose commands can be used         
+to generate various views of a profile                                         
+                                                                               
+   pprof [options] [binary] &lt;source&gt; ...                                       
+                                                                               
+Omit the format and provide the &quot;-http&quot; flag to get an interactive web
+interface at the specified host:port that can be used to navigate through
+various views of a profile.
+
+   pprof -http [host]:[port] [options] [binary] &lt;source&gt; ...                                                 
+</code></pre><h3 id="启用">启用</h3>
+<p>如果想使用http请求访问可以参考官方的说明 <a href="https://golang.org/pkg/net/http/pprof/#pkg-overview">overview</a>, 里面讲述了如何使用，并同时给了一些常用的url示意；</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;localhost:6060&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">))</span>
+<span class="p">}()</span>
+</code></pre></div><p>或者自己写http请求也可以，以下是我在iris里面添加的一些代码；但是未注册的好像请求不了；所以建议还是使用官方推荐的方式</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// RegisterPProf pprof相关注册
+</span><span class="c1">// 以下url未注册  /debug/pprof/heap、goroutines、
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">RegisterPProf</span><span class="p">(</span><span class="nx">app</span> <span class="o">*</span><span class="nx">iris</span><span class="p">.</span><span class="nx">Application</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">app</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;/debug/pprof/&#34;</span><span class="p">,</span> <span class="nx">route</span><span class="p">.</span><span class="nf">PProfIndexHandle</span><span class="p">())</span>
+	<span class="nx">app</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;/debug/pprof/cmdline&#34;</span><span class="p">,</span> <span class="nx">route</span><span class="p">.</span><span class="nf">PProfCmdlineHandle</span><span class="p">())</span>
+	<span class="nx">app</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;/debug/pprof/profile&#34;</span><span class="p">,</span> <span class="nx">route</span><span class="p">.</span><span class="nf">PProfProfileHandle</span><span class="p">())</span>
+	<span class="nx">app</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;/debug/pprof/symbol&#34;</span><span class="p">,</span> <span class="nx">route</span><span class="p">.</span><span class="nf">PProfSymbolHandle</span><span class="p">())</span>
+	<span class="nx">app</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;/debug/pprof/trace&#34;</span><span class="p">,</span> <span class="nx">route</span><span class="p">.</span><span class="nf">PProfTraceHandle</span><span class="p">())</span>
+<span class="p">}</span>
+</code></pre></div><p>后来看了一下 <a href="https://artem.krylysov.com/blog/2017/03/13/profiling-and-optimizing-go-web-applications/#comment-3640502941">评论</a> 是可以实现的； 如果想全量补充，可以使用以下方式：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">RegisterPProf</span><span class="p">(</span><span class="nx">app</span> <span class="o">*</span><span class="nx">iris</span><span class="p">.</span><span class="nx">Application</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">app</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;/debug/pprof/&#34;</span><span class="p">,</span> <span class="nx">route</span><span class="p">.</span><span class="nf">PProfIndexHandle</span><span class="p">())</span>
+	<span class="nx">app</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;/debug/{code:string}&#34;</span><span class="p">,</span> <span class="nx">route</span><span class="p">.</span><span class="nf">PProfHandle</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="c1">// PProfHandle
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">PProfHandle</span><span class="p">()</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Handler</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">hero</span><span class="p">.</span><span class="nf">Register</span><span class="p">(</span><span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">iris</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">(</span><span class="nx">code</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">_ctx</span> <span class="nx">iris</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">{</span>
+		<span class="nx">code</span> <span class="p">=</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">URLParam</span><span class="p">(</span><span class="s">&#34;code&#34;</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nx">code</span><span class="p">,</span> <span class="nx">ctx</span>
+	<span class="p">}).</span><span class="nf">Handler</span><span class="p">(</span><span class="kd">func</span><span class="p">(</span><span class="nx">code</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">ctx</span> <span class="nx">iris</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;url param code is : %s\n&#34;</span><span class="p">,</span> <span class="nx">code</span><span class="p">)</span>
+		<span class="k">switch</span> <span class="nx">code</span> <span class="p">{</span>
+		<span class="k">case</span> <span class="s">&#34;cmdline&#34;</span><span class="p">:</span>
+			<span class="nx">pprof</span><span class="p">.</span><span class="nf">Cmdline</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">ResponseWriter</span><span class="p">(),</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Request</span><span class="p">())</span>
+		<span class="k">case</span> <span class="s">&#34;symbol&#34;</span><span class="p">:</span>
+			<span class="nx">pprof</span><span class="p">.</span><span class="nf">Symbol</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">ResponseWriter</span><span class="p">(),</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Request</span><span class="p">())</span>
+		<span class="k">case</span> <span class="s">&#34;trace&#34;</span><span class="p">:</span>
+			<span class="nx">pprof</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">ResponseWriter</span><span class="p">(),</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Request</span><span class="p">())</span>
+		<span class="k">case</span> <span class="s">&#34;profile&#34;</span><span class="p">:</span>
+			<span class="nx">pprof</span><span class="p">.</span><span class="nf">Profile</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">ResponseWriter</span><span class="p">(),</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Request</span><span class="p">())</span>
+		<span class="k">case</span> <span class="s">&#34;allocs&#34;</span><span class="p">:</span>
+			<span class="nx">pprof</span><span class="p">.</span><span class="nf">Handler</span><span class="p">(</span><span class="s">&#34;allocs&#34;</span><span class="p">).</span><span class="nf">ServeHTTP</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">ResponseWriter</span><span class="p">(),</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Request</span><span class="p">())</span>
+		<span class="k">case</span> <span class="s">&#34;block&#34;</span><span class="p">:</span>
+			<span class="nx">pprof</span><span class="p">.</span><span class="nf">Handler</span><span class="p">(</span><span class="s">&#34;block&#34;</span><span class="p">).</span><span class="nf">ServeHTTP</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">ResponseWriter</span><span class="p">(),</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Request</span><span class="p">())</span>
+		<span class="k">case</span> <span class="s">&#34;goroutine&#34;</span><span class="p">:</span>
+			<span class="nx">pprof</span><span class="p">.</span><span class="nf">Handler</span><span class="p">(</span><span class="s">&#34;goroutine&#34;</span><span class="p">).</span><span class="nf">ServeHTTP</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">ResponseWriter</span><span class="p">(),</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Request</span><span class="p">())</span>
+		<span class="k">case</span> <span class="s">&#34;heap&#34;</span><span class="p">:</span>
+			<span class="nx">pprof</span><span class="p">.</span><span class="nf">Handler</span><span class="p">(</span><span class="s">&#34;heap&#34;</span><span class="p">).</span><span class="nf">ServeHTTP</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">ResponseWriter</span><span class="p">(),</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Request</span><span class="p">())</span>
+		<span class="k">case</span> <span class="s">&#34;mutex&#34;</span><span class="p">:</span>
+			<span class="nx">pprof</span><span class="p">.</span><span class="nf">Handler</span><span class="p">(</span><span class="s">&#34;mutex&#34;</span><span class="p">).</span><span class="nf">ServeHTTP</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">ResponseWriter</span><span class="p">(),</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Request</span><span class="p">())</span>
+		<span class="k">case</span> <span class="s">&#34;threadcreate&#34;</span><span class="p">:</span>
+			<span class="nx">pprof</span><span class="p">.</span><span class="nf">Handler</span><span class="p">(</span><span class="s">&#34;threadcreate&#34;</span><span class="p">).</span><span class="nf">ServeHTTP</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">ResponseWriter</span><span class="p">(),</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Request</span><span class="p">())</span>
+		<span class="k">default</span><span class="p">:</span>
+			<span class="nx">pprof</span><span class="p">.</span><span class="nf">Index</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">ResponseWriter</span><span class="p">(),</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">Request</span><span class="p">())</span>
+		<span class="p">}</span>
+	<span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div><p>还有一种方式是使用<code>runtime</code>包进行代码操作；这种方式可以用于非http请求的应用，运行一段时间就结束的那种</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">f</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Create</span><span class="p">(</span><span class="o">*</span><span class="nx">cpuprofile</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="nx">pprof</span><span class="p">.</span><span class="nf">StartCPUProfile</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span>
+<span class="k">defer</span> <span class="nx">pprof</span><span class="p">.</span><span class="nf">StopCPUProfile</span><span class="p">()</span>
+<span class="o">...</span>
+<span class="nx">f</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Create</span><span class="p">(</span><span class="o">*</span><span class="nx">memprofile</span><span class="p">)</span>
+<span class="nx">pprof</span><span class="p">.</span><span class="nf">WriteHeapProfile</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span>
+<span class="nx">f</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</code></pre></div><h3 id="使用">使用</h3>
+<p>由于可视化使用了 <a href="https://www.graphviz.org/">Graphviz</a> 来生成关系图和火焰图，所以需要安装一下；</p>
+<p>第一种方式：可以将文件下载下来，然后另启一个http端口号</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">curl -O http://localhost:6060/debug/pprof/heap /Users/admin/projects/go/source/heap
+go tool pprof -http<span class="o">=</span><span class="s2">&#34;:8080&#34;</span> /Users/admin/projects/go/source/heap
+</code></pre></div><p>或者直接使用交互模式；可以看到交互模式是先将文件下载下来，然后存放到pprof文件夹下，然后可以使用一些命令和选项进行分析</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">➜  ~ go tool pprof http://localhost:6060/debug/pprof/heap
+Fetching profile over HTTP from http://localhost:6060/debug/pprof/heap
+Saved profile in /Users/admin/pprof/pprof.alloc_objects.alloc_space.inuse_objects.inuse_space.003.pb.gz
+Type: inuse_space
+Time: Aug 31, <span class="m">2019</span> at 10:00pm <span class="o">(</span>CST<span class="o">)</span>
+Entering interactive mode <span class="o">(</span><span class="nb">type</span> <span class="s2">&#34;help&#34;</span> <span class="k">for</span> commands, <span class="s2">&#34;o&#34;</span> <span class="k">for</span> options<span class="o">)</span>
+<span class="o">(</span>pprof<span class="o">)</span> 
+</code></pre></div><h3 id="参考">参考：</h3>
+<ul>
+<li><a href="https://blog.golang.org/profiling-go-programs">Go blog介绍</a></li>
+<li><a href="https://github.com/hyper0x/go_command_tutorial/blob/master/0.12.md">赫林写的go命令教程</a></li>
+<li><a href="https://artem.krylysov.com/blog/2017/03/13/profiling-and-optimizing-go-web-applications/">俄罗斯一哥们写的blog</a></li>
+</ul>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="https://xibolun.github.io/post/go/go%E5%B9%B6%E5%8F%91%E7%9A%84%E6%B5%8B%E9%AA%8C/">关于Go并发的测验</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/go/go-template/">Go template</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/go/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E4%B8%83/">Go语言实战(七)并发模式</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/go/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E5%85%AD/">Go语言实战(六)并发</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/go/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E4%BA%94/">Go语言实战(五)Go语言的类型系统</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/go'>go</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

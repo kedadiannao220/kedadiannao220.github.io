@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>k8s—Operator开发 | penggy Blog</title>
+    <meta property="og:title" content="k8s—Operator开发 - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-03-17T17:58:41&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-03-17T17:58:41&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="k8s operator">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/k8s/k8soperator%E5%BC%80%E5%8F%91/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">k8s—Operator开发</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年3月17日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/k8s'>k8s</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h2 id="operator">Operator</h2>
+<p>关于<code>Operator</code>的作用就略过，官方介绍有，下面是自己实战的一个过程；</p>
+<h3 id="实战过程">实战过程</h3>
+<h4 id="下载安装">下载安装</h4>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">✗ brew install operator-sdk
+</code></pre></div><h4 id="初始化项目">初始化项目</h4>
+<p>固定在某一个gopath下面，这样mod文件的依赖都会存到pkg下面，后续初始化速度就会比较快；</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">✗ mkdir <span class="nv">$GOPATH</span>/src/mySrv
+✗ operator-sdk init --domain idcos.com --license apache2 --owner <span class="s2">&#34;Peng Ganyu&#34;</span>
+Writing scaffold <span class="k">for</span> you to edit...
+Get controller runtime:
+$ go get sigs.k8s.io/controller-runtime@v0.7.0
+Update go.mod:
+$ go mod tidy
+Running make:
+$ make
+go: creating new go.mod: module tmp
+Downloading sigs.k8s.io/controller-tools/cmd/controller-gen@v0.4.1
+go: found sigs.k8s.io/controller-tools/cmd/controller-gen in sigs.k8s.io/controller-tools v0.4.1
+/Users/admin/projects/go/src/mySrv/bin/controller-gen object:headerFile<span class="o">=</span><span class="s2">&#34;hack/boilerplate.go.txt&#34;</span> <span class="nv">paths</span><span class="o">=</span><span class="s2">&#34;./...&#34;</span>
+go fmt ./...
+go vet ./...
+go build -o bin/manager main.go
+Next: define a resource with:
+$ operator-sdk create api
+</code></pre></div><p>执行完的后，会生成<code>Makefile</code>，这里面包含了编译、打镜像、运行等各个模块；还有其他的一些<code>crd</code>模板文件等；</p>
+<h4 id="创建api">创建API</h4>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">✗ operator-sdk create api --group<span class="o">=</span>myapp --version<span class="o">=</span>v1alpha1 --kind<span class="o">=</span>MySrv
+Create Resource <span class="o">[</span>y/n<span class="o">]</span>
+y
+Create Controller <span class="o">[</span>y/n<span class="o">]</span>
+y
+Writing scaffold <span class="k">for</span> you to edit...
+api/v1alpha1/mysrv_types.go
+controllers/mysrv_controller.go
+Running make:
+$ make
+/Users/admin/projects/go/src/mySrv/bin/controller-gen object:headerFile<span class="o">=</span><span class="s2">&#34;hack/boilerplate.go.txt&#34;</span> <span class="nv">paths</span><span class="o">=</span><span class="s2">&#34;./...&#34;</span>
+go fmt ./...
+go vet ./...
+go build -o bin/manager main.go
+</code></pre></div><p><code>kind</code>必须得是大写开头的驼峰；会生成一个<code>api</code>、<code>controller</code>、<code>crd</code>等</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">        api/
+        config/crd/
+        config/rbac/mysrv_editor_role.yaml
+        config/rbac/mysrv_viewer_role.yaml
+        config/samples/
+        controllers/
+</code></pre></div><h4 id="修改types">修改types</h4>
+<p><code>api</code>里面有一个<code>mysrv_types.go</code>文件</p>
+<p>修改自己的<code>MySrvSpec</code>结构体，看看放置哪些属性</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// MySrvSpec defines the desired state of MySrv
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">MySrvSpec</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+</span><span class="c1"></span>	<span class="c1">// Important: Run &#34;make&#34; to regenerate code after modifying this file
+</span><span class="c1"></span>
+	<span class="nx">Port</span> <span class="kt">int</span> <span class="s">`json:&#34;port&#34;`</span>
+	<span class="nx">Name</span> <span class="kt">string</span> <span class="s">`json:&#34;name&#34;`</span>
+<span class="p">}</span>
+
+<span class="c1">// MySrvStatus defines the observed state of MySrv
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">MySrvStatus</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+</span><span class="c1"></span>	<span class="c1">// Important: Run &#34;make&#34; to regenerate code after modifying this file
+</span><span class="c1"></span>	<span class="nx">Status</span> <span class="kt">string</span> <span class="s">`json:&#34;status&#34;`</span>
+<span class="p">}</span>
+</code></pre></div><p>生成代码</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">✗ make generate
+</code></pre></div><p>生成配置文件</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">✗ make manifests
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">        config/crd/bases/
+        config/rbac/role.yaml
+</code></pre></div><h4 id="修改reconcile">修改Reconcile</h4>
+<p><code>operator</code>将所有的逻辑都集中在<code>controllers/mysrv_controller.go</code>当中的<code>Reconcile</code>当中；</p>
+<p>你可以用<code>r.Client</code>查询、修改、删除等各项的操作；也可以在此进行业务逻辑的校验、处理等；</p>
+<p>以下是写了一个查询是否存在的逻辑；</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">MySrvReconciler</span><span class="p">)</span> <span class="nf">Reconcile</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">req</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">(</span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">log</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Log</span><span class="p">.</span><span class="nf">WithValues</span><span class="p">(</span><span class="s">&#34;mysrv&#34;</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">)</span>
+
+	<span class="c1">// your logic here
+</span><span class="c1"></span>	<span class="nx">mySrv</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">myappv1alpha1</span><span class="p">.</span><span class="nx">MySrv</span><span class="p">{}</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">req</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">,</span> <span class="nx">mySrv</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="s">&#34;client get result fail&#34;</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nx">reconcile</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="nx">mySrv</span><span class="p">.</span><span class="nx">DeletionTimestamp</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">reconcile</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+
+	<span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;get mysrv, %v&#34;</span><span class="p">,</span> <span class="nx">mySrv</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="运行">运行</h4>
+<p>先创建自定义的<code>mySrv</code></p>
+<pre><code>✗ kubectl create -f config/crd/bases/myapp.idcos.com_mysrvs.yaml
+customresourcedefinition.apiextensions.k8s.io/mysrvs.myapp.idcos.com created
+</code></pre><p>有两种运行方式，一种是通过远程<code>k8s</code>的配置连接运行；注册的<code>manager</code>会自动寻找配置文件进行连接；远程的乃是通过打包上传镜像，然后远程的<code>k8s</code>拉取镜像启动服务；</p>
+<p>本地运行</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">✗ make run <span class="nv">ENABLE_WEBHOOKS</span><span class="o">=</span><span class="nb">false</span>
+/Users/admin/projects/go/src/mySrv/bin/controller-gen object:headerFile<span class="o">=</span><span class="s2">&#34;hack/boilerplate.go.txt&#34;</span> <span class="nv">paths</span><span class="o">=</span><span class="s2">&#34;./...&#34;</span>
+go fmt ./...
+go vet ./...
+/Users/admin/projects/go/src/mySrv/bin/controller-gen <span class="s2">&#34;crd:trivialVersions=true,preserveUnknownFields=false&#34;</span> rbac:roleName<span class="o">=</span>manager-role webhook <span class="nv">paths</span><span class="o">=</span><span class="s2">&#34;./...&#34;</span> output:crd:artifacts:config<span class="o">=</span>config/crd/bases
+go run ./main.go
+I0106 21:33:27.659679   <span class="m">14202</span> request.go:645<span class="o">]</span> Throttling request took 1.046395137s, request: GET:https://10.0.4.175:6443/apis/admissionregistration.k8s.io/v1beta1?timeout<span class="o">=</span>32s
+2021-01-06T21:33:30.573+0800    INFO    controller-runtime.metrics      metrics server is starting to listen    <span class="o">{</span><span class="s2">&#34;addr&#34;</span>: <span class="s2">&#34;:8080&#34;</span><span class="o">}</span>
+2021-01-06T21:33:30.574+0800    INFO    setup   starting manager
+2021-01-06T21:33:30.574+0800    INFO    controller-runtime.manager      starting metrics server <span class="o">{</span><span class="s2">&#34;path&#34;</span>: <span class="s2">&#34;/metrics&#34;</span><span class="o">}</span>
+2021-01-06T21:33:30.575+0800    INFO    controller-runtime.manager.controller.mysrv     Starting EventSource    <span class="o">{</span><span class="s2">&#34;reconciler group&#34;</span>: <span class="s2">&#34;myapp.idcos.com&#34;</span>, <span class="s2">&#34;reconciler kind&#34;</span>: <span class="s2">&#34;MySrv&#34;</span>, <span class="s2">&#34;source&#34;</span>: <span class="s2">&#34;kind source: /, Kind=&#34;</span><span class="o">}</span>
+2021-01-06T21:33:30.676+0800    INFO    controller-runtime.manager.controller.mysrv     Starting Controller     <span class="o">{</span><span class="s2">&#34;reconciler group&#34;</span>: <span class="s2">&#34;myapp.idcos.com&#34;</span>, <span class="s2">&#34;reconciler kind&#34;</span>: <span class="s2">&#34;MySrv&#34;</span><span class="o">}</span>
+2021-01-06T21:33:30.676+0800    INFO    controller-runtime.manager.controller.mysrv     Starting workers        <span class="o">{</span><span class="s2">&#34;reconciler group&#34;</span>: <span class="s2">&#34;myapp.idcos.com&#34;</span>, <span class="s2">&#34;reconciler kind&#34;</span>: <span class="s2">&#34;MySrv&#34;</span>, <span class="s2">&#34;worker count&#34;</span>: 1<span class="o">}</span>
+</code></pre></div><h4 id="添加资源">添加资源</h4>
+<p>修改配置文件，添加Name和Port规格</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="l">// config/samples/myapp_v1alpha1_mysrv.yaml</span><span class="w">
+</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">myapp.idcos.com/v1alpha1</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">MySrv</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">mysrv-sample</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">Name</span><span class="p">:</span><span class="w"> </span><span class="l">CloudCMP</span><span class="w">
+</span><span class="w">  </span><span class="nt">Port</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></code></pre></div><div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">✗ kubectl create -f config/samples/myapp_v1alpha1_mysrv.yaml
+mysrv.myapp.idcos.com/mysrv-sample created
+✗ kubectl get mySrv
+NAME           AGE
+mysrv-sample   12s
+</code></pre></div><h3 id="遇到的一些问题">遇到的一些问题</h3>
+<h4 id="init报错">init报错</h4>
+<p>请求mod文件请求不到，503异常</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">Downloading sigs.k8s.io/kustomize/kustomize/v3@v3.8.7
+go get sigs.k8s.io/kustomize/kustomize/v3@v3.8.7: sigs.k8s.io/kustomize/kustomize/v3@v3.8.7: reading http://10.0.5.64:8080/sigs.k8s.io/kustomize/kustomize/v3/@v/v3.8.7.info: <span class="m">503</span> Service Unavailable
+make: *** <span class="o">[</span>kustomize<span class="o">]</span> Error <span class="m">1</span>
+</code></pre></div><p>确保<code>goproxy</code>是否配置正确，因为国内的其他<code>proxy</code>服务未同步它的<code>mod</code>文件配置，因为我设置的<code>proxy</code>为内网的地址，请求不到<code>https://goproxy.cn</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">➜  ~ go env <span class="p">|</span> grep GOPROXY
+<span class="nv">GOPROXY</span><span class="o">=</span><span class="s2">&#34;https://goproxy.cn,direct&#34;</span>
+</code></pre></div><h4 id="无法找到配置信息">无法找到配置信息</h4>
+<p>有可能你的<code>k8s</code>认证配置文件，不在<code>~/.kube/config</code>目录，查了一下源码<code>operator-sdk</code>可以通过配置环境变量的方式配置</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">export</span> <span class="nx">KUBECONFIG</span><span class="p">=</span><span class="err">~</span><span class="o">/</span><span class="p">.</span><span class="nx">kube</span><span class="o">/</span><span class="nx">config</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="c1">// If the recommended kubeconfig env variable is not specified,
+</span><span class="c1"></span>	<span class="c1">// try the in-cluster config.
+</span><span class="c1"></span>	<span class="nx">kubeconfigPath</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getenv</span><span class="p">(</span><span class="nx">clientcmd</span><span class="p">.</span><span class="nx">RecommendedConfigPathEnvVar</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">kubeconfigPath</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="nx">c</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">loadInClusterConfig</span><span class="p">();</span> <span class="nx">err</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="nx">c</span><span class="p">,</span> <span class="kc">nil</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+</code></pre></div><h4 id="make-run报错">make run报错</h4>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">✗ make run
+2021-01-06T17:03:59.308+0800    ERROR   controller-runtime.manager      Failed to get API Group-Resources       <span class="o">{</span><span class="s2">&#34;error&#34;</span>: <span class="s2">&#34;Get \&#34;https://10.0.4.175:6443/api?timeout=32s\&#34;: net/http: TLS handshake timeout&#34;</span><span class="o">}</span>
+</code></pre></div><p>原因是我开了<code>proxy</code>代理，导致无法与远程的<code>k8s</code>服务器进行通讯，连<code>get pod</code>也无返回值</p>
+<h3 id="参考">参考</h3>
+<ul>
+<li><a href="https://sdk.operatorframework.io/docs/building-operators/golang/tutorial/">operator-framework官方文档</a></li>
+</ul>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="https://xibolun.github.io/post/k8s/k8sinformer%E6%9C%BA%E5%88%B6/">k8s—informer机制</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/k8s/k8sschedule/">k8s––schedule</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/k8s/k8s%E8%AF%81%E4%B9%A6/">k8s––证书修改</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/k8s/k8sserviceaccount/">k8s––ServiceAccount</a></li>
+        
+        <li><a href="https://xibolun.github.io/post/k8s/k8sjmx%E7%9B%91%E6%8E%A7/">k8s—JMX监控</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/k8s'>k8s</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

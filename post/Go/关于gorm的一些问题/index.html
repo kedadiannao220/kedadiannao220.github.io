@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>关于gorm的问题 | penggy Blog</title>
+    <meta property="og:title" content="关于gorm的问题 - penggy Blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2019-08-13T15:04:36&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2019-08-13T15:04:36&#43;08:00'>
+        
+    <meta name="Keywords" content="">
+    <meta name="description" content="关于gorm的问题">
+        
+    <meta name="author" content="pengganyu">
+    <meta property="og:url" content="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egorm%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">
+    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
+    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://xibolun.github.io">
+                        penggy Blog
+                    </a>
+                
+                
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://xibolun.github.io">首页</a>
+                    
+                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
+                    
+                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">关于gorm的问题</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2019年8月13日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h2 id="关于gorm的问题">关于gorm的问题</h2>
+<h3 id="db的search无法置空">DB的search无法置空</h3>
+<p>下面是一个有问题的代码；大体逻辑是locatino表里面有PID，一级一级向上找父节点；第二次for循环的时候没有取到正常的结果，而是<code>record not found</code> ；原因是由于查询条件重叠了</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// GetLocationFullNameByID 根据指定ID返回位置的全路径名
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">repo</span> <span class="o">*</span><span class="nx">MySQLRepo</span><span class="p">)</span> <span class="nf">GetLocationFullNameByID</span><span class="p">(</span><span class="nx">id</span> <span class="kt">uint</span><span class="p">)</span> <span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">id</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+
+	<span class="kd">var</span> <span class="nx">loc</span> <span class="nx">model</span><span class="p">.</span><span class="nx">Location</span>
+	<span class="k">for</span> <span class="nx">id</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="p">{</span>
+    <span class="c1">// 此处第二个for循环的sql会变成  where id = ? and id =?
+</span><span class="c1"></span>		<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">repo</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nf">Model</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">model</span><span class="p">.</span><span class="nx">Location</span><span class="p">{}).</span><span class="nf">Where</span><span class="p">(</span><span class="s">&#34;id = ?&#34;</span><span class="p">,</span> <span class="nx">id</span><span class="p">).</span><span class="nf">Find</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">loc</span><span class="p">).</span><span class="nx">Error</span><span class="p">;</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="nx">gorm</span><span class="p">.</span><span class="nx">ErrRecordNotFound</span> <span class="p">{</span>
+				<span class="nx">repo</span><span class="p">.</span><span class="nx">log</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;Query location by id(%d) error: %s&#34;</span><span class="p">,</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
+			<span class="p">}</span>
+			<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="nx">loc</span><span class="p">.</span><span class="nx">PID</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="p">{</span>
+			<span class="nx">id</span> <span class="p">=</span> <span class="nx">loc</span><span class="p">.</span><span class="nx">PID</span>
+			<span class="nx">name</span> <span class="p">=</span> <span class="nx">loc</span><span class="p">.</span><span class="nx">Name</span> <span class="o">+</span> <span class="s">&#34;-&#34;</span> <span class="o">+</span> <span class="nx">name</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimRight</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="s">&#34;-&#34;</span><span class="p">),</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div><p>看一下源码：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">DB</span><span class="p">)</span> <span class="nf">Model</span><span class="p">(</span><span class="nx">value</span> <span class="kd">interface</span><span class="p">{})</span> <span class="o">*</span><span class="nx">DB</span> <span class="p">{</span>
+	<span class="nx">c</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">clone</span><span class="p">()</span>
+	<span class="nx">c</span><span class="p">.</span><span class="nx">Value</span> <span class="p">=</span> <span class="nx">value</span>
+	<span class="k">return</span> <span class="nx">c</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">DB</span><span class="p">)</span> <span class="nf">Where</span><span class="p">(</span><span class="nx">query</span> <span class="kd">interface</span><span class="p">{},</span> <span class="nx">args</span> <span class="o">...</span><span class="kd">interface</span><span class="p">{})</span> <span class="o">*</span><span class="nx">DB</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">s</span><span class="p">.</span><span class="nf">clone</span><span class="p">().</span><span class="nx">search</span><span class="p">.</span><span class="nf">Where</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span> <span class="nx">args</span><span class="o">...</span><span class="p">).</span><span class="nx">db</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">DB</span><span class="p">)</span> <span class="nf">clone</span><span class="p">()</span> <span class="o">*</span><span class="nx">DB</span> <span class="p">{</span>
+	<span class="nx">db</span> <span class="o">:=</span> <span class="nx">DB</span><span class="p">{</span>
+		<span class="nx">db</span><span class="p">:</span>                <span class="nx">s</span><span class="p">.</span><span class="nx">db</span><span class="p">,</span>
+		<span class="nx">parent</span><span class="p">:</span>            <span class="nx">s</span><span class="p">.</span><span class="nx">parent</span><span class="p">,</span>
+		<span class="nx">logger</span><span class="p">:</span>            <span class="nx">s</span><span class="p">.</span><span class="nx">logger</span><span class="p">,</span>
+		<span class="nx">logMode</span><span class="p">:</span>           <span class="nx">s</span><span class="p">.</span><span class="nx">logMode</span><span class="p">,</span>
+		<span class="nx">values</span><span class="p">:</span>            <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}{},</span>
+		<span class="nx">Value</span><span class="p">:</span>             <span class="nx">s</span><span class="p">.</span><span class="nx">Value</span><span class="p">,</span>
+		<span class="nx">Error</span><span class="p">:</span>             <span class="nx">s</span><span class="p">.</span><span class="nx">Error</span><span class="p">,</span>
+		<span class="nx">blockGlobalUpdate</span><span class="p">:</span> <span class="nx">s</span><span class="p">.</span><span class="nx">blockGlobalUpdate</span><span class="p">,</span>
+	<span class="p">}</span>
+
+	<span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span><span class="p">.</span><span class="nx">values</span> <span class="p">{</span>
+		<span class="nx">db</span><span class="p">.</span><span class="nx">values</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="p">=</span> <span class="nx">value</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="nx">s</span><span class="p">.</span><span class="nx">search</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">db</span><span class="p">.</span><span class="nx">search</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">search</span><span class="p">{</span><span class="nx">limit</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">offset</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">}</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="nx">db</span><span class="p">.</span><span class="nx">search</span> <span class="p">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">search</span><span class="p">.</span><span class="nf">clone</span><span class="p">()</span>
+	<span class="p">}</span>
+
+	<span class="nx">db</span><span class="p">.</span><span class="nx">search</span><span class="p">.</span><span class="nx">db</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">db</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">db</span>
+<span class="p">}</span>
+</code></pre></div><blockquote>
+<p>从源码当中可以看到，不管是Model、Where还是其他的查询相关函数都使用了clone方法，而clone里面若原search不为nil，则进行叠加； <a href="https://github.com/jinzhu/gorm/blob/master/main.go">main.go</a></p>
+</blockquote>
+<p>解决方法</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// GetLocationFullNameByID 根据指定ID返回位置的全路径名
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">repo</span> <span class="o">*</span><span class="nx">MySQLRepo</span><span class="p">)</span> <span class="nf">GetLocationFullNameByID</span><span class="p">(</span><span class="nx">id</span> <span class="kt">uint</span><span class="p">)</span> <span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">id</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+
+	<span class="k">for</span> <span class="nx">id</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="kd">var</span> <span class="nx">loc</span> <span class="nx">model</span><span class="p">.</span><span class="nx">Location</span>
+		<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">repo</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nf">NewScope</span><span class="p">(</span><span class="kc">nil</span><span class="p">).</span><span class="nf">DB</span><span class="p">().</span><span class="nf">Model</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">model</span><span class="p">.</span><span class="nx">Location</span><span class="p">{}).</span><span class="nf">Where</span><span class="p">(</span><span class="s">&#34;id =?&#34;</span><span class="p">,</span> <span class="nx">id</span><span class="p">).</span><span class="nf">Find</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">loc</span><span class="p">).</span><span class="nx">Error</span><span class="p">;</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="nx">gorm</span><span class="p">.</span><span class="nx">ErrRecordNotFound</span> <span class="p">{</span>
+				<span class="nx">repo</span><span class="p">.</span><span class="nx">log</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;Query location by id(%d) error: %s&#34;</span><span class="p">,</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
+			<span class="p">}</span>
+			<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="nx">loc</span><span class="p">.</span><span class="nx">PID</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="p">{</span>
+			<span class="nx">id</span> <span class="p">=</span> <span class="nx">loc</span><span class="p">.</span><span class="nx">PID</span>
+			<span class="nx">name</span> <span class="p">=</span> <span class="nx">loc</span><span class="p">.</span><span class="nx">Name</span> <span class="o">+</span> <span class="s">&#34;-&#34;</span> <span class="o">+</span> <span class="nx">name</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimRight</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="s">&#34;-&#34;</span><span class="p">),</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// NewDB create a new DB without search information
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">scope</span> <span class="o">*</span><span class="nx">Scope</span><span class="p">)</span> <span class="nf">NewDB</span><span class="p">()</span> <span class="o">*</span><span class="nx">DB</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">scope</span><span class="p">.</span><span class="nx">db</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">db</span> <span class="o">:=</span> <span class="nx">scope</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nf">clone</span><span class="p">()</span>
+		<span class="nx">db</span><span class="p">.</span><span class="nx">search</span> <span class="p">=</span> <span class="kc">nil</span>
+		<span class="nx">db</span><span class="p">.</span><span class="nx">Value</span> <span class="p">=</span> <span class="kc">nil</span>
+		<span class="k">return</span> <span class="nx">db</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div><blockquote>
+<p>从源码当中可以看到从Scope里面New出来的DB，将search可以置空，因此就不会发生查询条件重复的问题</p>
+</blockquote>
+<p>或者使用原生的sql机制</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// GetLocationFullNameByID 根据指定ID返回位置的全路径名
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">repo</span> <span class="o">*</span><span class="nx">MySQLRepo</span><span class="p">)</span> <span class="nf">GetLocationFullNameByID</span><span class="p">(</span><span class="nx">id</span> <span class="kt">uint</span><span class="p">)</span> <span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">id</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+
+	<span class="k">for</span> <span class="nx">id</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="kd">var</span> <span class="nx">loc</span> <span class="nx">model</span><span class="p">.</span><span class="nx">Location</span>
+		<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">repo</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nf">Raw</span><span class="p">(</span><span class="s">&#34;select *  from locations where id  =? and deleted_at is null  &#34;</span><span class="p">,</span> <span class="nx">id</span><span class="p">).</span><span class="nf">Scan</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">loc</span><span class="p">).</span><span class="nx">Error</span><span class="p">;</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="nx">gorm</span><span class="p">.</span><span class="nx">ErrRecordNotFound</span> <span class="p">{</span>
+				<span class="nx">repo</span><span class="p">.</span><span class="nx">log</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;Query location by id(%d) error: %s&#34;</span><span class="p">,</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
+			<span class="p">}</span>
+			<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="nx">loc</span><span class="p">.</span><span class="nx">PID</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="p">{</span>
+			<span class="nx">id</span> <span class="p">=</span> <span class="nx">loc</span><span class="p">.</span><span class="nx">PID</span>
+			<span class="nx">name</span> <span class="p">=</span> <span class="nx">loc</span><span class="p">.</span><span class="nx">Name</span> <span class="o">+</span> <span class="s">&#34;-&#34;</span> <span class="o">+</span> <span class="nx">name</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimRight</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="s">&#34;-&#34;</span><span class="p">),</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div><p>看源码</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Exec execute raw sql
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">DB</span><span class="p">)</span> <span class="nf">Exec</span><span class="p">(</span><span class="nx">sql</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">values</span> <span class="o">...</span><span class="kd">interface</span><span class="p">{})</span> <span class="o">*</span><span class="nx">DB</span> <span class="p">{</span>
+	<span class="nx">scope</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">clone</span><span class="p">().</span><span class="nf">NewScope</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+	<span class="nx">generatedSQL</span> <span class="o">:=</span> <span class="nx">scope</span><span class="p">.</span><span class="nf">buildWhereCondition</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}{</span><span class="s">&#34;query&#34;</span><span class="p">:</span> <span class="nx">sql</span><span class="p">,</span> <span class="s">&#34;args&#34;</span><span class="p">:</span> <span class="nx">values</span><span class="p">})</span>
+	<span class="nx">generatedSQL</span> <span class="p">=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimSuffix</span><span class="p">(</span><span class="nx">strings</span><span class="p">.</span><span class="nf">TrimPrefix</span><span class="p">(</span><span class="nx">generatedSQL</span><span class="p">,</span> <span class="s">&#34;(&#34;</span><span class="p">),</span> <span class="s">&#34;)&#34;</span><span class="p">)</span>
+	<span class="nx">scope</span><span class="p">.</span><span class="nf">Raw</span><span class="p">(</span><span class="nx">generatedSQL</span><span class="p">)</span>
+	<span class="k">return</span> <span class="nx">scope</span><span class="p">.</span><span class="nf">Exec</span><span class="p">().</span><span class="nx">db</span>
+<span class="p">}</span>
+</code></pre></div><blockquote>
+<p>Exec的与NewScop的本质没有区别，都是使用NewScope进行操作</p>
+</blockquote>
+<h3 id="json结构查询不出来">JSON结构查询不出来</h3>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">select</span> <span class="n">t1</span><span class="p">.</span><span class="n">oob</span><span class="o">-&gt;&gt;</span><span class="s1">&#39;$.network.ip&#39;</span> <span class="k">as</span> <span class="n">oob_ip</span>
+</code></pre></div><p>目前这个数据查出来是空</p>
+<h3 id="limiter和offset">limiter和offset</h3>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">    <span class="c1">// 此处limit和offset不生效，需要将其放在Find前面
+</span><span class="c1"></span>    <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">db</span><span class="p">.</span><span class="nf">Find</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">result</span><span class="p">).</span><span class="nf">Limit</span><span class="p">(</span><span class="nx">limiter</span><span class="p">.</span><span class="nx">Limit</span><span class="p">).</span><span class="nf">Offset</span><span class="p">(</span><span class="nx">limiter</span><span class="p">.</span><span class="nx">Offset</span><span class="p">).</span><span class="nx">Error</span><span class="p">;</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">repo</span><span class="p">.</span><span class="nx">log</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+    
+   	<span class="nx">db</span> <span class="p">=</span> <span class="nx">db</span><span class="p">.</span><span class="nf">Limit</span><span class="p">(</span><span class="nx">limiter</span><span class="p">.</span><span class="nx">Limit</span><span class="p">).</span><span class="nf">Offset</span><span class="p">(</span><span class="nx">limiter</span><span class="p">.</span><span class="nx">Offset</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">db</span><span class="p">.</span><span class="nf">Find</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">result</span><span class="p">).</span><span class="nx">Error</span><span class="p">;</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">repo</span><span class="p">.</span><span class="nx">log</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+    
+</code></pre></div><h3 id="inlike查询">InLike查询</h3>
+
+        </div>
+
+        
+
+
+        
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://xibolun.github.io/tags/go'>Go</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-101106729-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
+    </li>
+    
+    <li>
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/tool/">tool (11)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
+    
+    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (9)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://xibolun.github.io/tags/about/">about</a>
+    
+    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
+    
+    <a href="https://xibolun.github.io/tags/css/">Css</a>
+    
+    <a href="https://xibolun.github.io/tags/curl/">curl</a>
+    
+    <a href="https://xibolun.github.io/tags/docker/">docker</a>
+    
+    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
+    
+    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
+    
+    <a href="https://xibolun.github.io/tags/git/">git</a>
+    
+    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
+    
+    <a href="https://xibolun.github.io/tags/go/">go</a>
+    
+    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
+    
+    <a href="https://xibolun.github.io/tags/istio/">istio</a>
+    
+    <a href="https://xibolun.github.io/tags/java/">java</a>
+    
+    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
+    
+    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
+    
+    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
+    
+    <a href="https://xibolun.github.io/tags/linux/">linux</a>
+    
+    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
+    
+    <a href="https://xibolun.github.io/tags/maven/">maven</a>
+    
+    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
+    
+    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
+    
+    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
+    
+    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
+    
+    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
+    
+    <a href="https://xibolun.github.io/tags/python/">python</a>
+    
+    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
+    
+    <a href="https://xibolun.github.io/tags/react/">react</a>
+    
+    <a href="https://xibolun.github.io/tags/redis/">redis</a>
+    
+    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
+    
+    <a href="https://xibolun.github.io/tags/spring/">spring</a>
+    
+    <a href="https://xibolun.github.io/tags/tool/">tool</a>
+    
+    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
+    
+    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
+    
+    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
