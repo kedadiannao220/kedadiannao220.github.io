@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>ansible on penggy blog</title>
+    <title>ansible on Peng ganyu blog</title>
     <link>https://xibolun.github.io/tags/ansible/</link>
-    <description>Recent content in ansible on penggy blog</description>
+    <description>Recent content in ansible on Peng ganyu blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Tue, 30 Jul 2019 00:15:33 +0800</lastBuildDate><atom:link href="https://xibolun.github.io/tags/ansible/index.xml" rel="self" type="application/rss+xml" />

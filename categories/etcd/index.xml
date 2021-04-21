@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>etcd on penggy blog</title>
+    <title>etcd on Peng ganyu blog</title>
     <link>https://xibolun.github.io/categories/etcd/</link>
-    <description>Recent content in etcd on penggy blog</description>
+    <description>Recent content in etcd on Peng ganyu blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Wed, 08 Jul 2020 17:44:23 +0800</lastBuildDate><atom:link href="https://xibolun.github.io/categories/etcd/index.xml" rel="self" type="application/rss+xml" />

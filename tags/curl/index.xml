@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>curl on penggy blog</title>
+    <title>curl on Peng ganyu blog</title>
     <link>https://xibolun.github.io/tags/curl/</link>
-    <description>Recent content in curl on penggy blog</description>
+    <description>Recent content in curl on Peng ganyu blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Fri, 02 Jun 2017 23:36:24 +0800</lastBuildDate><atom:link href="https://xibolun.github.io/tags/curl/index.xml" rel="self" type="application/rss+xml" />
