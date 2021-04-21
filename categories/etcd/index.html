@@ -1,454 +1,226 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-
-    <title>etcd | penggy Blog</title>
-    <meta property="og:title" content="etcd - penggy Blog">
-    <meta property="og:type" content="article">
-        
-        
-    <meta name="Keywords" content="">
-    <meta name="description" content="etcd">
-        
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noodp"/>
     <meta name="author" content="pengganyu">
-    <meta property="og:url" content="https://xibolun.github.io/categories/etcd/">
-    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+    <meta name="description" content="Mogeko 的个人博客">
+    
+    
+    
+    
+    <link rel="canonical" href="https://xibolun.github.io/categories/etcd/" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <title>
+        
+        
+            etcd | penggy blog
+        
+    </title>
+    <meta name="title" content="etcd | penggy blog">
+    
+<link rel="stylesheet" href="/css/main.min.css">
 
-    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
-    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
-    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
+    <link rel="alternate" href="/categories/etcd/index.xml" type="application/rss+xml" title="penggy blog">
+    <link rel="feed" href="/categories/etcd/index.xml" type="application/rss+xml" title="penggy blog">
     
     
-    
-    
-    
-</head>
+ 
 
-
-<body>
-    <header id="header" class="clearfix">
+  </head>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <body class="">
+        <div class="wrapper">
+            <nav class="navbar">
+    
     <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <a id="logo" href="https://xibolun.github.io">
-                        penggy Blog
-                    </a>
-                
-                
+        
+            <div class="navbar-header header-back2home-logo">
+                <span class="logo_mark" >>$</span>
+                <a href="https://xibolun.github.io">
+                    <span class="logo_text" >cd /home/</span>
+                    <span class="logo_cursor" ></span>
+                </a>
             </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="" href="https://xibolun.github.io">首页</a>
-                    
-                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
-                    
-                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
-                    
-                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
-                    
-                </nav>
-            </div>
+        
+        <div class="navbar-right">
+                
+                <span class="menu">
+                
+                <a class="menu-item" href="/post/" title="">Blog</a>
+                
+                <a class="menu-item" href="/tags/tool/" title="">Tools</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/books" title="">读书</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+                <span class="divide"></span>
+                <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a>
+                </span>
         </div>
     </div>
-</header>
-
-    <div id="body">
-        <div class="container">
-            <div class="col-group">
-
-                <div class="col-8" id="main">
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
+    
+     <div class="container">
+        <div class="navbar">
+            <div class="navbar-header header-logo">
+                    <a href="https://xibolun.github.io">penggy blog</a>
+            </div>
+            <div class="navbar-right">
+                <div><a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a></div>
+                <div class="menu-toggle">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+     
+          <div class="menu" id="mobile-menu">
+                <nav class="mb-md">
                     
-<div class="res-cons">
-    
-    <h3 class="archive-title">
-        分类
-        <span class="keyword">etcd</span>
-        中的文章
-    </h3>
-    
+                    
+                        <a class="menu-item" href="/post/" title="">
+                            <h3>Blog</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/tool/" title="">
+                            <h3>Tools</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/categories/" title="">
+                            <h3>Categories</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/" title="">
+                            <h3>Tags</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/books" title="">
+                            <h3>读书</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/about/" title="">
+                            <h3>About</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                </nav>
+        </div>
+    </div>
+</nav>
+            <main class="main">
+                <div class="container">
+                    
 
+<div class="post-warp archive">
+    <h2 class="post-title" style="text-align:right;padding-bottom:2em">-&nbsp;Categories&nbsp;·&nbsp;etcd&nbsp;-</h2>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Blease%E6%9C%BA%E5%88%B6/">etcd––从源码看lease机制</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年7月8日
-        </date>
-        
-        <div class="post-meta meta-category">
-            |
-            
-            <a href='https://xibolun.github.io/categories/etcd'>etcd</a>
-            
-        </div>
-        
-        <div class="post-content">
-            Lease使用 先声明一个指定过期时间ttl的lease，再将lease绑定到一个key上面，ttl到期后将key移除，这中间有哪些操作呢？ L……
-            <p class="readmore"><a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Blease%E6%9C%BA%E5%88%B6/">阅读全文</a></p>
-        </div>
+    <article class="archive-item">
+        <a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Blease%E6%9C%BA%E5%88%B6/" class="archive-item-link hvr-underline-from-center">etcd––从源码看lease机制</a>
+        <span class="archive-item-date">
+            July 8, 2020
+        </span>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bwatch%E6%9C%BA%E5%88%B6/">etcd––从源码看watch机制</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年7月7日
-        </date>
-        
-        <div class="post-meta meta-category">
-            |
-            
-            <a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a>
-            
-            <a href='https://xibolun.github.io/categories/etcd'>etcd</a>
-            
-        </div>
-        
-        <div class="post-content">
-            Watch使用 watch有两种操作，一种是key，一种是range，即监听一段的key，从一个测试用例里面看看，主要包括几个操作 初始化一个w……
-            <p class="readmore"><a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bwatch%E6%9C%BA%E5%88%B6/">阅读全文</a></p>
-        </div>
+    <article class="archive-item">
+        <a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bwatch%E6%9C%BA%E5%88%B6/" class="archive-item-link hvr-underline-from-center">etcd––从源码看watch机制</a>
+        <span class="archive-item-date">
+            July 7, 2020
+        </span>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bstorage/">etcd––从源码看Storage</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年7月5日
-        </date>
-        
-        <div class="post-meta meta-category">
-            |
-            
-            <a href='https://xibolun.github.io/categories/etcd'>etcd</a>
-            
-        </div>
-        
-        <div class="post-content">
-            当启动了一个etcd server的时候，会生成一些数据文件，这些文件便是etcd storage，主要分析wal和snapshot ➜ tree . └──……
-            <p class="readmore"><a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bstorage/">阅读全文</a></p>
-        </div>
+    <article class="archive-item">
+        <a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bstorage/" class="archive-item-link hvr-underline-from-center">etcd––从源码看Storage</a>
+        <span class="archive-item-date">
+            July 5, 2020
+        </span>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8B%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6/">etcd––从源码看日志复制</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年7月4日
-        </date>
-        
-        <div class="post-meta meta-category">
-            |
-            
-            <a href='https://xibolun.github.io/categories/etcd'>etcd</a>
-            
-        </div>
-        
-        <div class="post-content">
-            日志复制 日志对象 etcd把一条日志做为一个entry，每一个里面都会有几个属性： Term：leader的任期，这个属性的目的乃是follow……
-            <p class="readmore"><a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8B%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6/">阅读全文</a></p>
-        </div>
+    <article class="archive-item">
+        <a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8B%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6/" class="archive-item-link hvr-underline-from-center">etcd––从源码看日志复制</a>
+        <span class="archive-item-date">
+            July 4, 2020
+        </span>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Braft%E9%80%89%E4%B8%BE/">etcd––从源码看raft选举</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年7月3日
-        </date>
-        
-        <div class="post-meta meta-category">
-            |
-            
-            <a href='https://xibolun.github.io/categories/etcd'>etcd</a>
-            
-        </div>
-        
-        <div class="post-content">
-            Raft算法 分布式一致性算法最出名的是paxos，但是因为其非常难以理解，所以便有了简单可理解的raft算法；Raft将分布式问题归为几个模……
-            <p class="readmore"><a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Braft%E9%80%89%E4%B8%BE/">阅读全文</a></p>
-        </div>
+    <article class="archive-item">
+        <a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Braft%E9%80%89%E4%B8%BE/" class="archive-item-link hvr-underline-from-center">etcd––从源码看raft选举</a>
+        <span class="archive-item-date">
+            July 3, 2020
+        </span>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://xibolun.github.io/post/etcd/etcd%E5%85%A5%E9%97%A8/">etcd––入门</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年7月1日
-        </date>
-        
-        <div class="post-meta meta-category">
-            |
-            
-            <a href='https://xibolun.github.io/categories/etcd'>etcd</a>
-            
-        </div>
-        
-        <div class="post-content">
-            环境搭建 现在有了docker，环境搭建就非常的简单了 /usr/bin/docker run --restart=on-failure:5 --env-file=/etc/etcd.env --net=host -v /etc/ssl/certs:/etc/ssl/certs:ro -v /etc/ssl/etcd/ssl:/etc/ssl/etcd/ssl:ro -v /var/lib/et cd:/var/lib/etcd:rw --memory=512M --blkio-weight=1000 --name=etcd1 kubesphere/etcd:v3.3.12 /usr/local/bin/etcd 使用 连接 export ETCDCTL_API=3 etcdctl --endpoints=10.0.4.175:2379,10.0.4.175:2380 --cacert=/etc/ssl/etcd/ssl/ca.pem --cert=/etc/ssl/etcd/ssl/node-Ops-pre-4-175.pem --key=/etc/ssl/etcd/ssl/node-Ops-pre-4-175-key.pem member list alias一下会比较方便 alias etcdctl=&#39;etcdctl……
-            <p class="readmore"><a href="https://xibolun.github.io/post/etcd/etcd%E5%85%A5%E9%97%A8/">阅读全文</a></p>
-        </div>
+    <article class="archive-item">
+        <a href="https://xibolun.github.io/post/etcd/etcd%E5%85%A5%E9%97%A8/" class="archive-item-link hvr-underline-from-center">etcd––入门</a>
+        <span class="archive-item-date">
+            July 1, 2020
+        </span>
     </article>
+     
     
-
-    
-
-
-
-
 
 </div>
 
-                    <footer id="footer">
-    <div>
-        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+                </div>
+            </main>
+            <footer class="footer">
+    <div class="copyright">
+        &copy;
         
-    </div>
-    <br />
-    <div>
-        <div class="github-badge">
-            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
-        </div>
-        <div class="github-badge">
-            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
-        </div>
+        <span itemprop="copyrightYear">2017 - 2021</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i>
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://xibolun.github.io">pengganyu</a> | </span>
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/Mogeko/Mogege" target="_blank" rel="external nofollow">Mogege</a></span>
     </div>
 </footer>
 
 
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
 
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-101106729-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script defer src="/js/vendor_main.min.js"></script>
 
 
 
 
 
 
-                </div>
 
-                <div id="secondary">
-    <section class="widget">
-        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">最近文章</h3>
-<ul class="widget-list">
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
-    </li>
-    
-</ul>
-    </section>
+<script src="https://cdn.jsdelivr.net/npm/pangu@4.0.7/dist/browser/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script> pangu.spacingPage();</script>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
-<ul class="widget-list">
-    
-    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/tool/">tool (10)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (11)</a></li>
-    
-</ul>
-    </section>
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
-<div class="tagcloud">
-    
-    <a href="https://xibolun.github.io/tags/about/">about</a>
-    
-    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
-    
-    <a href="https://xibolun.github.io/tags/css/">Css</a>
-    
-    <a href="https://xibolun.github.io/tags/curl/">curl</a>
-    
-    <a href="https://xibolun.github.io/tags/docker/">docker</a>
-    
-    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
-    
-    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
-    
-    <a href="https://xibolun.github.io/tags/git/">git</a>
-    
-    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
-    
-    <a href="https://xibolun.github.io/tags/go/">go</a>
-    
-    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
-    
-    <a href="https://xibolun.github.io/tags/istio/">istio</a>
-    
-    <a href="https://xibolun.github.io/tags/java/">java</a>
-    
-    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
-    
-    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
-    
-    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
-    
-    <a href="https://xibolun.github.io/tags/linux/">linux</a>
-    
-    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
-    
-    <a href="https://xibolun.github.io/tags/maven/">maven</a>
-    
-    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
-    
-    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
-    
-    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
-    
-    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
-    
-    <a href="https://xibolun.github.io/tags/python/">python</a>
-    
-    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/react/">react</a>
-    
-    <a href="https://xibolun.github.io/tags/redis/">redis</a>
-    
-    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
-    
-    <a href="https://xibolun.github.io/tags/spring/">spring</a>
-    
-    <a href="https://xibolun.github.io/tags/tool/">tool</a>
-    
-    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
-    
-    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6/">读书</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
-    
-</div>
-    </section>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title">其它</h3>
-        <ul class="widget-list">
-            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
-        </ul>
-    </section>
-</div>
-            </div>
         </div>
-    </div>
-</body>
-
+    </body>
 </html>

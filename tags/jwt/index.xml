@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>jwt on penggy Blog</title>
+    <title>jwt on penggy blog</title>
     <link>https://xibolun.github.io/tags/jwt/</link>
-    <description>Recent content in jwt on penggy Blog</description>
+    <description>Recent content in jwt on penggy blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-CN</language>
+    <language>zh-cn</language>
     <lastBuildDate>Sat, 22 Apr 2017 23:36:24 +0800</lastBuildDate><atom:link href="https://xibolun.github.io/tags/jwt/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>JWT学习</title>

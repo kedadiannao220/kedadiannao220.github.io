@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>ActiveMQ on penggy Blog</title>
+    <title>ActiveMQ on penggy blog</title>
     <link>https://xibolun.github.io/tags/activemq/</link>
-    <description>Recent content in ActiveMQ on penggy Blog</description>
+    <description>Recent content in ActiveMQ on penggy blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-CN</language>
+    <language>zh-cn</language>
     <lastBuildDate>Wed, 27 Dec 2017 16:38:18 +0800</lastBuildDate><atom:link href="https://xibolun.github.io/tags/activemq/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>AMQ Topic Subsriber Model</title>

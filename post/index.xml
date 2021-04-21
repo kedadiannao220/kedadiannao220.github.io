@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on penggy Blog</title>
+    <title>Posts on penggy blog</title>
     <link>https://xibolun.github.io/post/</link>
-    <description>Recent content in Posts on penggy Blog</description>
+    <description>Recent content in Posts on penggy blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-CN</language>
+    <language>zh-cn</language>
     <lastBuildDate>Fri, 29 Jan 2021 16:44:02 +0800</lastBuildDate><atom:link href="https://xibolun.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Istio—从源码看Sidecar注入原理</title>
@@ -454,7 +454,7 @@
       <pubDate>Sun, 20 Oct 2019 23:01:23 +0800</pubDate>
       
       <guid>https://xibolun.github.io/post/saltstack/saltstack%E4%B8%83salt-ssh/</guid>
-      <description>Salt-ssh 创建一个roster，类似ansible的/etc/ansible/hosts配置文件 # /etc/salt/roster10.0.2.7:host:10.0.2.7user:root passwd:Yunjikeji#123 执行密码后第一次连接还需要输入确认，所以一般会</description>
+      <description>Salt-ssh 创建一个roster，类似ansible的/etc/ansible/hosts配置文件 # /etc/salt/roster 10.0.2.7: host: 10.0.2.7 user: root passwd: Yunjikeji#123 执行密码后第一次连接还需要输入确认</description>
     </item>
     
     <item>
@@ -472,7 +472,7 @@
       <pubDate>Tue, 15 Oct 2019 14:34:29 +0800</pubDate>
       
       <guid>https://xibolun.github.io/post/saltstack/saltstack%E4%BA%94state/</guid>
-      <description>State state是一个描述性文件，类似puppet的脚本，ansible的playbook，描述着需要配置/文件/软件/服务等的最终状态 格式 target_a:# ID</description>
+      <description>State state是一个描述性文件，类似puppet的脚本，ansible的playbook，描述着需要配置/文件/软件/服务等的最终状态 格式 target_a: #</description>
     </item>
     
     <item>

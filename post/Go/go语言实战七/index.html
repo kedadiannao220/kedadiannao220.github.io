@@ -1,114 +1,224 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-
-    <title>Go语言实战(七)并发模式 | penggy Blog</title>
-    <meta property="og:title" content="Go语言实战(七)并发模式 - penggy Blog">
-    <meta property="og:type" content="article">
-        
-    <meta property="article:published_time" content='2019-05-23T11:41:46&#43;08:00'>
-        
-        
-    <meta property="article:modified_time" content='2019-05-23T11:41:46&#43;08:00'>
-        
-    <meta name="Keywords" content="">
-    <meta name="description" content="Go语言实战(七)并发模式">
-        
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noodp"/>
     <meta name="author" content="pengganyu">
-    <meta property="og:url" content="https://xibolun.github.io/post/go/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E4%B8%83/">
-    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+    <meta name="description" content="Mogeko 的个人博客">
+    
+    
+    <link rel="prev" href="https://xibolun.github.io/post/go/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E5%85%AD/" />
+    <link rel="next" href="https://xibolun.github.io/post/tools/tmux/" />
+    <link rel="canonical" href="https://xibolun.github.io/post/go/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E4%B8%83/" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <title>
+        
+        
+            Go语言实战(七)并发模式 | penggy blog
+        
+    </title>
+    <meta name="title" content="Go语言实战(七)并发模式 | penggy blog">
+    
+<link rel="stylesheet" href="/css/main.min.css">
 
-    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
-    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
-    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
     
-    
-    
-    
-    
-</head>
+ 
 
+<script type="application/ld+json">
+{
+    "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/xibolun.github.io"
+    },
+    "articleSection" : "post",
+    "name" : "Go语言实战(七)并发模式",
+    "headline" : "Go语言实战(七)并发模式",
+    "description" : "Go语言实战(七)并发模式 runner type Runner struct { interrupt chan os.Signal \/\/ 任务中断 timeout \u0026lt;-chan time.Time \/\/ 单向通道，只能接收，不能写入 complete chan error \/\/ 任务结束，有可能返回error tasks []func(int) \/\/ 需要执行",
+    "inLanguage" : "zh-cn",
+    "author" : "pengganyu",
+    "creator" : "pengganyu",
+    "publisher": "pengganyu",
+    "accountablePerson" : "pengganyu",
+    "copyrightHolder" : "pengganyu",
+    "copyrightYear" : "2019",
+    "datePublished": "2019-05-23 11:41:46 \u002b0800 CST",
+    "dateModified" : "2019-05-23 11:41:46 \u002b0800 CST",
+    "url" : "https:\/\/xibolun.github.io\/post\/go\/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E4%B8%83\/",
+    "wordCount" : "642",
+    "keywords" : [ "go", "penggy blog"]
+}
+</script>
 
-<body>
-    <header id="header" class="clearfix">
+  </head>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <body class="">
+        <div class="wrapper">
+            <nav class="navbar">
+    
+        <progress class="content_progress" max="0" value="0"></progress>
+    
     <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <a id="logo" href="https://xibolun.github.io">
-                        penggy Blog
-                    </a>
-                
-                
+        
+            <div class="navbar-header header-back2home-logo">
+                <span class="logo_mark" >>$</span>
+                <a href="https://xibolun.github.io">
+                    <span class="logo_text" >cd /home/</span>
+                    <span class="logo_cursor" ></span>
+                </a>
             </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://xibolun.github.io">首页</a>
-                    
-                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
-                    
-                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
-                    
-                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
-                    
-                </nav>
-            </div>
+        
+        <div class="navbar-right">
+                
+                <span class="menu">
+                
+                <a class="menu-item" href="/post/" title="">Blog</a>
+                
+                <a class="menu-item" href="/tags/tool/" title="">Tools</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/books" title="">读书</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+                <span class="divide"></span>
+                <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a>
+                </span>
         </div>
     </div>
-</header>
-
-    <div id="body">
-        <div class="container">
-            <div class="col-group">
-
-                <div class="col-8" id="main">
-                    
-<div class="res-cons">
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">Go语言实战(七)并发模式</h1>
-        </header>
-        <date class="post-meta meta-date">
-            2019年5月23日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a></span>
-            
-        </div>
-        
-        
-        
-        <div class="clear" style="display: none">
-            <div class="toc-article">
-                <div class="toc-title">文章目录</div>
+        <progress class="content_progress" max="0" value="0"></progress>
+    
+     <div class="container">
+        <div class="navbar">
+            <div class="navbar-header header-logo">
+                    <a href="https://xibolun.github.io">penggy blog</a>
+            </div>
+            <div class="navbar-right">
+                <div><a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a></div>
+                <div class="menu-toggle">
+                    <span></span><span></span><span></span>
+                </div>
             </div>
         </div>
-        
-        <div class="post-content">
-            <h2 id="go语言实战七并发模式">Go语言实战(七)并发模式</h2>
-<h3 id="runner">runner</h3>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Runner</span> <span class="kd">struct</span> <span class="p">{</span>
-	<span class="nx">interrupt</span> <span class="kd">chan</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Signal</span>   <span class="c1">// 任务中断
-</span><span class="c1"></span>	<span class="nx">timeout</span>   <span class="o">&lt;-</span><span class="kd">chan</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span> <span class="c1">// 单向通道，只能接收，不能写入
-</span><span class="c1"></span>	<span class="nx">complete</span>  <span class="kd">chan</span> <span class="kt">error</span>       <span class="c1">// 任务结束，有可能返回error
-</span><span class="c1"></span>	<span class="nx">tasks</span>     <span class="p">[]</span><span class="kd">func</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span>      <span class="c1">// 需要执行的任务列表
-</span><span class="c1"></span><span class="p">}</span>
+     
+          <div class="menu" id="mobile-menu">
+                <nav class="mb-md">
+                    
+                    
+                        <a class="menu-item" href="/post/" title="">
+                            <h3>Blog</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/tool/" title="">
+                            <h3>Tools</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/categories/" title="">
+                            <h3>Categories</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/" title="">
+                            <h3>Tags</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/books" title="">
+                            <h3>读书</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/about/" title="">
+                            <h3>About</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                </nav>
+        </div>
+    </div>
+</nav>
+            <main class="main">
+                <div class="container">
+                    
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Go语言实战(七)并发模式</h1>
+        <div class="post-meta">
+                
+                <span class="post-time">
+                    <time datetime=2019-05-23 itemprop="datePublished">2019-05-23</time>
+                </span>
+                
+                <i class="iconfont icon-folder"></i>
+                <span class="post-category">
+                        
+                        
+                        
+                          <a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/"> 技术文章, </a>
+                        
+                        
+                        
+                        
+                          <a href="https://xibolun.github.io/categories/go/"> go, </a>
+                        
+                        
+                </span>
+                <span class="post-word-count">642 words</span>
+                
+                ,
+                <span id="busuanzi_value_page_pv"></span>阅读
+                
+        </div>
+    </header>
 
-<span class="kd">var</span> <span class="p">(</span>
-	<span class="nx">ErrTimeout</span>   <span class="p">=</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;received timeout&#34;</span><span class="p">)</span>
-	<span class="nx">ErrInterrupt</span> <span class="p">=</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;received interrupt&#34;</span><span class="p">)</span>
-<span class="p">)</span>
+    <div class="post-content">
+        
+
+        
+        
+
+        
+        
+        
+        
+        
+
+        
+        
+        
+
+        <h2 id="go语言实战七并发模式">Go语言实战(七)并发模式</h2>
+<h3 id="runner">runner</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Runner</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#a6e22e">interrupt</span> <span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Signal</span>   <span style="color:#75715e">// 任务中断
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">timeout</span>   <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#75715e">// 单向通道，只能接收，不能写入
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">complete</span>  <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">error</span>       <span style="color:#75715e">// 任务结束，有可能返回error
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">tasks</span>     []<span style="color:#66d9ef">func</span>(<span style="color:#66d9ef">int</span>)      <span style="color:#75715e">// 需要执行的任务列表
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#66d9ef">var</span> (
+	<span style="color:#a6e22e">ErrTimeout</span>   = <span style="color:#a6e22e">errors</span>.<span style="color:#a6e22e">New</span>(<span style="color:#e6db74">&#34;received timeout&#34;</span>)
+	<span style="color:#a6e22e">ErrInterrupt</span> = <span style="color:#a6e22e">errors</span>.<span style="color:#a6e22e">New</span>(<span style="color:#e6db74">&#34;received interrupt&#34;</span>)
+)
 </code></pre></div><ul>
 <li>tasks设计为数组函数，是一个非常优雅的地方，这样需要执行的逻辑可以放到task函数里面实现</li>
 <li>timeout是一个单向的通道，只能写入，即runner初始化的时候已经指定好了超时时间，无法再次修改</li>
@@ -128,362 +238,167 @@
 	r.tasks = append(r.tasks, tasks...)
 }
 </code></pre><p>如何判断任务是否被打断？ 若signal发出来信号，那么会传递到interrupt的通道里面，可以根据runner里面的interrupt通道里面是否存在数据信息来进行处理</p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">Runner</span><span class="p">)</span> <span class="nf">gotInterrupt</span><span class="p">()</span> <span class="kt">bool</span> <span class="p">{</span>
-	<span class="k">select</span> <span class="p">{</span>
-	<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">r</span><span class="p">.</span><span class="nx">interrupt</span><span class="p">:</span>
-		<span class="nx">signal</span><span class="p">.</span><span class="nf">Stop</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">interrupt</span><span class="p">)</span>
-		<span class="k">return</span> <span class="kc">true</span>
-	<span class="k">default</span><span class="p">:</span>
-		<span class="k">return</span> <span class="kc">false</span>
-	<span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Runner</span>) <span style="color:#a6e22e">gotInterrupt</span>() <span style="color:#66d9ef">bool</span> {
+	<span style="color:#66d9ef">select</span> {
+	<span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">interrupt</span>:
+		<span style="color:#a6e22e">signal</span>.<span style="color:#a6e22e">Stop</span>(<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">interrupt</span>)
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>
+	<span style="color:#66d9ef">default</span>:
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>
+	}
+}
 </code></pre></div><p>将任务开启起来，遍历tasks；开始运行，返回对应的错误</p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">Runner</span><span class="p">)</span> <span class="nf">run</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
-	<span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">task</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">r</span><span class="p">.</span><span class="nx">tasks</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="nx">r</span><span class="p">.</span><span class="nf">gotInterrupt</span><span class="p">()</span> <span class="p">{</span>
-			<span class="k">return</span> <span class="nx">ErrInterrupt</span>
-		<span class="p">}</span>
-		<span class="nf">task</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
-	<span class="p">}</span>
-	<span class="k">return</span> <span class="kc">nil</span>
-<span class="p">}</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Runner</span>) <span style="color:#a6e22e">run</span>() <span style="color:#66d9ef">error</span> {
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">task</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">tasks</span> {
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">gotInterrupt</span>() {
+			<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ErrInterrupt</span>
+		}
+		<span style="color:#a6e22e">task</span>(<span style="color:#a6e22e">i</span>)
+	}
+	<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+}
 </code></pre></div><p>Start任务,主任务</p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">Runner</span><span class="p">)</span> <span class="nf">Start</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
-  <span class="c1">// 接收操作系统interrupt信号； Ctrl+c
-</span><span class="c1"></span>	<span class="nx">signal</span><span class="p">.</span><span class="nf">Notify</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">interrupt</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Interrupt</span><span class="p">)</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Runner</span>) <span style="color:#a6e22e">Start</span>() <span style="color:#66d9ef">error</span> {
+  <span style="color:#75715e">// 接收操作系统interrupt信号； Ctrl+c
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">signal</span>.<span style="color:#a6e22e">Notify</span>(<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">interrupt</span>, <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Interrupt</span>)
 
-	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-		<span class="nx">r</span><span class="p">.</span><span class="nx">complete</span> <span class="o">&lt;-</span> <span class="nx">r</span><span class="p">.</span><span class="nf">run</span><span class="p">()</span> <span class="c1">//将run出来的结果返回给complete
-</span><span class="c1"></span>	<span class="p">}()</span>
+	<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">complete</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">run</span>() <span style="color:#75715e">//将run出来的结果返回给complete
+</span><span style="color:#75715e"></span>	}()
 
-	<span class="k">select</span> <span class="p">{</span>
-	<span class="k">case</span> <span class="nx">err</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">r</span><span class="p">.</span><span class="nx">complete</span><span class="p">:</span>
-		<span class="k">return</span> <span class="nx">err</span>
-	<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">r</span><span class="p">.</span><span class="nx">timeout</span><span class="p">:</span>
-		<span class="k">return</span> <span class="nx">ErrTimeout</span>
-	<span class="p">}</span>
-<span class="p">}</span>
+	<span style="color:#66d9ef">select</span> {
+	<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">complete</span>:
+		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+	<span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">timeout</span>:
+		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ErrTimeout</span>
+	}
+}
 </code></pre></div><p>测试方法</p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">TestRunner</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
-	<span class="nx">r</span> <span class="o">:=</span> <span class="nf">NewRunner</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestRunner</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">r</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">NewRunner</span>(<span style="color:#ae81ff">3</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
 
-	<span class="nx">r</span><span class="p">.</span><span class="nf">AddTask</span><span class="p">(</span><span class="nf">CreateTask</span><span class="p">(),</span> <span class="nf">CreateTask</span><span class="p">(),</span> <span class="nf">CreateTask</span><span class="p">())</span>
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">AddTask</span>(<span style="color:#a6e22e">CreateTask</span>(), <span style="color:#a6e22e">CreateTask</span>(), <span style="color:#a6e22e">CreateTask</span>())
 
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Start</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="k">switch</span> <span class="nx">err</span> <span class="p">{</span>
-		<span class="k">case</span> <span class="nx">ErrTimeout</span><span class="p">:</span>
-			<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Terminating due to timeout&#34;</span><span class="p">)</span>
-			<span class="nx">os</span><span class="p">.</span><span class="nf">Exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-		<span class="k">case</span> <span class="nx">ErrInterrupt</span><span class="p">:</span>
-			<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Terminating due to interrupt&#34;</span><span class="p">)</span>
-			<span class="nx">os</span><span class="p">.</span><span class="nf">Exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-		<span class="p">}</span>
-	<span class="p">}</span>
-	<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;process done&#34;</span><span class="p">)</span>
-<span class="p">}</span>
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Start</span>(); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#66d9ef">switch</span> <span style="color:#a6e22e">err</span> {
+		<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">ErrTimeout</span>:
+			<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;Terminating due to timeout&#34;</span>)
+			<span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Exit</span>(<span style="color:#ae81ff">1</span>)
+		<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">ErrInterrupt</span>:
+			<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;Terminating due to interrupt&#34;</span>)
+			<span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Exit</span>(<span style="color:#ae81ff">2</span>)
+		}
+	}
+	<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;process done&#34;</span>)
+}
 
-<span class="kd">func</span> <span class="nf">CreateTask</span><span class="p">()</span> <span class="kd">func</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
-	<span class="k">return</span> <span class="kd">func</span><span class="p">(</span><span class="nx">id</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
-		<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;task %d&#34;</span><span class="p">,</span> <span class="nx">id</span><span class="p">)</span>
-		<span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Duration</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-	<span class="p">}</span>
-<span class="p">}</span>
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">CreateTask</span>() <span style="color:#66d9ef">func</span>(<span style="color:#66d9ef">int</span>) {
+	<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">id</span> <span style="color:#66d9ef">int</span>) {
+		<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;task %d&#34;</span>, <span style="color:#a6e22e">id</span>)
+		<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span>(<span style="color:#a6e22e">id</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+	}
+}
 </code></pre></div>
-        </div>
+    </div>
 
-        
-
-
-        
-
-<div class="post-archive">
-    <h2>See Also</h2>
-    <ul class="listing">
-        
-        <li><a href="https://xibolun.github.io/post/go/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E5%85%AD/">Go语言实战(六)并发</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/go/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E4%BA%94/">Go语言实战(五)Go语言的类型系统</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/go/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E5%9B%9B/">Go语言实战(四)数组、切片、映射</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/go/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E4%B8%89/">Go语言实战(三)工具包</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/go/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E4%B8%80%E4%BA%8C/">Go语言实战(一/二)基础</a></li>
-        
-    </ul>
-</div>
+    
 
 
-        <div class="post-meta meta-tags">
+    <div class="post-tags">
+        
+            <section>
+            <i class="iconfont icon-tag"></i>Tag(s):
             
-            <ul class="clearfix">
-                
-                <li><a href='https://xibolun.github.io/tags/go'>go</a></li>
-                
-            </ul>
+            <span class="tag"><a href="https://xibolun.github.io/tags/go/">
+                    #go</a></span>
             
-        </div>
-    </article>
-    
-    <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </section>
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> ·
+                <span><a href="https://xibolun.github.io">home</a></span>
+        </section>
+    </div>
 
-    
-    
-</div>
-
-                    <footer id="footer">
-    <div>
-        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+    <div class="post-nav">
+        
+        <a href="https://xibolun.github.io/post/go/go%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E5%85%AD/" class="prev" rel="prev" title="Go语言实战(六)并发"><i class="iconfont icon-left"></i>&nbsp;Go语言实战(六)并发</a>
+        
+        
+        <a href="https://xibolun.github.io/post/tools/tmux/" class="next" rel="next" title="Tmux">Tmux&nbsp;<i class="iconfont icon-right"></i></a>
         
     </div>
-    <br />
-    <div>
-        <div class="github-badge">
-            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
-        </div>
-        <div class="github-badge">
-            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
-        </div>
+
+    <div class="post-comment">
+        
+            
+                <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.css">
+<script src="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.min.js"></script>
+<script>
+    const gitalk = new Gitalk({
+
+        clientID: '621dd77636c317069337',
+        clientSecret: '614d7596d823c41978f49c5434301ba8304da7d5',
+        repo: 'blog-commits',
+        owner: 'Mogeko',
+        admin: ['Mogeko'],
+        id: location.pathname, 
+        distractionFreeMode: false 
+    });
+    (function () {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('gitalk-container').innerHTML = 'Gitalk comments not available by default when the website is previewed locally.';
+            return;
+        }
+        gitalk.render('gitalk-container');
+    })();
+</script>
+
+            
+        
+    </div>
+</article>
+                </div>
+            </main>
+            <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2017 - 2021</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i>
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://xibolun.github.io">pengganyu</a> | </span>
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/Mogeko/Mogege" target="_blank" rel="external nofollow">Mogege</a></span>
     </div>
 </footer>
 
 
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
 
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-101106729-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script defer src="/js/vendor_main.min.js"></script>
 
 
 
 
 
 
-                </div>
 
-                <div id="secondary">
-    <section class="widget">
-        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">最近文章</h3>
-<ul class="widget-list">
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
-    </li>
-    
-</ul>
-    </section>
+<script src="https://cdn.jsdelivr.net/npm/pangu@4.0.7/dist/browser/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script> pangu.spacingPage();</script>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
-<ul class="widget-list">
-    
-    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/tool/">tool (10)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (11)</a></li>
-    
-</ul>
-    </section>
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
-<div class="tagcloud">
-    
-    <a href="https://xibolun.github.io/tags/about/">about</a>
-    
-    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
-    
-    <a href="https://xibolun.github.io/tags/css/">Css</a>
-    
-    <a href="https://xibolun.github.io/tags/curl/">curl</a>
-    
-    <a href="https://xibolun.github.io/tags/docker/">docker</a>
-    
-    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
-    
-    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
-    
-    <a href="https://xibolun.github.io/tags/git/">git</a>
-    
-    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
-    
-    <a href="https://xibolun.github.io/tags/go/">go</a>
-    
-    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
-    
-    <a href="https://xibolun.github.io/tags/istio/">istio</a>
-    
-    <a href="https://xibolun.github.io/tags/java/">java</a>
-    
-    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
-    
-    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
-    
-    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
-    
-    <a href="https://xibolun.github.io/tags/linux/">linux</a>
-    
-    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
-    
-    <a href="https://xibolun.github.io/tags/maven/">maven</a>
-    
-    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
-    
-    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
-    
-    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
-    
-    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
-    
-    <a href="https://xibolun.github.io/tags/python/">python</a>
-    
-    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/react/">react</a>
-    
-    <a href="https://xibolun.github.io/tags/redis/">redis</a>
-    
-    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
-    
-    <a href="https://xibolun.github.io/tags/spring/">spring</a>
-    
-    <a href="https://xibolun.github.io/tags/tool/">tool</a>
-    
-    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
-    
-    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6/">读书</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
-    
-</div>
-    </section>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title">其它</h3>
-        <ul class="widget-list">
-            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
-        </ul>
-    </section>
-</div>
-            </div>
         </div>
-    </div>
-</body>
-
+    </body>
 </html>

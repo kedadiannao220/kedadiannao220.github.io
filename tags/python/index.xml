@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>python on penggy Blog</title>
+    <title>python on penggy blog</title>
     <link>https://xibolun.github.io/tags/python/</link>
-    <description>Recent content in python on penggy Blog</description>
+    <description>Recent content in python on penggy blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-CN</language>
+    <language>zh-cn</language>
     <lastBuildDate>Sat, 14 Apr 2018 14:26:21 +0800</lastBuildDate><atom:link href="https://xibolun.github.io/tags/python/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>12306接口分析</title>

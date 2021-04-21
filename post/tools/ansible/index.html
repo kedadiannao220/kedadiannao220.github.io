@@ -1,102 +1,207 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-
-    <title>Ansbile学习 | penggy Blog</title>
-    <meta property="og:title" content="Ansbile学习 - penggy Blog">
-    <meta property="og:type" content="article">
-        
-    <meta property="article:published_time" content='2019-07-30T00:15:33&#43;08:00'>
-        
-        
-    <meta property="article:modified_time" content='2020-12-09T14:22:27&#43;08:00'>
-        
-    <meta name="Keywords" content="">
-    <meta name="description" content="Ansbile学习">
-        
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noodp"/>
     <meta name="author" content="pengganyu">
-    <meta property="og:url" content="https://xibolun.github.io/post/tools/ansible/">
-    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+    <meta name="description" content="Mogeko 的个人博客">
+    
+    
+    <link rel="prev" href="https://xibolun.github.io/post/tools/tmux/" />
+    <link rel="next" href="https://xibolun.github.io/post/linux/%E5%86%8D%E5%AD%A6linux%E7%AC%94%E8%AE%B0%E4%B8%80/" />
+    <link rel="canonical" href="https://xibolun.github.io/post/tools/ansible/" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <title>
+        
+        
+            Ansbile学习 | penggy blog
+        
+    </title>
+    <meta name="title" content="Ansbile学习 | penggy blog">
+    
+<link rel="stylesheet" href="/css/main.min.css">
 
-    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
-    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
-    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
     
-    
-    
-    
-    
-</head>
+ 
 
+<script type="application/ld+json">
+{
+    "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/xibolun.github.io"
+    },
+    "articleSection" : "post",
+    "name" : "Ansbile学习",
+    "headline" : "Ansbile学习",
+    "description" : "学无止境，不定期更新\u0026hellip;\u0026hellip; 牛刀小试 将ansible的ssh-pub添加至远程的服务器当中，建立ssh连接 建立\/et",
+    "inLanguage" : "zh-cn",
+    "author" : "pengganyu",
+    "creator" : "pengganyu",
+    "publisher": "pengganyu",
+    "accountablePerson" : "pengganyu",
+    "copyrightHolder" : "pengganyu",
+    "copyrightYear" : "2019",
+    "datePublished": "2019-07-30 00:15:33 \u002b0800 CST",
+    "dateModified" : "2019-07-30 00:15:33 \u002b0800 CST",
+    "url" : "https:\/\/xibolun.github.io\/post\/tools\/ansible\/",
+    "wordCount" : "1424",
+    "keywords" : [ "ansible","tool", "penggy blog"]
+}
+</script>
 
-<body>
-    <header id="header" class="clearfix">
+  </head>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <body class="">
+        <div class="wrapper">
+            <nav class="navbar">
+    
+        <progress class="content_progress" max="0" value="0"></progress>
+    
     <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <a id="logo" href="https://xibolun.github.io">
-                        penggy Blog
-                    </a>
-                
-                
+        
+            <div class="navbar-header header-back2home-logo">
+                <span class="logo_mark" >>$</span>
+                <a href="https://xibolun.github.io">
+                    <span class="logo_text" >cd /home/</span>
+                    <span class="logo_cursor" ></span>
+                </a>
             </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://xibolun.github.io">首页</a>
-                    
-                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
-                    
-                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
-                    
-                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
-                    
-                </nav>
-            </div>
+        
+        <div class="navbar-right">
+                
+                <span class="menu">
+                
+                <a class="menu-item" href="/post/" title="">Blog</a>
+                
+                <a class="menu-item" href="/tags/tool/" title="">Tools</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/books" title="">读书</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+                <span class="divide"></span>
+                <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a>
+                </span>
         </div>
     </div>
-</header>
-
-    <div id="body">
-        <div class="container">
-            <div class="col-group">
-
-                <div class="col-8" id="main">
-                    
-<div class="res-cons">
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">Ansbile学习</h1>
-        </header>
-        <date class="post-meta meta-date">
-            2019年7月30日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://xibolun.github.io/categories/tool'>tool</a></span>
-            
-        </div>
-        
-        
-        
-        <div class="clear" style="display: none">
-            <div class="toc-article">
-                <div class="toc-title">文章目录</div>
+        <progress class="content_progress" max="0" value="0"></progress>
+    
+     <div class="container">
+        <div class="navbar">
+            <div class="navbar-header header-logo">
+                    <a href="https://xibolun.github.io">penggy blog</a>
+            </div>
+            <div class="navbar-right">
+                <div><a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a></div>
+                <div class="menu-toggle">
+                    <span></span><span></span><span></span>
+                </div>
             </div>
         </div>
+     
+          <div class="menu" id="mobile-menu">
+                <nav class="mb-md">
+                    
+                    
+                        <a class="menu-item" href="/post/" title="">
+                            <h3>Blog</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/tool/" title="">
+                            <h3>Tools</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/categories/" title="">
+                            <h3>Categories</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/" title="">
+                            <h3>Tags</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/books" title="">
+                            <h3>读书</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/about/" title="">
+                            <h3>About</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                </nav>
+        </div>
+    </div>
+</nav>
+            <main class="main">
+                <div class="container">
+                    
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Ansbile学习</h1>
+        <div class="post-meta">
+                
+                <span class="post-time">
+                    <time datetime=2019-07-30 itemprop="datePublished">2019-07-30</time>
+                </span>
+                
+                <i class="iconfont icon-folder"></i>
+                <span class="post-category">
+                        
+                        
+                        
+                          <a href="https://xibolun.github.io/categories/tool/"> tool, </a>
+                        
+                        
+                </span>
+                <span class="post-word-count">1424 words</span>
+                
+                ,
+                <span id="busuanzi_value_page_pv"></span>阅读
+                
+        </div>
+    </header>
+
+    <div class="post-content">
         
-        <div class="post-content">
-            <p>学无止境，不定期更新&hellip;&hellip;</p>
+
+        
+        
+
+        
+        
+        
+        
+        
+
+        
+        
+        
+
+        <p>学无止境，不定期更新&hellip;&hellip;</p>
 <h3 id="牛刀小试">牛刀小试</h3>
 <ol>
 <li>
@@ -127,12 +232,12 @@
 </ul>
 <h4 id="认证方式">认证方式</h4>
 <p>ssh</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">ssh-keygen -t rsa
-</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">ssh-copy-id -i ~/.ssh/id_rsa.pub root@10.0.3.5
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ssh-keygen -t rsa
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ssh-copy-id -i ~/.ssh/id_rsa.pub root@10.0.3.5
 </code></pre></div><p>配置文件内置密码</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>webservers<span class="o">]</span>
-10.0.3.5 <span class="nv">ansible_ssh_pass</span><span class="o">=</span><span class="s1">&#39;Yunjikeji#123&#39;</span> <span class="nv">ansible_ssh_port</span><span class="o">=</span><span class="m">2222</span>
-10.0.2.1 <span class="nv">ansible_ssh_pass</span><span class="o">=</span><span class="s1">&#39;Yunjikeji#123&#39;</span> <span class="nv">ansible_ssh_port</span><span class="o">=</span><span class="m">2222</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>webservers<span style="color:#f92672">]</span>
+10.0.3.5 ansible_ssh_pass<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Yunjikeji#123&#39;</span> ansible_ssh_port<span style="color:#f92672">=</span><span style="color:#ae81ff">2222</span>
+10.0.2.1 ansible_ssh_pass<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Yunjikeji#123&#39;</span> ansible_ssh_port<span style="color:#f92672">=</span><span style="color:#ae81ff">2222</span>
 </code></pre></div><p>还可以配置内置端口,用于配置容器化技术, <code>inventory</code>里面有许多的内置参数 <a href="https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#assigning-a-variable-to-one-machine-host-variables">inventory-parameters</a></p>
 <h3 id="各模块说明">各模块说明</h3>
 <ul>
@@ -143,22 +248,22 @@
 </ul>
 <h4 id="ad-hoc">Ad-hoc</h4>
 <p>ansible的模块，有各个公司、个人的支持，这也是ansible火起来的原因；比如ping、copy、shell、yum、user等</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@cloudboot etc<span class="o">]</span><span class="c1"># ansible-doc -l | wc -l</span>
-<span class="m">2114</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@cloudboot etc<span style="color:#f92672">]</span><span style="color:#75715e"># ansible-doc -l | wc -l</span>
+<span style="color:#ae81ff">2114</span>
 </code></pre></div><p>想看这些模块的帮助文档: <code>ansible-doc yum|copy|ping</code></p>
 <p>下发文件</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">ansible webservers -m copy -a <span class="s1">&#39;src=https://xibolun.github.io/tmp/cloudboot-server.conf dest=/tmp/cloudboot-server.conf&#39;</span>  -i inventory.cfg
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ansible webservers -m copy -a <span style="color:#e6db74">&#39;src=/tmp/cloudboot-server.conf dest=/tmp/cloudboot-server.conf&#39;</span>  -i inventory.cfg
 </code></pre></div><p>shell模块使用； 查看nginx服务状态</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">ansible webservers -m shell  -a <span class="s1">&#39;systemctl status nginx&#39;</span> -i inventory.cfg
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ansible webservers -m shell  -a <span style="color:#e6db74">&#39;systemctl status nginx&#39;</span> -i inventory.cfg
 </code></pre></div><p>ansible还做了命令的解析和处理</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">~ ansible hosts -m shell -a <span class="s1">&#39;rm -rf swagger.log&#39;</span> 
- <span class="o">[</span>WARNING<span class="o">]</span>: Consider using the file module with <span class="nv">state</span><span class="o">=</span>absent rather than running <span class="s1">&#39;rm&#39;</span>.  If you need to use <span class="nb">command</span> because file is insufficient you can add <span class="s1">&#39;warn: false&#39;</span> to this <span class="nb">command</span> task or <span class="nb">set</span> <span class="s1">&#39;command_warnings=False&#39;</span> in
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">~ ansible hosts -m shell -a <span style="color:#e6db74">&#39;rm -rf swagger.log&#39;</span> 
+ <span style="color:#f92672">[</span>WARNING<span style="color:#f92672">]</span>: Consider using the file module with state<span style="color:#f92672">=</span>absent rather than running <span style="color:#e6db74">&#39;rm&#39;</span>.  If you need to use command because file is insufficient you can add <span style="color:#e6db74">&#39;warn: false&#39;</span> to this command task or set <span style="color:#e6db74">&#39;command_warnings=False&#39;</span> in
 ansible.cfg to get rid of this message.
 </code></pre></div><p>服务处理</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">ansible hosts -m service -a <span class="s2">&#34;name=nginx state=started&#34;</span> -u root
-ansible hosts -m service -a <span class="s2">&#34;name=nginx state=stopped&#34;</span> -u root
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ansible hosts -m service -a <span style="color:#e6db74">&#34;name=nginx state=started&#34;</span> -u root
+ansible hosts -m service -a <span style="color:#e6db74">&#34;name=nginx state=stopped&#34;</span> -u root
 </code></pre></div><p>单台执行</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">ansible HOST -m shell -a <span class="s1">&#39;ls /tmp&#39;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ansible HOST -m shell -a <span style="color:#e6db74">&#39;ls /tmp&#39;</span>
 </code></pre></div><h4 id="facts">facts</h4>
 <p>一个ansible的采集，类似setup模块</p>
 <pre><code>[root@cloudboot inventory]# ansible webservers -m setup -a 'filter=ansible_eth0' -i inventory.cfg  
@@ -192,34 +297,34 @@ ansible hosts -m service -a <span class="s2">&#34;name=nginx state=stopped&#34;<
 <h4 id="playbook">Playbook</h4>
 <p>playbook是一个ansible的编排执行工具，官网文档<a href="https://docs.ansible.com/ansible/2.7/user_guide/playbooks.html#working-with-playbooks">working-with-playbooks</a></p>
 <p>ping-playbook.yml</p>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nn">---</span><span class="w">
-</span><span class="w"></span>- <span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l">webservers</span><span class="w">
-</span><span class="w">  </span><span class="nt">remote_user</span><span class="p">:</span><span class="w"> </span><span class="l">root</span><span class="w">
-</span><span class="w">  </span><span class="nt">tasks</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">test connection</span><span class="w">
-</span><span class="w">      </span><span class="nt">ping</span><span class="p">:</span><span class="w"> 
-</span><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">status nginx</span><span class="w">
-</span><span class="w">      </span><span class="nt">shell</span><span class="p">:</span><span class="w"> </span><span class="l">systemctl status nginx</span><span class="w">
-</span></code></pre></div><p>执行命令</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@cloudboot inventory<span class="o">]</span><span class="c1"># ansible-playbook ping_playbook.yml -i inventory.cfg </span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
+- <span style="color:#f92672">hosts</span>: <span style="color:#ae81ff">webservers</span>
+  <span style="color:#f92672">remote_user</span>: <span style="color:#ae81ff">root</span>
+  <span style="color:#f92672">tasks</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">test connection</span>
+      <span style="color:#f92672">ping</span>: 
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">status nginx</span>
+      <span style="color:#f92672">shell</span>: <span style="color:#ae81ff">systemctl status nginx</span>
+</code></pre></div><p>执行命令</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@cloudboot inventory<span style="color:#f92672">]</span><span style="color:#75715e"># ansible-playbook ping_playbook.yml -i inventory.cfg </span>
 
-PLAY <span class="o">[</span>webservers<span class="o">]</span> ******************************************************************************************************************************************
+PLAY <span style="color:#f92672">[</span>webservers<span style="color:#f92672">]</span> ******************************************************************************************************************************************
 
-TASK <span class="o">[</span>Gathering Facts<span class="o">]</span> *************************************************************************************************************************************
-ok: <span class="o">[</span>10.0.2.1<span class="o">]</span>
-ok: <span class="o">[</span>10.0.3.5<span class="o">]</span>
+TASK <span style="color:#f92672">[</span>Gathering Facts<span style="color:#f92672">]</span> *************************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>10.0.2.1<span style="color:#f92672">]</span>
+ok: <span style="color:#f92672">[</span>10.0.3.5<span style="color:#f92672">]</span>
 
-TASK <span class="o">[</span><span class="nb">test</span> connection<span class="o">]</span> *************************************************************************************************************************************
-ok: <span class="o">[</span>10.0.3.5<span class="o">]</span>
-ok: <span class="o">[</span>10.0.2.1<span class="o">]</span>
+TASK <span style="color:#f92672">[</span>test connection<span style="color:#f92672">]</span> *************************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>10.0.3.5<span style="color:#f92672">]</span>
+ok: <span style="color:#f92672">[</span>10.0.2.1<span style="color:#f92672">]</span>
 
-TASK <span class="o">[</span>status nginx<span class="o">]</span> ****************************************************************************************************************************************
-changed: <span class="o">[</span>10.0.2.1<span class="o">]</span>
-changed: <span class="o">[</span>10.0.3.5<span class="o">]</span>
+TASK <span style="color:#f92672">[</span>status nginx<span style="color:#f92672">]</span> ****************************************************************************************************************************************
+changed: <span style="color:#f92672">[</span>10.0.2.1<span style="color:#f92672">]</span>
+changed: <span style="color:#f92672">[</span>10.0.3.5<span style="color:#f92672">]</span>
 
 PLAY RECAP *************************************************************************************************************************************************
-10.0.2.1                   : <span class="nv">ok</span><span class="o">=</span><span class="m">3</span>    <span class="nv">changed</span><span class="o">=</span><span class="m">1</span>    <span class="nv">unreachable</span><span class="o">=</span><span class="m">0</span>    <span class="nv">failed</span><span class="o">=</span><span class="m">0</span>   
-10.0.3.5                   : <span class="nv">ok</span><span class="o">=</span><span class="m">3</span>    <span class="nv">changed</span><span class="o">=</span><span class="m">1</span>    <span class="nv">unreachable</span><span class="o">=</span><span class="m">0</span>    <span class="nv">failed</span><span class="o">=</span><span class="m">0</span>  
+10.0.2.1                   : ok<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>    changed<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>    unreachable<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    failed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>   
+10.0.3.5                   : ok<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>    changed<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>    unreachable<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    failed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>  
 </code></pre></div><h5 id="命令其他参数">命令其他参数</h5>
 <ul>
 <li>校验语法：<code>ansible-playbook ping_playbook.yml --syntax-check</code></li>
@@ -237,19 +342,19 @@ PLAY RECAP *********************************************************************
     mode: &quot;u+rw,g-wx,o-rwx&quot;
    delegate_to: 127.0.0.1
 </code></pre><h4 id="发布swagger的一个例子">发布swagger的一个例子</h4>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nn">---</span><span class="w">
-</span><span class="w"></span>- <span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l">dev</span><span class="w">
-</span><span class="w">  </span><span class="nt">remote_user</span><span class="p">:</span><span class="w"> </span><span class="l">root</span><span class="w">
-</span><span class="w">  </span><span class="nt">tasks</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">copy swagger.yaml</span><span class="w">
-</span><span class="w">      </span><span class="nt">copy</span><span class="p">:</span><span class="w">
-</span><span class="w">       </span><span class="nt">src</span><span class="p">:</span><span class="w"> </span><span class="l">/tmp/swagger/swagger.yaml</span><span class="w">
-</span><span class="w">       </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l">/usr/yunji/swagger</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">apidoc service</span><span class="w">
-</span><span class="w">      </span><span class="nt">service</span><span class="p">:</span><span class="w">
-</span><span class="w">       </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">apidoc</span><span class="w">
-</span><span class="w">       </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l">reloaded</span><span class="w">
-</span></code></pre></div><ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
+- <span style="color:#f92672">hosts</span>: <span style="color:#ae81ff">dev</span>
+  <span style="color:#f92672">remote_user</span>: <span style="color:#ae81ff">root</span>
+  <span style="color:#f92672">tasks</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">copy swagger.yaml</span>
+      <span style="color:#f92672">copy</span>:
+       <span style="color:#f92672">src</span>: <span style="color:#ae81ff">/tmp/swagger/swagger.yaml</span>
+       <span style="color:#f92672">dest</span>: <span style="color:#ae81ff">/usr/yunji/swagger</span>
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">apidoc service</span>
+      <span style="color:#f92672">service</span>:
+       <span style="color:#f92672">name</span>: <span style="color:#ae81ff">apidoc</span>
+       <span style="color:#f92672">state</span>: <span style="color:#ae81ff">reloaded</span>
+</code></pre></div><ul>
 <li>注意copy的两个参数<code>src</code>、<code>dest</code>前面是空格，而不是tab；</li>
 <li>若下发的文件已经存在，则ansible不会再次覆盖；</li>
 <li>state参数： started|stopped|restarted|reloaded</li>
@@ -318,303 +423,109 @@ https://github.com/hellojukay/ansible
 [root@f2bea7859ce6 dellemc-openmanage-ansible-modules]# python install.py 
 [root@85638d3a995e examples]# ansible-playbook -e &quot;idrac_ip=10.0.10.100 idrac_user=root idrac_pwd=calvin&quot; /examples/dellemc_get_lc_job_status.yml -vvv
 </code></pre>
-        </div>
+    </div>
 
-        
-
-
-        
-
-<div class="post-archive">
-    <h2>See Also</h2>
-    <ul class="listing">
-        
-        <li><a href="https://xibolun.github.io/post/tools/tmux/">Tmux</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/tools/hugo/">使用Hugo&amp;GitPage写博客</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/tools/%E5%88%A9%E5%99%A8/">利器</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/tools/spacemacs/">Spacemacs</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/tools/curl/">curl学习</a></li>
-        
-    </ul>
-</div>
+    
 
 
-        <div class="post-meta meta-tags">
+    <div class="post-tags">
+        
+            <section>
+            <i class="iconfont icon-tag"></i>Tag(s):
             
-            <ul class="clearfix">
-                
-                <li><a href='https://xibolun.github.io/tags/ansible'>ansible</a></li>
-                
-                <li><a href='https://xibolun.github.io/tags/tool'>tool</a></li>
-                
-            </ul>
+            <span class="tag"><a href="https://xibolun.github.io/tags/ansible/">
+                    #ansible</a></span>
             
-        </div>
-    </article>
-    
-    <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            <span class="tag"><a href="https://xibolun.github.io/tags/tool/">
+                    #tool</a></span>
+            
+            </section>
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> ·
+                <span><a href="https://xibolun.github.io">home</a></span>
+        </section>
+    </div>
 
-    
-    
-</div>
-
-                    <footer id="footer">
-    <div>
-        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+    <div class="post-nav">
+        
+        <a href="https://xibolun.github.io/post/tools/tmux/" class="prev" rel="prev" title="Tmux"><i class="iconfont icon-left"></i>&nbsp;Tmux</a>
+        
+        
+        <a href="https://xibolun.github.io/post/linux/%E5%86%8D%E5%AD%A6linux%E7%AC%94%E8%AE%B0%E4%B8%80/" class="next" rel="next" title="再学Linux笔记(一)文件及权限">再学Linux笔记(一)文件及权限&nbsp;<i class="iconfont icon-right"></i></a>
         
     </div>
-    <br />
-    <div>
-        <div class="github-badge">
-            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
-        </div>
-        <div class="github-badge">
-            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
-        </div>
+
+    <div class="post-comment">
+        
+            
+                <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.css">
+<script src="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.min.js"></script>
+<script>
+    const gitalk = new Gitalk({
+
+        clientID: '621dd77636c317069337',
+        clientSecret: '614d7596d823c41978f49c5434301ba8304da7d5',
+        repo: 'blog-commits',
+        owner: 'Mogeko',
+        admin: ['Mogeko'],
+        id: location.pathname, 
+        distractionFreeMode: false 
+    });
+    (function () {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('gitalk-container').innerHTML = 'Gitalk comments not available by default when the website is previewed locally.';
+            return;
+        }
+        gitalk.render('gitalk-container');
+    })();
+</script>
+
+            
+        
+    </div>
+</article>
+                </div>
+            </main>
+            <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2017 - 2021</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i>
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://xibolun.github.io">pengganyu</a> | </span>
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/Mogeko/Mogege" target="_blank" rel="external nofollow">Mogege</a></span>
     </div>
 </footer>
 
 
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
 
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-101106729-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script defer src="/js/vendor_main.min.js"></script>
 
 
 
 
 
 
-                </div>
 
-                <div id="secondary">
-    <section class="widget">
-        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">最近文章</h3>
-<ul class="widget-list">
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
-    </li>
-    
-</ul>
-    </section>
+<script src="https://cdn.jsdelivr.net/npm/pangu@4.0.7/dist/browser/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script> pangu.spacingPage();</script>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
-<ul class="widget-list">
-    
-    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/tool/">tool (10)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (11)</a></li>
-    
-</ul>
-    </section>
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
-<div class="tagcloud">
-    
-    <a href="https://xibolun.github.io/tags/about/">about</a>
-    
-    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
-    
-    <a href="https://xibolun.github.io/tags/css/">Css</a>
-    
-    <a href="https://xibolun.github.io/tags/curl/">curl</a>
-    
-    <a href="https://xibolun.github.io/tags/docker/">docker</a>
-    
-    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
-    
-    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
-    
-    <a href="https://xibolun.github.io/tags/git/">git</a>
-    
-    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
-    
-    <a href="https://xibolun.github.io/tags/go/">go</a>
-    
-    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
-    
-    <a href="https://xibolun.github.io/tags/istio/">istio</a>
-    
-    <a href="https://xibolun.github.io/tags/java/">java</a>
-    
-    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
-    
-    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
-    
-    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
-    
-    <a href="https://xibolun.github.io/tags/linux/">linux</a>
-    
-    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
-    
-    <a href="https://xibolun.github.io/tags/maven/">maven</a>
-    
-    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
-    
-    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
-    
-    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
-    
-    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
-    
-    <a href="https://xibolun.github.io/tags/python/">python</a>
-    
-    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/react/">react</a>
-    
-    <a href="https://xibolun.github.io/tags/redis/">redis</a>
-    
-    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
-    
-    <a href="https://xibolun.github.io/tags/spring/">spring</a>
-    
-    <a href="https://xibolun.github.io/tags/tool/">tool</a>
-    
-    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
-    
-    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6/">读书</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
-    
-</div>
-    </section>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title">其它</h3>
-        <ul class="widget-list">
-            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
-        </ul>
-    </section>
-</div>
-            </div>
         </div>
-    </div>
-</body>
-
+    </body>
 </html>

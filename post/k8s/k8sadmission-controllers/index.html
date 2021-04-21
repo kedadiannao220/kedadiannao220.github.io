@@ -1,106 +1,211 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-
-    <title>k8s—admission controllers | penggy Blog</title>
-    <meta property="og:title" content="k8s—admission controllers - penggy Blog">
-    <meta property="og:type" content="article">
-        
-    <meta property="article:published_time" content='2020-12-20T09:17:54&#43;08:00'>
-        
-        
-    <meta property="article:modified_time" content='2020-12-20T09:17:54&#43;08:00'>
-        
-    <meta name="Keywords" content="">
-    <meta name="description" content="k8s admission controller webhooks">
-        
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noodp"/>
     <meta name="author" content="pengganyu">
-    <meta property="og:url" content="https://xibolun.github.io/post/k8s/k8sadmission-controllers/">
-    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+    <meta name="description" content="Mogeko 的个人博客">
+    
+    
+    <link rel="prev" href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" />
+    <link rel="next" href="https://xibolun.github.io/post/tools/mac-m1/" />
+    <link rel="canonical" href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <title>
+        
+        
+            k8s—admission controllers | penggy blog
+        
+    </title>
+    <meta name="title" content="k8s—admission controllers | penggy blog">
+    
+<link rel="stylesheet" href="/css/main.min.css">
 
-    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
-    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
-    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
     
-    
-    
-    
-    
-</head>
+ 
 
+<script type="application/ld+json">
+{
+    "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/xibolun.github.io"
+    },
+    "articleSection" : "post",
+    "name" : "k8s—admission controllers",
+    "headline" : "k8s—admission controllers",
+    "description" : "k8s admission controller webhooks",
+    "inLanguage" : "zh-cn",
+    "author" : "pengganyu",
+    "creator" : "pengganyu",
+    "publisher": "pengganyu",
+    "accountablePerson" : "pengganyu",
+    "copyrightHolder" : "pengganyu",
+    "copyrightYear" : "2020",
+    "datePublished": "2020-12-20 09:17:54 \u002b0800 CST",
+    "dateModified" : "2020-12-20 09:17:54 \u002b0800 CST",
+    "url" : "https:\/\/xibolun.github.io\/post\/k8s\/k8sadmission-controllers\/",
+    "wordCount" : "1534",
+    "keywords" : [ "k8s", "penggy blog"]
+}
+</script>
 
-<body>
-    <header id="header" class="clearfix">
+  </head>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <body class="">
+        <div class="wrapper">
+            <nav class="navbar">
+    
+        <progress class="content_progress" max="0" value="0"></progress>
+    
     <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <a id="logo" href="https://xibolun.github.io">
-                        penggy Blog
-                    </a>
-                
-                
+        
+            <div class="navbar-header header-back2home-logo">
+                <span class="logo_mark" >>$</span>
+                <a href="https://xibolun.github.io">
+                    <span class="logo_text" >cd /home/</span>
+                    <span class="logo_cursor" ></span>
+                </a>
             </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://xibolun.github.io">首页</a>
-                    
-                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
-                    
-                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
-                    
-                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
-                    
-                </nav>
-            </div>
+        
+        <div class="navbar-right">
+                
+                <span class="menu">
+                
+                <a class="menu-item" href="/post/" title="">Blog</a>
+                
+                <a class="menu-item" href="/tags/tool/" title="">Tools</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/books" title="">读书</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+                <span class="divide"></span>
+                <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a>
+                </span>
         </div>
     </div>
-</header>
-
-    <div id="body">
-        <div class="container">
-            <div class="col-group">
-
-                <div class="col-8" id="main">
-                    
-<div class="res-cons">
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">k8s—admission controllers</h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年12月20日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://xibolun.github.io/categories/k8s'>k8s</a></span>
-            
-        </div>
-        
-        
-        
-        <div class="clear" style="display: none">
-            <div class="toc-article">
-                <div class="toc-title">文章目录</div>
+        <progress class="content_progress" max="0" value="0"></progress>
+    
+     <div class="container">
+        <div class="navbar">
+            <div class="navbar-header header-logo">
+                    <a href="https://xibolun.github.io">penggy blog</a>
+            </div>
+            <div class="navbar-right">
+                <div><a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a></div>
+                <div class="menu-toggle">
+                    <span></span><span></span><span></span>
+                </div>
             </div>
         </div>
+     
+          <div class="menu" id="mobile-menu">
+                <nav class="mb-md">
+                    
+                    
+                        <a class="menu-item" href="/post/" title="">
+                            <h3>Blog</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/tool/" title="">
+                            <h3>Tools</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/categories/" title="">
+                            <h3>Categories</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/" title="">
+                            <h3>Tags</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/books" title="">
+                            <h3>读书</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/about/" title="">
+                            <h3>About</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                </nav>
+        </div>
+    </div>
+</nav>
+            <main class="main">
+                <div class="container">
+                    
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">k8s—admission controllers</h1>
+        <div class="post-meta">
+                
+                <span class="post-time">
+                    <time datetime=2020-12-20 itemprop="datePublished">2020-12-20</time>
+                </span>
+                
+                <i class="iconfont icon-folder"></i>
+                <span class="post-category">
+                        
+                        
+                        
+                          <a href="https://xibolun.github.io/categories/k8s/"> k8s, </a>
+                        
+                        
+                </span>
+                <span class="post-word-count">1534 words</span>
+                
+                ,
+                <span id="busuanzi_value_page_pv"></span>阅读
+                
+        </div>
+    </header>
+
+    <div class="post-content">
         
-        <div class="post-content">
-            <h3 id="什么是k8s-admission-controller">什么是K8s admission controller</h3>
+
+        
+        
+            
+        
+
+        
+        
+        
+        
+        
+
+        
+        
+        
+
+        <h3 id="什么是k8s-admission-controller">什么是K8s admission controller</h3>
 <p><code>admission controllers</code>可以对api请求进行校验和变更；整个API请求的流程如下：</p>
-<p>
-        <img class="mx-auto" alt="admission-controller-phases" src="https://xibolun.github.io/img/k8s/admission-controller-phases.png" />   
-    </p>
+<p><img src="/img/k8s/admission-controller-phases.png" alt="admission-controller-phases" loading="lazy" ></p>
 <p><code>k8s</code>里面有许多的 <a href="https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#what-does-each-admission-controller-do">admission controllers</a>，在这么多的<code>admission controllers</code>当中有两个比较特殊的，提供了扩展的能力</p>
 <ul>
 <li><code>ValidatingAdmissionWebhooks</code>：对请求进行校验：安全、参数信息、资源限制等，对请求进行拒绝操作；</li>
@@ -122,38 +227,38 @@
 <p>此时<code>k8s cluster</code>当中就有了一个<code>apiserver</code>的监听，后续的<code>pod</code>创建的时候，就可以进行<code>validate</code>和<code>mutate</code>；</p>
 <p>官方提供了一个 <a href="https://github.com/stackrox/admission-controller-webhook-demo">安例</a>，已经准备好了<code>deploy.sh</code>脚本，直接使用即可；不过还需要有一些前置的操作</p>
 <p>校验参数配置是否正常，若没有打开插件，需要进行配置；</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># kubectl get pod   -n kube-system  kube-apiserver-ops-pre-4-175 -o yaml | grep enable-admission</span>
-    - --enable-admission-plugins<span class="o">=</span>NodeRestriction
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># kubectl get pod   -n kube-system  kube-apiserver-ops-pre-4-175 -o yaml | grep enable-admission</span>
+    - --enable-admission-plugins<span style="color:#f92672">=</span>NodeRestriction
 </code></pre></div><p>修改api-server配置</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"> <span class="c1">## vim /etc/kubernetes/manifests/kube-apiserver.yaml</span>
- --enable-admission-plugins<span class="o">=</span>NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"> <span style="color:#75715e">## vim /etc/kubernetes/manifests/kube-apiserver.yaml</span>
+ --enable-admission-plugins<span style="color:#f92672">=</span>NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook
 </code></pre></div><p>重建apiserver</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># kubectl delete pod   -n kube-system  kube-apiserver-ops-pre-4-175</span>
- <span class="c1"># kubectl get pods kube-apiserver-ops-pre-4-175 -n kube-system -o yaml | grep enable-admission-plugins</span>
-    - --enable-admission-plugins<span class="o">=</span>NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># kubectl delete pod   -n kube-system  kube-apiserver-ops-pre-4-175</span>
+ <span style="color:#75715e"># kubectl get pods kube-apiserver-ops-pre-4-175 -n kube-system -o yaml | grep enable-admission-plugins</span>
+    - --enable-admission-plugins<span style="color:#f92672">=</span>NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook
 </code></pre></div><p>校验apiserver是否开启了admission的api</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># kubectl api-versions |grep admission</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># kubectl api-versions |grep admission</span>
 admissionregistration.k8s.io/v1
 admissionregistration.k8s.io/v1beta1
 </code></pre></div><h3 id="操作">操作</h3>
 <p>配置环境变量</p>
 <pre><code> export KUBECONFIG=/root/.kube/config
 </code></pre><p>下载工程，并<code>deploy.sh</code></p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">git clone  https://github.com/stackrox/admission-controller-webhook-demo.git
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">git clone  https://github.com/stackrox/admission-controller-webhook-demo.git
 
-<span class="c1"># ./admission-controller-webhook-demo/deploy.sh</span>
+<span style="color:#75715e"># ./admission-controller-webhook-demo/deploy.sh</span>
 Generating TLS keys ...
-Generating a <span class="m">2048</span> bit RSA private key
+Generating a <span style="color:#ae81ff">2048</span> bit RSA private key
 ........................+++
 ....+++
-writing new private key to <span class="s1">&#39;ca.key&#39;</span>
+writing new private key to <span style="color:#e6db74">&#39;ca.key&#39;</span>
 -----
-Generating RSA private key, <span class="m">2048</span> bit long modulus
+Generating RSA private key, <span style="color:#ae81ff">2048</span> bit long modulus
 ..........................................................................................................+++
 ..........................................................+++
-e is <span class="m">65537</span> <span class="o">(</span>0x10001<span class="o">)</span>
+e is <span style="color:#ae81ff">65537</span> <span style="color:#f92672">(</span>0x10001<span style="color:#f92672">)</span>
 Signature ok
-<span class="nv">subject</span><span class="o">=</span>/CN<span class="o">=</span>webhook-server.webhook-demo.svc
+subject<span style="color:#f92672">=</span>/CN<span style="color:#f92672">=</span>webhook-server.webhook-demo.svc
 Getting CA Private Key
 Creating Kubernetes objects ...
 namespace/webhook-demo created
@@ -162,91 +267,91 @@ deployment.apps/webhook-server created
 service/webhook-server created
 </code></pre></div><p>在<code>demo</code>当中有三个<code>pod</code>的配置，这些<code>pod</code>的配置对<code>pod</code>的两个属性<code>runAsUser</code>、<code>runAsNonRoot</code>进行了变更，所以我们观察这两个属性即可；</p>
 <p>这三个pod创建时会被<code>admission controller webhook</code>监听，然后对原本的<code>busybox</code>的属性进行变更操作；</p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">applySecurityDefaults</span><span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">v1beta1</span><span class="p">.</span><span class="nx">AdmissionRequest</span><span class="p">)</span> <span class="p">([]</span><span class="nx">patchOperation</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-	<span class="o">......</span>
-	<span class="c1">// Retrieve the `runAsNonRoot` and `runAsUser` values.
-</span><span class="c1"></span>	<span class="kd">var</span> <span class="nx">runAsNonRoot</span> <span class="o">*</span><span class="kt">bool</span>
-	<span class="kd">var</span> <span class="nx">runAsUser</span> <span class="o">*</span><span class="kt">int64</span>
-	<span class="k">if</span> <span class="nx">pod</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">SecurityContext</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">runAsNonRoot</span> <span class="p">=</span> <span class="nx">pod</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">SecurityContext</span><span class="p">.</span><span class="nx">RunAsNonRoot</span>
-		<span class="nx">runAsUser</span> <span class="p">=</span> <span class="nx">pod</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">SecurityContext</span><span class="p">.</span><span class="nx">RunAsUser</span>
-	<span class="p">}</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">applySecurityDefaults</span>(<span style="color:#a6e22e">req</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">v1beta1</span>.<span style="color:#a6e22e">AdmissionRequest</span>) ([]<span style="color:#a6e22e">patchOperation</span>, <span style="color:#66d9ef">error</span>) {
+	<span style="color:#f92672">......</span>
+	<span style="color:#75715e">// Retrieve the `runAsNonRoot` and `runAsUser` values.
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">runAsNonRoot</span> <span style="color:#f92672">*</span><span style="color:#66d9ef">bool</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">runAsUser</span> <span style="color:#f92672">*</span><span style="color:#66d9ef">int64</span>
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">pod</span>.<span style="color:#a6e22e">Spec</span>.<span style="color:#a6e22e">SecurityContext</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#a6e22e">runAsNonRoot</span> = <span style="color:#a6e22e">pod</span>.<span style="color:#a6e22e">Spec</span>.<span style="color:#a6e22e">SecurityContext</span>.<span style="color:#a6e22e">RunAsNonRoot</span>
+		<span style="color:#a6e22e">runAsUser</span> = <span style="color:#a6e22e">pod</span>.<span style="color:#a6e22e">Spec</span>.<span style="color:#a6e22e">SecurityContext</span>.<span style="color:#a6e22e">RunAsUser</span>
+	}
 
-	<span class="c1">// Create patch operations to apply sensible defaults, if those options are not set explicitly.
-</span><span class="c1"></span>	<span class="kd">var</span> <span class="nx">patches</span> <span class="p">[]</span><span class="nx">patchOperation</span>
-	<span class="k">if</span> <span class="nx">runAsNonRoot</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">patches</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">patches</span><span class="p">,</span> <span class="nx">patchOperation</span><span class="p">{</span>
-			<span class="nx">Op</span><span class="p">:</span>    <span class="s">&#34;add&#34;</span><span class="p">,</span>
-			<span class="nx">Path</span><span class="p">:</span>  <span class="s">&#34;/spec/securityContext/runAsNonRoot&#34;</span><span class="p">,</span>
-			<span class="c1">// The value must not be true if runAsUser is set to 0, as otherwise we would create a conflicting
-</span><span class="c1"></span>			<span class="c1">// configuration ourselves.
-</span><span class="c1"></span>			<span class="nx">Value</span><span class="p">:</span> <span class="nx">runAsUser</span> <span class="o">==</span> <span class="kc">nil</span> <span class="o">||</span> <span class="o">*</span><span class="nx">runAsUser</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span>
-		<span class="p">})</span>
+	<span style="color:#75715e">// Create patch operations to apply sensible defaults, if those options are not set explicitly.
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">patches</span> []<span style="color:#a6e22e">patchOperation</span>
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">runAsNonRoot</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#a6e22e">patches</span> = append(<span style="color:#a6e22e">patches</span>, <span style="color:#a6e22e">patchOperation</span>{
+			<span style="color:#a6e22e">Op</span>:    <span style="color:#e6db74">&#34;add&#34;</span>,
+			<span style="color:#a6e22e">Path</span>:  <span style="color:#e6db74">&#34;/spec/securityContext/runAsNonRoot&#34;</span>,
+			<span style="color:#75715e">// The value must not be true if runAsUser is set to 0, as otherwise we would create a conflicting
+</span><span style="color:#75715e"></span>			<span style="color:#75715e">// configuration ourselves.
+</span><span style="color:#75715e"></span>			<span style="color:#a6e22e">Value</span>: <span style="color:#a6e22e">runAsUser</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> <span style="color:#f92672">||</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">runAsUser</span> <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>,
+		})
 
-		<span class="k">if</span> <span class="nx">runAsUser</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
-			<span class="nx">patches</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">patches</span><span class="p">,</span> <span class="nx">patchOperation</span><span class="p">{</span>
-				<span class="nx">Op</span><span class="p">:</span>    <span class="s">&#34;add&#34;</span><span class="p">,</span>
-				<span class="nx">Path</span><span class="p">:</span>  <span class="s">&#34;/spec/securityContext/runAsUser&#34;</span><span class="p">,</span>
-				<span class="nx">Value</span><span class="p">:</span> <span class="mi">1234</span><span class="p">,</span>
-			<span class="p">})</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">*</span><span class="nx">runAsNonRoot</span> <span class="o">==</span> <span class="kc">true</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">runAsUser</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="o">&amp;&amp;</span> <span class="o">*</span><span class="nx">runAsUser</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-		<span class="c1">// Make sure that the settings are not contradictory, and fail the object creation if they are.
-</span><span class="c1"></span>		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;runAsNonRoot specified, but runAsUser set to 0 (the root user)&#34;</span><span class="p">)</span>
-	<span class="p">}</span>
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">runAsUser</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
+			<span style="color:#a6e22e">patches</span> = append(<span style="color:#a6e22e">patches</span>, <span style="color:#a6e22e">patchOperation</span>{
+				<span style="color:#a6e22e">Op</span>:    <span style="color:#e6db74">&#34;add&#34;</span>,
+				<span style="color:#a6e22e">Path</span>:  <span style="color:#e6db74">&#34;/spec/securityContext/runAsUser&#34;</span>,
+				<span style="color:#a6e22e">Value</span>: <span style="color:#ae81ff">1234</span>,
+			})
+		}
+	} <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">runAsNonRoot</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">true</span> <span style="color:#f92672">&amp;&amp;</span> (<span style="color:#a6e22e">runAsUser</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">runAsUser</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>) {
+		<span style="color:#75715e">// Make sure that the settings are not contradictory, and fail the object creation if they are.
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">errors</span>.<span style="color:#a6e22e">New</span>(<span style="color:#e6db74">&#34;runAsNonRoot specified, but runAsUser set to 0 (the root user)&#34;</span>)
+	}
 
-	<span class="k">return</span> <span class="p">,</span> <span class="kc">nil</span>
-<span class="p">}</span>
+	<span style="color:#66d9ef">return</span> , <span style="color:#66d9ef">nil</span>
+}
 </code></pre></div><ul>
 <li>创建<code>pod-with-defaults.yaml</code>，由于其<code>runAsUser</code>、<code>runAsNonRoot</code>为空，所以会被设置为<code>1234</code>和<code>true</code></li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">✗ kubectl get pod/pod-with-defaults  -o<span class="o">=</span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.securityContext}&#39;</span>
-map<span class="o">[</span>runAsNonRoot:true runAsUser:1234<span class="o">]</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">✗ kubectl get pod/pod-with-defaults  -o<span style="color:#f92672">=</span>jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.spec.securityContext}&#39;</span>
+map<span style="color:#f92672">[</span>runAsNonRoot:true runAsUser:1234<span style="color:#f92672">]</span>
  
 ✗ kubectl logs pod-with-defaults  busybox
-I am running as user <span class="m">1234</span>
+I am running as user <span style="color:#ae81ff">1234</span>
 </code></pre></div><ul>
 <li>创建<code>pod-with-override.yaml</code>，配置里面指定了<code>runAsNonRoot: false</code>，由于没有设置<code>runAsUser</code>，并且没有被<code>webhook</code>所处理，所以<code>user</code>为0</li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">✗ kubectl get pod/pod-with-override  -o<span class="o">=</span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.securityContext}&#39;</span>
-map<span class="o">[</span>runAsNonRoot:false<span class="o">]</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">✗ kubectl get pod/pod-with-override  -o<span style="color:#f92672">=</span>jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.spec.securityContext}&#39;</span>
+map<span style="color:#f92672">[</span>runAsNonRoot:false<span style="color:#f92672">]</span>
 
  ✗ kubectl logs pod-with-override busybox
-I am running as user <span class="m">0</span>
+I am running as user <span style="color:#ae81ff">0</span>
 </code></pre></div><ul>
 <li>创建<code>pod-with-conflict.yaml</code>，将<code>runAsNonRoot</code>设置为<code>true</code>，且<code>runAsUser</code>设置为<code>1234</code>，打印出当前的<code>user</code></li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">✗ kubectl get pod/pod-with-conflict  -o<span class="o">=</span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.securityContext}&#39;</span>
-map<span class="o">[</span>runAsNonRoot:true runAsUser:1234
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">✗ kubectl get pod/pod-with-conflict  -o<span style="color:#f92672">=</span>jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.spec.securityContext}&#39;</span>
+map<span style="color:#f92672">[</span>runAsNonRoot:true runAsUser:1234
 
 ✗ kubectl logs pod-with-conflict   busybox
-I am running as user <span class="m">1234</span>
+I am running as user <span style="color:#ae81ff">1234</span>
 </code></pre></div><ul>
 <li>在<code>webhook</code>当中还有一个异常场景，可以验证一下，创建一个<code>pod-with-exception.yaml</code>，修改配置如下：</li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Pod</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pod-with-exception</span><span class="w">
-</span><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">pod-with-exception</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">restartPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">OnFailure</span><span class="w">
-</span><span class="w">  </span><span class="nt">securityContext</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">runAsNonRoot</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-</span><span class="w">    </span><span class="c">## 指定runAsUser为0</span><span class="w">
-</span><span class="w">    </span><span class="nt">runAsUser</span><span class="p">:</span><span class="w"> </span><span class="m">0</span><span class="w">
-</span><span class="w">  </span><span class="nt">containers</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">busybox</span><span class="w">
-</span><span class="w">      </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">busybox</span><span class="w">
-</span><span class="w">      </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;sh&#34;</span><span class="p">,</span><span class="w"> </span><span class="s2">&#34;-c&#34;</span><span class="p">,</span><span class="w"> </span><span class="s2">&#34;echo I am running as user $(id -u)&#34;</span><span class="p">]</span><span class="w">
-</span><span class="w">
-</span></code></pre></div><p>在创建的时候会报如下的错误：</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">✗ kubectl create -f examples/pod-with-exception.yaml
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Pod</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">pod-with-exception</span>
+  <span style="color:#f92672">labels</span>:
+    <span style="color:#f92672">app</span>: <span style="color:#ae81ff">pod-with-exception</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">restartPolicy</span>: <span style="color:#ae81ff">OnFailure</span>
+  <span style="color:#f92672">securityContext</span>:
+    <span style="color:#f92672">runAsNonRoot</span>: <span style="color:#66d9ef">true</span>
+    <span style="color:#75715e">## 指定runAsUser为0</span>
+    <span style="color:#f92672">runAsUser</span>: <span style="color:#ae81ff">0</span>
+  <span style="color:#f92672">containers</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">busybox</span>
+      <span style="color:#f92672">image</span>: <span style="color:#ae81ff">busybox</span>
+      <span style="color:#f92672">command</span>: [<span style="color:#e6db74">&#34;sh&#34;</span>, <span style="color:#e6db74">&#34;-c&#34;</span>, <span style="color:#e6db74">&#34;echo I am running as user $(id -u)&#34;</span>]
 
-Error from server: error when creating <span class="s2">&#34;examples/pod-with-exception.yaml&#34;</span>: admission webhook <span class="s2">&#34;webhook-server.webhook-demo.svc&#34;</span> denied the request: runAsNonRoot specified, but runAsUser <span class="nb">set</span> to <span class="m">0</span> <span class="o">(</span>the root user<span class="o">)</span>
+</code></pre></div><p>在创建的时候会报如下的错误：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">✗ kubectl create -f examples/pod-with-exception.yaml
+
+Error from server: error when creating <span style="color:#e6db74">&#34;examples/pod-with-exception.yaml&#34;</span>: admission webhook <span style="color:#e6db74">&#34;webhook-server.webhook-demo.svc&#34;</span> denied the request: runAsNonRoot specified, but runAsUser set to <span style="color:#ae81ff">0</span> <span style="color:#f92672">(</span>the root user<span style="color:#f92672">)</span>
 </code></pre></div><p>在创建过程当中可以查看<code>webhook-server</code>的<code>log</code></p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">✗ kubectl logs -n webhook-demo webhook-server-7668f9d76-t95kk
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">✗ kubectl logs -n webhook-demo webhook-server-7668f9d76-t95kk
 2021/01/29 02:13:43 Handling webhook request ...
 2021/01/29 02:13:43 Webhook request handled successfully
 </code></pre></div><h3 id="开发">开发</h3>
@@ -262,301 +367,106 @@ Error from server: error when creating <span class="s2">&#34;examples/pod-with-e
 <li><a href="https://kubernetes.io/blog/2019/03/21/a-guide-to-kubernetes-admission-controllers/">A Guide to Kubernetes Admission Controllers</a></li>
 </ul>
 
-        </div>
+    </div>
 
-        
-
-
-        
-
-<div class="post-archive">
-    <h2>See Also</h2>
-    <ul class="listing">
-        
-        <li><a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/">k8s—强制删除namespace</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/k8s/k8soperator%E5%BC%80%E5%8F%91/">k8s—Operator开发</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/k8s/k8sinformer%E6%9C%BA%E5%88%B6/">k8s—informer机制</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/k8s/k8sschedule/">k8s––schedule</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/k8s/k8s%E8%AF%81%E4%B9%A6/">k8s––证书修改</a></li>
-        
-    </ul>
-</div>
+    
 
 
-        <div class="post-meta meta-tags">
+    <div class="post-tags">
+        
+            <section>
+            <i class="iconfont icon-tag"></i>Tag(s):
             
-            <ul class="clearfix">
-                
-                <li><a href='https://xibolun.github.io/tags/k8s'>k8s</a></li>
-                
-            </ul>
+            <span class="tag"><a href="https://xibolun.github.io/tags/k8s/">
+                    #k8s</a></span>
             
-        </div>
-    </article>
-    
-    <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </section>
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> ·
+                <span><a href="https://xibolun.github.io">home</a></span>
+        </section>
+    </div>
 
-    
-    
-</div>
-
-                    <footer id="footer">
-    <div>
-        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+    <div class="post-nav">
+        
+        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" class="prev" rel="prev" title="k8s—强制删除namespace"><i class="iconfont icon-left"></i>&nbsp;k8s—强制删除namespace</a>
+        
+        
+        <a href="https://xibolun.github.io/post/tools/mac-m1/" class="next" rel="next" title="M1的艰辛使用之旅">M1的艰辛使用之旅&nbsp;<i class="iconfont icon-right"></i></a>
         
     </div>
-    <br />
-    <div>
-        <div class="github-badge">
-            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
-        </div>
-        <div class="github-badge">
-            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
-        </div>
+
+    <div class="post-comment">
+        
+            
+                <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.css">
+<script src="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.min.js"></script>
+<script>
+    const gitalk = new Gitalk({
+
+        clientID: '621dd77636c317069337',
+        clientSecret: '614d7596d823c41978f49c5434301ba8304da7d5',
+        repo: 'blog-commits',
+        owner: 'Mogeko',
+        admin: ['Mogeko'],
+        id: location.pathname, 
+        distractionFreeMode: false 
+    });
+    (function () {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('gitalk-container').innerHTML = 'Gitalk comments not available by default when the website is previewed locally.';
+            return;
+        }
+        gitalk.render('gitalk-container');
+    })();
+</script>
+
+            
+        
+    </div>
+</article>
+                </div>
+            </main>
+            <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2017 - 2021</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i>
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://xibolun.github.io">pengganyu</a> | </span>
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/Mogeko/Mogege" target="_blank" rel="external nofollow">Mogege</a></span>
     </div>
 </footer>
 
 
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
 
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-101106729-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script defer src="/js/vendor_main.min.js"></script>
 
 
 
 
 
 
-                </div>
 
-                <div id="secondary">
-    <section class="widget">
-        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">最近文章</h3>
-<ul class="widget-list">
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
-    </li>
-    
-</ul>
-    </section>
+<script src="https://cdn.jsdelivr.net/npm/pangu@4.0.7/dist/browser/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script> pangu.spacingPage();</script>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
-<ul class="widget-list">
-    
-    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/tool/">tool (10)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (11)</a></li>
-    
-</ul>
-    </section>
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
-<div class="tagcloud">
-    
-    <a href="https://xibolun.github.io/tags/about/">about</a>
-    
-    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
-    
-    <a href="https://xibolun.github.io/tags/css/">Css</a>
-    
-    <a href="https://xibolun.github.io/tags/curl/">curl</a>
-    
-    <a href="https://xibolun.github.io/tags/docker/">docker</a>
-    
-    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
-    
-    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
-    
-    <a href="https://xibolun.github.io/tags/git/">git</a>
-    
-    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
-    
-    <a href="https://xibolun.github.io/tags/go/">go</a>
-    
-    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
-    
-    <a href="https://xibolun.github.io/tags/istio/">istio</a>
-    
-    <a href="https://xibolun.github.io/tags/java/">java</a>
-    
-    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
-    
-    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
-    
-    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
-    
-    <a href="https://xibolun.github.io/tags/linux/">linux</a>
-    
-    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
-    
-    <a href="https://xibolun.github.io/tags/maven/">maven</a>
-    
-    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
-    
-    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
-    
-    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
-    
-    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
-    
-    <a href="https://xibolun.github.io/tags/python/">python</a>
-    
-    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/react/">react</a>
-    
-    <a href="https://xibolun.github.io/tags/redis/">redis</a>
-    
-    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
-    
-    <a href="https://xibolun.github.io/tags/spring/">spring</a>
-    
-    <a href="https://xibolun.github.io/tags/tool/">tool</a>
-    
-    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
-    
-    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6/">读书</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
-    
-</div>
-    </section>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title">其它</h3>
-        <ul class="widget-list">
-            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
-        </ul>
-    </section>
-</div>
-            </div>
         </div>
-    </div>
-</body>
-
+    </body>
 </html>

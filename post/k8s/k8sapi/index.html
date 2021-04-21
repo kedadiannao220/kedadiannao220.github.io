@@ -1,148 +1,253 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-
-    <title>k8s--API | penggy Blog</title>
-    <meta property="og:title" content="k8s--API - penggy Blog">
-    <meta property="og:type" content="article">
-        
-    <meta property="article:published_time" content='2020-03-05T21:43:03&#43;08:00'>
-        
-        
-    <meta property="article:modified_time" content='2020-03-05T21:43:03&#43;08:00'>
-        
-    <meta name="Keywords" content="">
-    <meta name="description" content="k8s--API">
-        
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noodp"/>
     <meta name="author" content="pengganyu">
-    <meta property="og:url" content="https://xibolun.github.io/post/k8s/k8sapi/">
-    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+    <meta name="description" content="Mogeko 的个人博客">
+    
+    
+    <link rel="prev" href="https://xibolun.github.io/post/tools/imagemagic/" />
+    <link rel="next" href="https://xibolun.github.io/post/k8s/k8sjmx%E7%9B%91%E6%8E%A7/" />
+    <link rel="canonical" href="https://xibolun.github.io/post/k8s/k8sapi/" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <title>
+        
+        
+            k8s--API | penggy blog
+        
+    </title>
+    <meta name="title" content="k8s--API | penggy blog">
+    
+<link rel="stylesheet" href="/css/main.min.css">
 
-    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
-    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
-    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
     
-    
-    
-    
-    
-</head>
+ 
 
+<script type="application/ld+json">
+{
+    "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/xibolun.github.io"
+    },
+    "articleSection" : "post",
+    "name" : "k8s--API",
+    "headline" : "k8s--API",
+    "description" : "今天想使用postman使用一下k8s的API，看看k8s的API机制是怎么样的； API启动 查看pod列表你会发现有一个api-server",
+    "inLanguage" : "zh-cn",
+    "author" : "pengganyu",
+    "creator" : "pengganyu",
+    "publisher": "pengganyu",
+    "accountablePerson" : "pengganyu",
+    "copyrightHolder" : "pengganyu",
+    "copyrightYear" : "2020",
+    "datePublished": "2020-03-05 21:43:03 \u002b0800 CST",
+    "dateModified" : "2020-03-05 21:43:03 \u002b0800 CST",
+    "url" : "https:\/\/xibolun.github.io\/post\/k8s\/k8sapi\/",
+    "wordCount" : "921",
+    "keywords" : [ "k8s", "penggy blog"]
+}
+</script>
 
-<body>
-    <header id="header" class="clearfix">
+  </head>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <body class="">
+        <div class="wrapper">
+            <nav class="navbar">
+    
+        <progress class="content_progress" max="0" value="0"></progress>
+    
     <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <a id="logo" href="https://xibolun.github.io">
-                        penggy Blog
-                    </a>
-                
-                
+        
+            <div class="navbar-header header-back2home-logo">
+                <span class="logo_mark" >>$</span>
+                <a href="https://xibolun.github.io">
+                    <span class="logo_text" >cd /home/</span>
+                    <span class="logo_cursor" ></span>
+                </a>
             </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://xibolun.github.io">首页</a>
-                    
-                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
-                    
-                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
-                    
-                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
-                    
-                </nav>
-            </div>
+        
+        <div class="navbar-right">
+                
+                <span class="menu">
+                
+                <a class="menu-item" href="/post/" title="">Blog</a>
+                
+                <a class="menu-item" href="/tags/tool/" title="">Tools</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/books" title="">读书</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+                <span class="divide"></span>
+                <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a>
+                </span>
         </div>
     </div>
-</header>
-
-    <div id="body">
-        <div class="container">
-            <div class="col-group">
-
-                <div class="col-8" id="main">
-                    
-<div class="res-cons">
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">k8s--API</h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年3月5日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://xibolun.github.io/categories/k8s'>k8s</a></span>
-            
-        </div>
-        
-        
-        
-        <div class="clear" style="display: none">
-            <div class="toc-article">
-                <div class="toc-title">文章目录</div>
+        <progress class="content_progress" max="0" value="0"></progress>
+    
+     <div class="container">
+        <div class="navbar">
+            <div class="navbar-header header-logo">
+                    <a href="https://xibolun.github.io">penggy blog</a>
+            </div>
+            <div class="navbar-right">
+                <div><a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a></div>
+                <div class="menu-toggle">
+                    <span></span><span></span><span></span>
+                </div>
             </div>
         </div>
+     
+          <div class="menu" id="mobile-menu">
+                <nav class="mb-md">
+                    
+                    
+                        <a class="menu-item" href="/post/" title="">
+                            <h3>Blog</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/tool/" title="">
+                            <h3>Tools</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/categories/" title="">
+                            <h3>Categories</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/" title="">
+                            <h3>Tags</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/books" title="">
+                            <h3>读书</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/about/" title="">
+                            <h3>About</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                </nav>
+        </div>
+    </div>
+</nav>
+            <main class="main">
+                <div class="container">
+                    
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">k8s--API</h1>
+        <div class="post-meta">
+                
+                <span class="post-time">
+                    <time datetime=2020-03-05 itemprop="datePublished">2020-03-05</time>
+                </span>
+                
+                <i class="iconfont icon-folder"></i>
+                <span class="post-category">
+                        
+                        
+                        
+                          <a href="https://xibolun.github.io/categories/k8s/"> k8s, </a>
+                        
+                        
+                </span>
+                <span class="post-word-count">921 words</span>
+                
+                ,
+                <span id="busuanzi_value_page_pv"></span>阅读
+                
+        </div>
+    </header>
+
+    <div class="post-content">
         
-        <div class="post-content">
-            <p>今天想使用<code>postman</code>使用一下<code>k8s</code>的API，看看<code>k8s</code>的API机制是怎么样的；</p>
+
+        
+        
+
+        
+        
+        
+        
+        
+
+        
+        
+        
+
+        <p>今天想使用<code>postman</code>使用一下<code>k8s</code>的API，看看<code>k8s</code>的API机制是怎么样的；</p>
 <h3 id="api启动">API启动</h3>
 <p>查看<code>pod</code>列表你会发现有一个<code>api-server</code>，这个是<code>pod</code>就是管理<code>k8s api</code>的</p>
 <pre><code>[root@ops-pre-4-175 kubernetes]# kubectl get pods -n kube-system | grep api
 kube-apiserver-ops-pre-4-175                   1/1     Running   0          20h
 </code></pre><p>那是怎么启动的呢？看一下进程一目了然；</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@ops-pre-4-175 kubernetes<span class="o">]</span><span class="c1"># ps -axu | grep kube-apiserver</span>
-root     <span class="m">30672</span>  4.5  3.6 <span class="m">843380</span> <span class="m">601720</span> ?       Ssl  Oct27  58:51 kube-apiserver ......
-</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">kube-apiserver
-    --advertise-address<span class="o">=</span>10.0.4.175
-    --allow-privileged<span class="o">=</span><span class="nb">true</span>
-    --anonymous-auth<span class="o">=</span>True
-    --apiserver-count<span class="o">=</span><span class="m">1</span>
-    --authorization-mode<span class="o">=</span>Node,RBAC
-    --bind-address<span class="o">=</span>0.0.0.0
-    --client-ca-file<span class="o">=</span>/etc/kubernetes/pki/ca.crt
-    --enable-admission-plugins<span class="o">=</span>NodeRestriction
-    --enable-aggregator-routing<span class="o">=</span>False
-    --enable-bootstrap-token-auth<span class="o">=</span><span class="nb">true</span>
-    --endpoint-reconciler-type<span class="o">=</span>lease
-    --enable-swagger-ui<span class="o">=</span><span class="nb">true</span>
-    <span class="c1">## etcd认证文件</span>
-    --etcd-cafile<span class="o">=</span>/etc/ssl/etcd/ssl/ca.pem
-    --etcd-certfile<span class="o">=</span>/etc/ssl/etcd/ssl/node-Ops-pre-4-175.pem
-    --etcd-keyfile<span class="o">=</span>/etc/ssl/etcd/ssl/node-Ops-pre-4-175-key.pem
-    --etcd-servers<span class="o">=</span>https://10.0.4.175:2379
-    --feature-gates<span class="o">=</span><span class="nv">CSINodeInfo</span><span class="o">=</span>true,VolumeSnapshotDataSource<span class="o">=</span>true,ExpandCSIVolumes<span class="o">=</span>true,RotateKubeletClientCertificate<span class="o">=</span><span class="nb">true</span>
-    --insecure-port<span class="o">=</span><span class="m">0</span>
-    <span class="c1">## client调用的认证文件</span>
-    --kubelet-client-certificate<span class="o">=</span>/etc/kubernetes/pki/apiserver-kubelet-client.crt
-    --kubelet-client-key<span class="o">=</span>/etc/kubernetes/pki/apiserver-kubelet-client.key
-    --kubelet-preferred-address-types<span class="o">=</span>InternalIP,ExternalIP,Hostname
-    --profiling<span class="o">=</span>False
-    --proxy-client-cert-file<span class="o">=</span>/etc/kubernetes/pki/front-proxy-client.crt
-    --proxy-client-key-file<span class="o">=</span>/etc/kubernetes/pki/front-proxy-client.key
-    --requestheader-allowed-names<span class="o">=</span>front-proxy-client
-    --requestheader-client-ca-file<span class="o">=</span>/etc/kubernetes/pki/front-proxy-ca.crt
-    --requestheader-extra-headers-prefix<span class="o">=</span>X-Remote-Extra-
-    --requestheader-group-headers<span class="o">=</span>X-Remote-Group
-    --requestheader-username-headers<span class="o">=</span>X-Remote-User
-    --secure-port<span class="o">=</span><span class="m">6443</span>
-    --service-account-key-file<span class="o">=</span>/etc/kubernetes/pki/sa.pub
-    --service-cluster-ip-range<span class="o">=</span>10.233.0.0/18
-    --storage-backend<span class="o">=</span>etcd3
-    <span class="c1">## tls认证文件</span>
-    --tls-cert-file<span class="o">=</span>/etc/kubernetes/pki/apiserver.crt
-    --tls-private-key-file<span class="o">=</span>/etc/kubernetes/pki/apiserver.key
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@ops-pre-4-175 kubernetes<span style="color:#f92672">]</span><span style="color:#75715e"># ps -axu | grep kube-apiserver</span>
+root     <span style="color:#ae81ff">30672</span>  4.5  3.6 <span style="color:#ae81ff">843380</span> <span style="color:#ae81ff">601720</span> ?       Ssl  Oct27  58:51 kube-apiserver ......
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kube-apiserver
+    --advertise-address<span style="color:#f92672">=</span>10.0.4.175
+    --allow-privileged<span style="color:#f92672">=</span>true
+    --anonymous-auth<span style="color:#f92672">=</span>True
+    --apiserver-count<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+    --authorization-mode<span style="color:#f92672">=</span>Node,RBAC
+    --bind-address<span style="color:#f92672">=</span>0.0.0.0
+    --client-ca-file<span style="color:#f92672">=</span>/etc/kubernetes/pki/ca.crt
+    --enable-admission-plugins<span style="color:#f92672">=</span>NodeRestriction
+    --enable-aggregator-routing<span style="color:#f92672">=</span>False
+    --enable-bootstrap-token-auth<span style="color:#f92672">=</span>true
+    --endpoint-reconciler-type<span style="color:#f92672">=</span>lease
+    --enable-swagger-ui<span style="color:#f92672">=</span>true
+    <span style="color:#75715e">## etcd认证文件</span>
+    --etcd-cafile<span style="color:#f92672">=</span>/etc/ssl/etcd/ssl/ca.pem
+    --etcd-certfile<span style="color:#f92672">=</span>/etc/ssl/etcd/ssl/node-Ops-pre-4-175.pem
+    --etcd-keyfile<span style="color:#f92672">=</span>/etc/ssl/etcd/ssl/node-Ops-pre-4-175-key.pem
+    --etcd-servers<span style="color:#f92672">=</span>https://10.0.4.175:2379
+    --feature-gates<span style="color:#f92672">=</span>CSINodeInfo<span style="color:#f92672">=</span>true,VolumeSnapshotDataSource<span style="color:#f92672">=</span>true,ExpandCSIVolumes<span style="color:#f92672">=</span>true,RotateKubeletClientCertificate<span style="color:#f92672">=</span>true
+    --insecure-port<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+    <span style="color:#75715e">## client调用的认证文件</span>
+    --kubelet-client-certificate<span style="color:#f92672">=</span>/etc/kubernetes/pki/apiserver-kubelet-client.crt
+    --kubelet-client-key<span style="color:#f92672">=</span>/etc/kubernetes/pki/apiserver-kubelet-client.key
+    --kubelet-preferred-address-types<span style="color:#f92672">=</span>InternalIP,ExternalIP,Hostname
+    --profiling<span style="color:#f92672">=</span>False
+    --proxy-client-cert-file<span style="color:#f92672">=</span>/etc/kubernetes/pki/front-proxy-client.crt
+    --proxy-client-key-file<span style="color:#f92672">=</span>/etc/kubernetes/pki/front-proxy-client.key
+    --requestheader-allowed-names<span style="color:#f92672">=</span>front-proxy-client
+    --requestheader-client-ca-file<span style="color:#f92672">=</span>/etc/kubernetes/pki/front-proxy-ca.crt
+    --requestheader-extra-headers-prefix<span style="color:#f92672">=</span>X-Remote-Extra-
+    --requestheader-group-headers<span style="color:#f92672">=</span>X-Remote-Group
+    --requestheader-username-headers<span style="color:#f92672">=</span>X-Remote-User
+    --secure-port<span style="color:#f92672">=</span><span style="color:#ae81ff">6443</span>
+    --service-account-key-file<span style="color:#f92672">=</span>/etc/kubernetes/pki/sa.pub
+    --service-cluster-ip-range<span style="color:#f92672">=</span>10.233.0.0/18
+    --storage-backend<span style="color:#f92672">=</span>etcd3
+    <span style="color:#75715e">## tls认证文件</span>
+    --tls-cert-file<span style="color:#f92672">=</span>/etc/kubernetes/pki/apiserver.crt
+    --tls-private-key-file<span style="color:#f92672">=</span>/etc/kubernetes/pki/apiserver.key
 </code></pre></div><p>镜像里面有一个<code>kube-apiserver</code>的工具，有一大堆的参数，<a href="https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/">这些参数有一个详细的列表</a></p>
 <h4 id="认证方式">认证方式</h4>
 <ul>
@@ -175,26 +280,26 @@ root     <span class="m">30672</span>  4.5  3.6 <span class="m">843380</span> <s
 </code></pre><h3 id="goclient使用">GoClient使用</h3>
 <p>详情见 <a href="https://github.com/kubernetes/client-go">client-go</a></p>
 <h3 id="api代理">API代理</h3>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">kubectl proxy --address<span class="o">=</span><span class="s2">&#34;0.0.0.0&#34;</span> -p <span class="m">8080</span> --accept-hosts<span class="o">=</span><span class="s1">&#39;^*$&#39;</span> <span class="p">&amp;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl proxy --address<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0.0.0.0&#34;</span> -p <span style="color:#ae81ff">8080</span> --accept-hosts<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;^*$&#39;</span> &amp;
 </code></pre></div><p>即可使用<code>http://10.0.4.175:8080/apis</code>请求api，不需要token认证，因为内部已经做了认证处理；</p>
 <h3 id="集成swagger">集成swagger</h3>
 <p>当启动<code>apiserver</code>的时候，添加了</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">--enable-swagger-ui<span class="o">=</span><span class="nb">true</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">--enable-swagger-ui<span style="color:#f92672">=</span>true
 </code></pre></div><p>1.18版本之后废弃了<code>swagger</code>的支持，现在怎么办呢？虽然废弃了<code>swagger</code>，但是支持了<code>openapi</code></p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">curl -L http://10.0.4.175:8080/openapi/v2 -o /tmp/swagger.json
-docker run -p 80:8080 -e <span class="nv">BASE_URL</span><span class="o">=</span>/swagger -e <span class="nv">SWAGGER_JSON</span><span class="o">=</span>/foo/swagger.json -v /tmp:/foo swaggerapi/swagger-ui
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl -L http://10.0.4.175:8080/openapi/v2 -o /tmp/swagger.json
+docker run -p 80:8080 -e BASE_URL<span style="color:#f92672">=</span>/swagger -e SWAGGER_JSON<span style="color:#f92672">=</span>/foo/swagger.json -v /tmp:/foo swaggerapi/swagger-ui
 </code></pre></div><p>再使用<code>swagger-ui</code>镜像生成即可</p>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;3&#39;</span><span class="w">
-</span><span class="w"></span><span class="nt">services</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">swagger</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">swaggerapi/swagger-ui</span><span class="w">
-</span><span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="m">80</span><span class="p">:</span><span class="m">8080</span><span class="w">
-</span><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- {<span class="l">swagger_json dir}:/foo</span><span class="w">
-</span><span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">SWAGGER_JSON</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;/foo/swagger.json&#34;</span><span class="w">
-</span></code></pre></div><p>请求<code>http://localhost/swagger</code>即可;</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">version</span>: <span style="color:#e6db74">&#39;3&#39;</span>
+<span style="color:#f92672">services</span>:
+  <span style="color:#f92672">swagger</span>:
+    <span style="color:#f92672">image</span>: <span style="color:#ae81ff">swaggerapi/swagger-ui</span>
+    <span style="color:#f92672">ports</span>:
+      - <span style="color:#ae81ff">80</span>:<span style="color:#ae81ff">8080</span>
+    <span style="color:#f92672">volumes</span>:
+      - {<span style="color:#ae81ff">swagger_json dir}:/foo</span>
+    <span style="color:#f92672">environment</span>:
+      <span style="color:#f92672">SWAGGER_JSON</span>: <span style="color:#e6db74">&#34;/foo/swagger.json&#34;</span>
+</code></pre></div><p>请求<code>http://localhost/swagger</code>即可;</p>
 <h3 id="api列表">API列表</h3>
 <p><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#-strong-api-overview-strong-">API</a>分为几类</p>
 <ul>
@@ -205,301 +310,106 @@ docker run -p 80:8080 -e <span class="nv">BASE_URL</span><span class="o">=</span
 <li><code>cluster api</code>：集群配置信息</li>
 </ul>
 
-        </div>
+    </div>
 
-        
-
-
-        
-
-<div class="post-archive">
-    <h2>See Also</h2>
-    <ul class="listing">
-        
-        <li><a href="https://xibolun.github.io/post/k8s/k8s%E5%85%ADsecret/">k8s(六)––Secret</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/k8s/k8s%E4%BA%94storage/">k8s(五)––Storage</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/k8s/k8s%E5%9B%9Bpod/">k8s(四)––Pod</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/k8s/k8s%E4%B8%89-service/">k8s(三)––Service</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/k8s/k8s%E4%BA%8C%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/">k8s(二)––基础概念</a></li>
-        
-    </ul>
-</div>
+    
 
 
-        <div class="post-meta meta-tags">
+    <div class="post-tags">
+        
+            <section>
+            <i class="iconfont icon-tag"></i>Tag(s):
             
-            <ul class="clearfix">
-                
-                <li><a href='https://xibolun.github.io/tags/k8s'>k8s</a></li>
-                
-            </ul>
+            <span class="tag"><a href="https://xibolun.github.io/tags/k8s/">
+                    #k8s</a></span>
             
-        </div>
-    </article>
-    
-    <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </section>
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> ·
+                <span><a href="https://xibolun.github.io">home</a></span>
+        </section>
+    </div>
 
-    
-    
-</div>
-
-                    <footer id="footer">
-    <div>
-        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+    <div class="post-nav">
+        
+        <a href="https://xibolun.github.io/post/tools/imagemagic/" class="prev" rel="prev" title="Imagemagick使用"><i class="iconfont icon-left"></i>&nbsp;Imagemagick使用</a>
+        
+        
+        <a href="https://xibolun.github.io/post/k8s/k8sjmx%E7%9B%91%E6%8E%A7/" class="next" rel="next" title="k8s—JMX监控">k8s—JMX监控&nbsp;<i class="iconfont icon-right"></i></a>
         
     </div>
-    <br />
-    <div>
-        <div class="github-badge">
-            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
-        </div>
-        <div class="github-badge">
-            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
-        </div>
+
+    <div class="post-comment">
+        
+            
+                <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.css">
+<script src="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.min.js"></script>
+<script>
+    const gitalk = new Gitalk({
+
+        clientID: '621dd77636c317069337',
+        clientSecret: '614d7596d823c41978f49c5434301ba8304da7d5',
+        repo: 'blog-commits',
+        owner: 'Mogeko',
+        admin: ['Mogeko'],
+        id: location.pathname, 
+        distractionFreeMode: false 
+    });
+    (function () {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('gitalk-container').innerHTML = 'Gitalk comments not available by default when the website is previewed locally.';
+            return;
+        }
+        gitalk.render('gitalk-container');
+    })();
+</script>
+
+            
+        
+    </div>
+</article>
+                </div>
+            </main>
+            <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2017 - 2021</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i>
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://xibolun.github.io">pengganyu</a> | </span>
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/Mogeko/Mogege" target="_blank" rel="external nofollow">Mogege</a></span>
     </div>
 </footer>
 
 
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
 
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-101106729-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script defer src="/js/vendor_main.min.js"></script>
 
 
 
 
 
 
-                </div>
 
-                <div id="secondary">
-    <section class="widget">
-        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">最近文章</h3>
-<ul class="widget-list">
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
-    </li>
-    
-</ul>
-    </section>
+<script src="https://cdn.jsdelivr.net/npm/pangu@4.0.7/dist/browser/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script> pangu.spacingPage();</script>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
-<ul class="widget-list">
-    
-    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/tool/">tool (10)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (11)</a></li>
-    
-</ul>
-    </section>
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
-<div class="tagcloud">
-    
-    <a href="https://xibolun.github.io/tags/about/">about</a>
-    
-    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
-    
-    <a href="https://xibolun.github.io/tags/css/">Css</a>
-    
-    <a href="https://xibolun.github.io/tags/curl/">curl</a>
-    
-    <a href="https://xibolun.github.io/tags/docker/">docker</a>
-    
-    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
-    
-    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
-    
-    <a href="https://xibolun.github.io/tags/git/">git</a>
-    
-    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
-    
-    <a href="https://xibolun.github.io/tags/go/">go</a>
-    
-    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
-    
-    <a href="https://xibolun.github.io/tags/istio/">istio</a>
-    
-    <a href="https://xibolun.github.io/tags/java/">java</a>
-    
-    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
-    
-    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
-    
-    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
-    
-    <a href="https://xibolun.github.io/tags/linux/">linux</a>
-    
-    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
-    
-    <a href="https://xibolun.github.io/tags/maven/">maven</a>
-    
-    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
-    
-    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
-    
-    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
-    
-    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
-    
-    <a href="https://xibolun.github.io/tags/python/">python</a>
-    
-    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/react/">react</a>
-    
-    <a href="https://xibolun.github.io/tags/redis/">redis</a>
-    
-    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
-    
-    <a href="https://xibolun.github.io/tags/spring/">spring</a>
-    
-    <a href="https://xibolun.github.io/tags/tool/">tool</a>
-    
-    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
-    
-    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6/">读书</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
-    
-</div>
-    </section>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title">其它</h3>
-        <ul class="widget-list">
-            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
-        </ul>
-    </section>
-</div>
-            </div>
         </div>
-    </div>
-</body>
-
+    </body>
 </html>

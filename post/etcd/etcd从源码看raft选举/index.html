@@ -1,102 +1,209 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-
-    <title>etcd––从源码看raft选举 | penggy Blog</title>
-    <meta property="og:title" content="etcd––从源码看raft选举 - penggy Blog">
-    <meta property="og:type" content="article">
-        
-    <meta property="article:published_time" content='2020-07-03T15:48:17&#43;08:00'>
-        
-        
-    <meta property="article:modified_time" content='2020-07-03T15:48:17&#43;08:00'>
-        
-    <meta name="Keywords" content="">
-    <meta name="description" content="etcd––从源码看raft选举">
-        
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noodp"/>
     <meta name="author" content="pengganyu">
-    <meta property="og:url" content="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Braft%E9%80%89%E4%B8%BE/">
-    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+    <meta name="description" content="Mogeko 的个人博客">
+    
+    
+    <link rel="prev" href="https://xibolun.github.io/post/etcd/etcd%E5%85%A5%E9%97%A8/" />
+    <link rel="next" href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8B%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6/" />
+    <link rel="canonical" href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Braft%E9%80%89%E4%B8%BE/" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <title>
+        
+        
+            etcd––从源码看raft选举 | penggy blog
+        
+    </title>
+    <meta name="title" content="etcd––从源码看raft选举 | penggy blog">
+    
+<link rel="stylesheet" href="/css/main.min.css">
 
-    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
-    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
-    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
     
-    
-    
-    
-    
-</head>
+ 
 
+<script type="application/ld+json">
+{
+    "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/xibolun.github.io"
+    },
+    "articleSection" : "post",
+    "name" : "etcd––从源码看raft选举",
+    "headline" : "etcd––从源码看raft选举",
+    "description" : "Raft算法 分布式一致性算法最出名的是paxos，但是因为其非常难以理解，所以便有了简单可理解的raft算法；Raft将分布式问题归为几个模",
+    "inLanguage" : "zh-cn",
+    "author" : "pengganyu",
+    "creator" : "pengganyu",
+    "publisher": "pengganyu",
+    "accountablePerson" : "pengganyu",
+    "copyrightHolder" : "pengganyu",
+    "copyrightYear" : "2020",
+    "datePublished": "2020-07-03 15:48:17 \u002b0800 CST",
+    "dateModified" : "2020-07-03 15:48:17 \u002b0800 CST",
+    "url" : "https:\/\/xibolun.github.io\/post\/etcd\/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Braft%E9%80%89%E4%B8%BE\/",
+    "wordCount" : "3267",
+    "keywords" : [ "etcd", "penggy blog"]
+}
+</script>
 
-<body>
-    <header id="header" class="clearfix">
+  </head>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <body class="">
+        <div class="wrapper">
+            <nav class="navbar">
+    
+        <progress class="content_progress" max="0" value="0"></progress>
+    
     <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <a id="logo" href="https://xibolun.github.io">
-                        penggy Blog
-                    </a>
-                
-                
+        
+            <div class="navbar-header header-back2home-logo">
+                <span class="logo_mark" >>$</span>
+                <a href="https://xibolun.github.io">
+                    <span class="logo_text" >cd /home/</span>
+                    <span class="logo_cursor" ></span>
+                </a>
             </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://xibolun.github.io">首页</a>
-                    
-                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
-                    
-                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
-                    
-                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
-                    
-                </nav>
-            </div>
+        
+        <div class="navbar-right">
+                
+                <span class="menu">
+                
+                <a class="menu-item" href="/post/" title="">Blog</a>
+                
+                <a class="menu-item" href="/tags/tool/" title="">Tools</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/books" title="">读书</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+                <span class="divide"></span>
+                <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a>
+                </span>
         </div>
     </div>
-</header>
-
-    <div id="body">
-        <div class="container">
-            <div class="col-group">
-
-                <div class="col-8" id="main">
-                    
-<div class="res-cons">
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">etcd––从源码看raft选举</h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年7月3日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://xibolun.github.io/categories/etcd'>etcd</a></span>
-            
-        </div>
-        
-        
-        
-        <div class="clear" style="display: none">
-            <div class="toc-article">
-                <div class="toc-title">文章目录</div>
+        <progress class="content_progress" max="0" value="0"></progress>
+    
+     <div class="container">
+        <div class="navbar">
+            <div class="navbar-header header-logo">
+                    <a href="https://xibolun.github.io">penggy blog</a>
+            </div>
+            <div class="navbar-right">
+                <div><a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a></div>
+                <div class="menu-toggle">
+                    <span></span><span></span><span></span>
+                </div>
             </div>
         </div>
+     
+          <div class="menu" id="mobile-menu">
+                <nav class="mb-md">
+                    
+                    
+                        <a class="menu-item" href="/post/" title="">
+                            <h3>Blog</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/tool/" title="">
+                            <h3>Tools</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/categories/" title="">
+                            <h3>Categories</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/" title="">
+                            <h3>Tags</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/books" title="">
+                            <h3>读书</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/about/" title="">
+                            <h3>About</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                </nav>
+        </div>
+    </div>
+</nav>
+            <main class="main">
+                <div class="container">
+                    
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">etcd––从源码看raft选举</h1>
+        <div class="post-meta">
+                
+                <span class="post-time">
+                    <time datetime=2020-07-03 itemprop="datePublished">2020-07-03</time>
+                </span>
+                
+                <i class="iconfont icon-folder"></i>
+                <span class="post-category">
+                        
+                        
+                        
+                          <a href="https://xibolun.github.io/categories/etcd/"> etcd, </a>
+                        
+                        
+                </span>
+                <span class="post-word-count">3267 words</span>
+                
+                ,
+                <span id="busuanzi_value_page_pv"></span>阅读
+                
+        </div>
+    </header>
+
+    <div class="post-content">
         
-        <div class="post-content">
-            <h3 id="raft算法">Raft算法</h3>
+
+        
+        
+            
+        
+
+        
+        
+        
+        
+        
+
+        
+        
+        
+
+        <h3 id="raft算法">Raft算法</h3>
 <p>分布式一致性算法最出名的是<code>paxos</code>，但是因为其非常难以理解，所以便有了简单可理解的<code>raft</code>算法；<code>Raft</code>将分布式问题归为几个模块来解决</p>
 <ul>
 <li>领袖选举：<code>raft</code>使用非对称节点的方式，必须有一个节点说了算</li>
@@ -116,60 +223,54 @@
 <ul>
 <li>当<code>follower</code>的选举定时器时间到了（长时间没有收到<code>leader</code>的消息），就会发起一次投票选举；</li>
 </ul>
-<p>
-        <img class="mx-auto" alt="follower tick" src="https://xibolun.github.io/img/etcd/etcd-election-tick.jpg" />   
-    </p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// tickElection is run by followers and candidates after r.electionTimeout.
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">raft</span><span class="p">)</span> <span class="nf">tickElection</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">electionElapsed</span><span class="o">++</span>
+<p><img src="/img/etcd/etcd-election-tick.jpg" alt="follower tick" loading="lazy" ></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// tickElection is run by followers and candidates after r.electionTimeout.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">raft</span>) <span style="color:#a6e22e">tickElection</span>() {
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">electionElapsed</span><span style="color:#f92672">++</span>
 
-	<span class="k">if</span> <span class="nx">r</span><span class="p">.</span><span class="nf">promotable</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="nx">r</span><span class="p">.</span><span class="nf">pastElectionTimeout</span><span class="p">()</span> <span class="p">{</span>
-		<span class="nx">r</span><span class="p">.</span><span class="nx">electionElapsed</span> <span class="p">=</span> <span class="mi">0</span>
-		<span class="c1">// 开始发起一次
-</span><span class="c1"></span>		<span class="nx">r</span><span class="p">.</span><span class="nf">Step</span><span class="p">(</span><span class="nx">pb</span><span class="p">.</span><span class="nx">Message</span><span class="p">{</span><span class="nx">From</span><span class="p">:</span> <span class="nx">r</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">Type</span><span class="p">:</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">MsgHup</span><span class="p">})</span>
-	<span class="p">}</span>
-<span class="p">}</span>
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">promotable</span>() <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">pastElectionTimeout</span>() {
+		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">electionElapsed</span> = <span style="color:#ae81ff">0</span>
+		<span style="color:#75715e">// 开始发起一次
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Step</span>(<span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">Message</span>{<span style="color:#a6e22e">From</span>: <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">id</span>, <span style="color:#a6e22e">Type</span>: <span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">MsgHup</span>})
+	}
+}
 </code></pre></div><p>此计时器是一个随机的时间，在每次<code>reset</code>的时候都会启动一个</p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">raft</span><span class="p">)</span> <span class="nf">resetRandomizedElectionTimeout</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">randomizedElectionTimeout</span> <span class="p">=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">electionTimeout</span> <span class="o">+</span> <span class="nx">globalRand</span><span class="p">.</span><span class="nf">Intn</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">electionTimeout</span><span class="p">)</span>
-<span class="p">}</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">raft</span>) <span style="color:#a6e22e">resetRandomizedElectionTimeout</span>() {
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">randomizedElectionTimeout</span> = <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">electionTimeout</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">globalRand</span>.<span style="color:#a6e22e">Intn</span>(<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">electionTimeout</span>)
+}
 </code></pre></div><h4 id="源节点的变化">源节点的变化</h4>
 <ul>
 <li>角色修改为<code>candidate</code></li>
 <li>重置计数器</li>
 </ul>
-<p>
-        <img class="mx-auto" alt="follower to candidate" src="https://xibolun.github.io/img/etcd/etcd-election-candidate.jpg" />   
-    </p>
+<p><img src="/img/etcd/etcd-election-candidate.jpg" alt="follower to candidate" loading="lazy" ></p>
 <ul>
 <li>投票的对象变为自身</li>
 <li>开始接收其他节点的信息</li>
 </ul>
-<p>
-        <img class="mx-auto" alt="candidate vote" src="https://xibolun.github.io/img/etcd/etcd-election-vote.jpg" />   
-    </p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">raft</span><span class="p">)</span> <span class="nf">becomeCandidate</span><span class="p">()</span> <span class="p">{</span>
-	<span class="c1">// TODO(xiangli) remove the panic when the raft implementation is stable
-</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">r</span><span class="p">.</span><span class="nx">state</span> <span class="o">==</span> <span class="nx">StateLeader</span> <span class="p">{</span>
-		<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;invalid transition [leader -&gt; candidate]&#34;</span><span class="p">)</span>
-	<span class="p">}</span>
-  <span class="c1">// stepCandidate是一个函数，处理消息
-</span><span class="c1"></span>	<span class="nx">r</span><span class="p">.</span><span class="nx">step</span> <span class="p">=</span> <span class="nx">stepCandidate</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nf">reset</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">Term</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">tick</span> <span class="p">=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">tickElection</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">Vote</span> <span class="p">=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">id</span>
-  <span class="c1">// StateCandidate常量
-</span><span class="c1"></span>	<span class="nx">r</span><span class="p">.</span><span class="nx">state</span> <span class="p">=</span> <span class="nx">StateCandidate</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nf">Infof</span><span class="p">(</span><span class="s">&#34;%x became candidate at term %d&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Term</span><span class="p">)</span>
-<span class="p">}</span>
+<p><img src="/img/etcd/etcd-election-vote.jpg" alt="candidate vote" loading="lazy" ></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">raft</span>) <span style="color:#a6e22e">becomeCandidate</span>() {
+	<span style="color:#75715e">// TODO(xiangli) remove the panic when the raft implementation is stable
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">state</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">StateLeader</span> {
+		panic(<span style="color:#e6db74">&#34;invalid transition [leader -&gt; candidate]&#34;</span>)
+	}
+  <span style="color:#75715e">// stepCandidate是一个函数，处理消息
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">step</span> = <span style="color:#a6e22e">stepCandidate</span>
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">reset</span>(<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Term</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>)
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">tick</span> = <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">tickElection</span>
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Vote</span> = <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">id</span>
+  <span style="color:#75715e">// StateCandidate常量
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">state</span> = <span style="color:#a6e22e">StateCandidate</span>
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Infof</span>(<span style="color:#e6db74">&#34;%x became candidate at term %d&#34;</span>, <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">id</span>, <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Term</span>)
+}
 </code></pre></div><p>campaign函数即为处理每一次选举，投票，追加日志，心跳等所有信息的入口</p>
 <h4 id="接收其他节点的消息">接收其他节点的消息</h4>
 <p>此逻辑即为上面提到的<code>stepCandidate</code>函数，由于其他节点的消息可能会有多种存在，这些消息都会有类型，根据不同的类型，源节点也会进行不同的操作；</p>
 <h5 id="appendentry">AppendEntry</h5>
 <p>这个是追加日志的消息，说明外面已经有<code>leader</code>了，源节点自动变为<code>follower</code>，并处理<code>appendEntry</code>，</p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="k">case</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">MsgApp</span><span class="p">:</span>
-		<span class="nx">r</span><span class="p">.</span><span class="nf">becomeFollower</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Term</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">From</span><span class="p">)</span> <span class="c1">// always m.Term == r.Term
-</span><span class="c1"></span>		<span class="nx">r</span><span class="p">.</span><span class="nf">handleAppendEntries</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">MsgApp</span>:
+		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">becomeFollower</span>(<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Term</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">From</span>) <span style="color:#75715e">// always m.Term == r.Term
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">handleAppendEntries</span>(<span style="color:#a6e22e">m</span>)
 </code></pre></div><p>变成<code>follower</code>也很简单</p>
 <ul>
 <li>节点状态修改为<code>follower</code></li>
@@ -177,123 +278,121 @@
 <li>设置<code>leader</code></li>
 <li>设置<code>term</code></li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">raft</span><span class="p">)</span> <span class="nf">becomeFollower</span><span class="p">(</span><span class="nx">term</span> <span class="kt">uint64</span><span class="p">,</span> <span class="nx">lead</span> <span class="kt">uint64</span><span class="p">)</span> <span class="p">{</span>
-  <span class="c1">// 做为一个follower，需要接收消息
-</span><span class="c1"></span>	<span class="nx">r</span><span class="p">.</span><span class="nx">step</span> <span class="p">=</span> <span class="nx">stepFollower</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nf">reset</span><span class="p">(</span><span class="nx">term</span><span class="p">)</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">tick</span> <span class="p">=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">tickElection</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">lead</span> <span class="p">=</span> <span class="nx">lead</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">state</span> <span class="p">=</span> <span class="nx">StateFollower</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nf">Infof</span><span class="p">(</span><span class="s">&#34;%x became follower at term %d&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Term</span><span class="p">)</span>
-<span class="p">}</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">raft</span>) <span style="color:#a6e22e">becomeFollower</span>(<span style="color:#a6e22e">term</span> <span style="color:#66d9ef">uint64</span>, <span style="color:#a6e22e">lead</span> <span style="color:#66d9ef">uint64</span>) {
+  <span style="color:#75715e">// 做为一个follower，需要接收消息
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">step</span> = <span style="color:#a6e22e">stepFollower</span>
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">reset</span>(<span style="color:#a6e22e">term</span>)
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">tick</span> = <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">tickElection</span>
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">lead</span> = <span style="color:#a6e22e">lead</span>
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">state</span> = <span style="color:#a6e22e">StateFollower</span>
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Infof</span>(<span style="color:#e6db74">&#34;%x became follower at term %d&#34;</span>, <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">id</span>, <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Term</span>)
+}
 </code></pre></div><p>处理<code>entry</code>的逻辑有几个判断</p>
 <ul>
 <li>因为外面的<code>leader</code>可能是旧的<code>leader</code>，所以需要判断一下它的<code>term</code></li>
 <li>有可能<code>follower</code>的日志与<code>leader</code>的日志相关比较远，那就返回一个<code>reject</code>消息，同时将自己最新的<code>logId</code>返回，这样<code>leader</code>就知道这个<code>follower</code>差了多少的日志，再给他发过来，让他强制更新</li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">raft</span><span class="p">)</span> <span class="nf">handleAppendEntries</span><span class="p">(</span><span class="nx">m</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">Message</span><span class="p">)</span> <span class="p">{</span>
-  <span class="c1">// 是不是最新的日志？
-</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Index</span> <span class="p">&lt;</span> <span class="nx">r</span><span class="p">.</span><span class="nx">raftLog</span><span class="p">.</span><span class="nx">committed</span> <span class="p">{</span>
-		<span class="nx">r</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="nx">pb</span><span class="p">.</span><span class="nx">Message</span><span class="p">{</span><span class="nx">To</span><span class="p">:</span> <span class="nx">m</span><span class="p">.</span><span class="nx">From</span><span class="p">,</span> <span class="nx">Type</span><span class="p">:</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">MsgAppResp</span><span class="p">,</span> <span class="nx">Index</span><span class="p">:</span> <span class="nx">r</span><span class="p">.</span><span class="nx">raftLog</span><span class="p">.</span><span class="nx">committed</span><span class="p">})</span>
-		<span class="k">return</span>
-	<span class="p">}</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">raft</span>) <span style="color:#a6e22e">handleAppendEntries</span>(<span style="color:#a6e22e">m</span> <span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">Message</span>) {
+  <span style="color:#75715e">// 是不是最新的日志？
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Index</span> &lt; <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">raftLog</span>.<span style="color:#a6e22e">committed</span> {
+		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">send</span>(<span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">Message</span>{<span style="color:#a6e22e">To</span>: <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">From</span>, <span style="color:#a6e22e">Type</span>: <span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">MsgAppResp</span>, <span style="color:#a6e22e">Index</span>: <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">raftLog</span>.<span style="color:#a6e22e">committed</span>})
+		<span style="color:#66d9ef">return</span>
+	}
 
-  <span class="c1">// 开始追加
-</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">mlastIndex</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">raftLog</span><span class="p">.</span><span class="nf">maybeAppend</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Index</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">LogTerm</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Commit</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Entries</span><span class="o">...</span><span class="p">);</span> <span class="nx">ok</span> <span class="p">{</span>
-		<span class="nx">r</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="nx">pb</span><span class="p">.</span><span class="nx">Message</span><span class="p">{</span><span class="nx">To</span><span class="p">:</span> <span class="nx">m</span><span class="p">.</span><span class="nx">From</span><span class="p">,</span> <span class="nx">Type</span><span class="p">:</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">MsgAppResp</span><span class="p">,</span> <span class="nx">Index</span><span class="p">:</span> <span class="nx">mlastIndex</span><span class="p">})</span>
-	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="c1">// 日志对不上号，与leader相比少了
-</span><span class="c1"></span>		<span class="nx">r</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nf">Debugf</span><span class="p">(</span><span class="s">&#34;%x [logterm: %d, index: %d] rejected MsgApp [logterm: %d, index: %d] from %x&#34;</span><span class="p">,</span>
-			<span class="nx">r</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">r</span><span class="p">.</span><span class="nx">raftLog</span><span class="p">.</span><span class="nf">zeroTermOnErrCompacted</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">raftLog</span><span class="p">.</span><span class="nf">term</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Index</span><span class="p">)),</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Index</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">LogTerm</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Index</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">From</span><span class="p">)</span>
-		<span class="nx">r</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="nx">pb</span><span class="p">.</span><span class="nx">Message</span><span class="p">{</span><span class="nx">To</span><span class="p">:</span> <span class="nx">m</span><span class="p">.</span><span class="nx">From</span><span class="p">,</span> <span class="nx">Type</span><span class="p">:</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">MsgAppResp</span><span class="p">,</span> <span class="nx">Index</span><span class="p">:</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Index</span><span class="p">,</span> <span class="nx">Reject</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">RejectHint</span><span class="p">:</span> <span class="nx">r</span><span class="p">.</span><span class="nx">raftLog</span><span class="p">.</span><span class="nf">lastIndex</span><span class="p">()})</span>
-	<span class="p">}</span>
-<span class="p">}</span>
+  <span style="color:#75715e">// 开始追加
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">mlastIndex</span>, <span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">raftLog</span>.<span style="color:#a6e22e">maybeAppend</span>(<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Index</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">LogTerm</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Commit</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Entries</span><span style="color:#f92672">...</span>); <span style="color:#a6e22e">ok</span> {
+		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">send</span>(<span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">Message</span>{<span style="color:#a6e22e">To</span>: <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">From</span>, <span style="color:#a6e22e">Type</span>: <span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">MsgAppResp</span>, <span style="color:#a6e22e">Index</span>: <span style="color:#a6e22e">mlastIndex</span>})
+	} <span style="color:#66d9ef">else</span> {
+    <span style="color:#75715e">// 日志对不上号，与leader相比少了
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Debugf</span>(<span style="color:#e6db74">&#34;%x [logterm: %d, index: %d] rejected MsgApp [logterm: %d, index: %d] from %x&#34;</span>,
+			<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">id</span>, <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">raftLog</span>.<span style="color:#a6e22e">zeroTermOnErrCompacted</span>(<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">raftLog</span>.<span style="color:#a6e22e">term</span>(<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Index</span>)), <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Index</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">LogTerm</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Index</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">From</span>)
+		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">send</span>(<span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">Message</span>{<span style="color:#a6e22e">To</span>: <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">From</span>, <span style="color:#a6e22e">Type</span>: <span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">MsgAppResp</span>, <span style="color:#a6e22e">Index</span>: <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Index</span>, <span style="color:#a6e22e">Reject</span>: <span style="color:#66d9ef">true</span>, <span style="color:#a6e22e">RejectHint</span>: <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">raftLog</span>.<span style="color:#a6e22e">lastIndex</span>()})
+	}
+}
 </code></pre></div><h5 id="heartbeat">heartbeat</h5>
 <p>外面的<code>leader</code>来视察，看看<code>follower</code>是否还活着，那节点就需要放弃投票，变成<code>follower</code>，同时执行心跳并返回</p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="k">case</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">MsgHeartbeat</span><span class="p">:</span>
-		<span class="nx">r</span><span class="p">.</span><span class="nf">becomeFollower</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Term</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">From</span><span class="p">)</span> <span class="c1">// always m.Term == r.Term
-</span><span class="c1"></span>		<span class="nx">r</span><span class="p">.</span><span class="nf">handleHeartbeat</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">MsgHeartbeat</span>:
+		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">becomeFollower</span>(<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Term</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">From</span>) <span style="color:#75715e">// always m.Term == r.Term
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">handleHeartbeat</span>(<span style="color:#a6e22e">m</span>)
 </code></pre></div><h5 id="snapshot">snapshot</h5>
 <p>外面的<code>leader</code>来添加快照，那节点就需要放弃投票，变成<code>follower</code>，同时执行快照的逻辑</p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="k">case</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">MsgSnap</span><span class="p">:</span>
-		<span class="nx">r</span><span class="p">.</span><span class="nf">becomeFollower</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Term</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">From</span><span class="p">)</span> <span class="c1">// always m.Term == r.Term
-</span><span class="c1"></span>		<span class="nx">r</span><span class="p">.</span><span class="nf">handleSnapshot</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">MsgSnap</span>:
+		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">becomeFollower</span>(<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Term</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">From</span>) <span style="color:#75715e">// always m.Term == r.Term
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">handleSnapshot</span>(<span style="color:#a6e22e">m</span>)
 </code></pre></div><h5 id="vote">vote</h5>
 <p>其他节点会发送一个<code>voteResp</code>类型的消息，这个消息里面包含着两个重要属性</p>
 <ul>
 <li>from：投票来自哪个节点，即对方节点的id</li>
 <li>Reject：拒绝消息，取反 !Reject，即投的反对票、支持票；</li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">		<span class="nx">gr</span><span class="p">,</span> <span class="nx">rj</span><span class="p">,</span> <span class="nx">res</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">poll</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">From</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Type</span><span class="p">,</span> <span class="p">!</span><span class="nx">m</span><span class="p">.</span><span class="nx">Reject</span><span class="p">)</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">		<span style="color:#a6e22e">gr</span>, <span style="color:#a6e22e">rj</span>, <span style="color:#a6e22e">res</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">poll</span>(<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">From</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Type</span>, !<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Reject</span>)
 </code></pre></div><p>节点会进行计票</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">func <span class="o">(</span>r *raft<span class="o">)</span> poll<span class="o">(</span>id uint64, t pb.MessageType, v bool<span class="o">)</span> <span class="o">(</span>granted int, rejected int, result quorum.VoteResult<span class="o">)</span> <span class="o">{</span>
-	<span class="k">if</span> v <span class="o">{</span>
-		r.logger.Infof<span class="o">(</span><span class="s2">&#34;%x received %s from %x at term %d&#34;</span>, r.id, t, id, r.Term<span class="o">)</span>
-	<span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-		r.logger.Infof<span class="o">(</span><span class="s2">&#34;%x received %s rejection from %x at term %d&#34;</span>, r.id, t, id, r.Term<span class="o">)</span>
-	<span class="o">}</span>
-	r.prs.RecordVote<span class="o">(</span>id, v<span class="o">)</span>
-	<span class="k">return</span> r.prs.TallyVotes<span class="o">()</span>
-<span class="o">}</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">func <span style="color:#f92672">(</span>r *raft<span style="color:#f92672">)</span> poll<span style="color:#f92672">(</span>id uint64, t pb.MessageType, v bool<span style="color:#f92672">)</span> <span style="color:#f92672">(</span>granted int, rejected int, result quorum.VoteResult<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+	<span style="color:#66d9ef">if</span> v <span style="color:#f92672">{</span>
+		r.logger.Infof<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;%x received %s from %x at term %d&#34;</span>, r.id, t, id, r.Term<span style="color:#f92672">)</span>
+	<span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+		r.logger.Infof<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;%x received %s rejection from %x at term %d&#34;</span>, r.id, t, id, r.Term<span style="color:#f92672">)</span>
+	<span style="color:#f92672">}</span>
+	r.prs.RecordVote<span style="color:#f92672">(</span>id, v<span style="color:#f92672">)</span>
+	<span style="color:#66d9ef">return</span> r.prs.TallyVotes<span style="color:#f92672">()</span>
+<span style="color:#f92672">}</span>
 </code></pre></div><p>若节点所获得的票数大于<code>n/2+1</code>，则表示胜出</p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="nx">MajorityConfig</span><span class="p">)</span> <span class="nf">VoteResult</span><span class="p">(</span><span class="nx">votes</span> <span class="kd">map</span><span class="p">[</span><span class="kt">uint64</span><span class="p">]</span><span class="kt">bool</span><span class="p">)</span> <span class="nx">VoteResult</span> <span class="p">{</span>
-	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-		<span class="c1">// By convention, the elections on an empty config win. This comes in
-</span><span class="c1"></span>		<span class="c1">// handy with joint quorums because it&#39;ll make a half-populated joint
-</span><span class="c1"></span>		<span class="c1">// quorum behave like a majority quorum.
-</span><span class="c1"></span>		<span class="k">return</span> <span class="nx">VoteWon</span>
-	<span class="p">}</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">c</span> <span style="color:#a6e22e">MajorityConfig</span>) <span style="color:#a6e22e">VoteResult</span>(<span style="color:#a6e22e">votes</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">uint64</span>]<span style="color:#66d9ef">bool</span>) <span style="color:#a6e22e">VoteResult</span> {
+	<span style="color:#66d9ef">if</span> len(<span style="color:#a6e22e">c</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+		<span style="color:#75715e">// By convention, the elections on an empty config win. This comes in
+</span><span style="color:#75715e"></span>		<span style="color:#75715e">// handy with joint quorums because it&#39;ll make a half-populated joint
+</span><span style="color:#75715e"></span>		<span style="color:#75715e">// quorum behave like a majority quorum.
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">VoteWon</span>
+	}
 
-	<span class="nx">ny</span> <span class="o">:=</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="kt">int</span><span class="p">{}</span> <span class="c1">// vote counts for no and yes, respectively
-</span><span class="c1"></span>
-	<span class="kd">var</span> <span class="nx">missing</span> <span class="kt">int</span>
-	<span class="k">for</span> <span class="nx">id</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">c</span> <span class="p">{</span>
-		<span class="nx">v</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">votes</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span>
-		<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
-			<span class="nx">missing</span><span class="o">++</span>
-			<span class="k">continue</span>
-		<span class="p">}</span>
-		<span class="k">if</span> <span class="nx">v</span> <span class="p">{</span>
-			<span class="nx">ny</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">++</span>
-		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-			<span class="nx">ny</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">++</span>
-		<span class="p">}</span>
-	<span class="p">}</span>
+	<span style="color:#a6e22e">ny</span> <span style="color:#f92672">:=</span> [<span style="color:#ae81ff">2</span>]<span style="color:#66d9ef">int</span>{} <span style="color:#75715e">// vote counts for no and yes, respectively
+</span><span style="color:#75715e"></span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">missing</span> <span style="color:#66d9ef">int</span>
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">id</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">c</span> {
+		<span style="color:#a6e22e">v</span>, <span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">votes</span>[<span style="color:#a6e22e">id</span>]
+		<span style="color:#66d9ef">if</span> !<span style="color:#a6e22e">ok</span> {
+			<span style="color:#a6e22e">missing</span><span style="color:#f92672">++</span>
+			<span style="color:#66d9ef">continue</span>
+		}
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">v</span> {
+			<span style="color:#a6e22e">ny</span>[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">++</span>
+		} <span style="color:#66d9ef">else</span> {
+			<span style="color:#a6e22e">ny</span>[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">++</span>
+		}
+	}
 
-  <span class="c1">// n/2+1
-</span><span class="c1"></span>	<span class="nx">q</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span>
-  <span class="c1">// 投票数大于 n/2+1
-</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">ny</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="nx">q</span> <span class="p">{</span>
-		<span class="k">return</span> <span class="nx">VoteWon</span>
-	<span class="p">}</span>
-  <span class="c1">// 投票数 + 未投票数 大于q，则继续等待那些没有投的票
-</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">ny</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="nx">missing</span> <span class="o">&gt;=</span> <span class="nx">q</span> <span class="p">{</span>
-		<span class="k">return</span> <span class="nx">VotePending</span>
-	<span class="p">}</span>
-  <span class="c1">// 投票失败
-</span><span class="c1"></span>	<span class="k">return</span> <span class="nx">VoteLost</span>
-<span class="p">}</span>
+  <span style="color:#75715e">// n/2+1
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">q</span> <span style="color:#f92672">:=</span> len(<span style="color:#a6e22e">c</span>)<span style="color:#f92672">/</span><span style="color:#ae81ff">2</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
+  <span style="color:#75715e">// 投票数大于 n/2+1
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">ny</span>[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">&gt;=</span> <span style="color:#a6e22e">q</span> {
+		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">VoteWon</span>
+	}
+  <span style="color:#75715e">// 投票数 + 未投票数 大于q，则继续等待那些没有投的票
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">ny</span>[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">+</span><span style="color:#a6e22e">missing</span> <span style="color:#f92672">&gt;=</span> <span style="color:#a6e22e">q</span> {
+		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">VotePending</span>
+	}
+  <span style="color:#75715e">// 投票失败
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">VoteLost</span>
+}
 </code></pre></div><p>若投票成功，则变成<code>leader</code>，失败则变成<code>follower</code></p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="k">switch</span> <span class="nx">res</span> <span class="p">{</span>
-		<span class="k">case</span> <span class="nx">quorum</span><span class="p">.</span><span class="nx">VoteWon</span><span class="p">:</span>
-			<span class="c1">// 若是预选举，则进行真正的选举，这个在真实的生产环境当中没有使用
-</span><span class="c1"></span>			<span class="k">if</span> <span class="nx">r</span><span class="p">.</span><span class="nx">state</span> <span class="o">==</span> <span class="nx">StatePreCandidate</span> <span class="p">{</span>
-				<span class="nx">r</span><span class="p">.</span><span class="nf">campaign</span><span class="p">(</span><span class="nx">campaignElection</span><span class="p">)</span>
-			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="c1">// 成为leader
-</span><span class="c1"></span>				<span class="nx">r</span><span class="p">.</span><span class="nf">becomeLeader</span><span class="p">()</span>
-        <span class="c1">// 广播一个空的追加日志消息，让其他节点修改自己的term，和leaderId
-</span><span class="c1"></span>				<span class="nx">r</span><span class="p">.</span><span class="nf">bcastAppend</span><span class="p">()</span>
-			<span class="p">}</span>
-		<span class="k">case</span> <span class="nx">quorum</span><span class="p">.</span><span class="nx">VoteLost</span><span class="p">:</span>
-			<span class="c1">// pb.MsgPreVoteResp contains future term of pre-candidate
-</span><span class="c1"></span>			<span class="c1">// m.Term &gt; r.Term; reuse r.Term
-</span><span class="c1"></span>			<span class="nx">r</span><span class="p">.</span><span class="nf">becomeFollower</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">Term</span><span class="p">,</span> <span class="nx">None</span><span class="p">)</span>
-		<span class="p">}</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#66d9ef">switch</span> <span style="color:#a6e22e">res</span> {
+		<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">quorum</span>.<span style="color:#a6e22e">VoteWon</span>:
+			<span style="color:#75715e">// 若是预选举，则进行真正的选举，这个在真实的生产环境当中没有使用
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">state</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">StatePreCandidate</span> {
+				<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">campaign</span>(<span style="color:#a6e22e">campaignElection</span>)
+			} <span style="color:#66d9ef">else</span> {
+        <span style="color:#75715e">// 成为leader
+</span><span style="color:#75715e"></span>				<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">becomeLeader</span>()
+        <span style="color:#75715e">// 广播一个空的追加日志消息，让其他节点修改自己的term，和leaderId
+</span><span style="color:#75715e"></span>				<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">bcastAppend</span>()
+			}
+		<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">quorum</span>.<span style="color:#a6e22e">VoteLost</span>:
+			<span style="color:#75715e">// pb.MsgPreVoteResp contains future term of pre-candidate
+</span><span style="color:#75715e"></span>			<span style="color:#75715e">// m.Term &gt; r.Term; reuse r.Term
+</span><span style="color:#75715e"></span>			<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">becomeFollower</span>(<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Term</span>, <span style="color:#a6e22e">None</span>)
+		}
 </code></pre></div><h4 id="成为leader">成为leader</h4>
-<p>
-        <img class="mx-auto" alt="candidate to leader" src="https://xibolun.github.io/img/etcd/etcd-election-become-leader.jpg" />   
-    </p>
+<p><img src="/img/etcd/etcd-election-become-leader.jpg" alt="candidate to leader" loading="lazy" ></p>
 <p>成为leader即为<code>becomseLeader</code>，做了如下的操作</p>
 <ul>
 <li>开始做为<code>leader</code>的<code>step</code>，这里主要是做几个事情：
@@ -309,39 +408,39 @@
 <li>设置状态为<code>Leaader</code></li>
 <li>生与一个空日志，尝试一下是否可以追加，主要是想办法一下，现在的<code>uncommittedSize</code>是否够用；默认配置的上限为<code>1G</code></li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">raft</span><span class="p">)</span> <span class="nf">becomeLeader</span><span class="p">()</span> <span class="p">{</span>
-  <span class="c1">// 这里还有李响的一个TODO，也不知道什么时候会实现，哈哈
-</span><span class="c1"></span>	<span class="c1">// TODO(xiangli) remove the panic when the raft implementation is stable
-</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">r</span><span class="p">.</span><span class="nx">state</span> <span class="o">==</span> <span class="nx">StateFollower</span> <span class="p">{</span>
-		<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;invalid transition [follower -&gt; leader]&#34;</span><span class="p">)</span>
-	<span class="p">}</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">step</span> <span class="p">=</span> <span class="nx">stepLeader</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nf">reset</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">Term</span><span class="p">)</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">tick</span> <span class="p">=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">tickHeartbeat</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">lead</span> <span class="p">=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">id</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">state</span> <span class="p">=</span> <span class="nx">StateLeader</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">prs</span><span class="p">.</span><span class="nx">Progress</span><span class="p">[</span><span class="nx">r</span><span class="p">.</span><span class="nx">id</span><span class="p">].</span><span class="nf">BecomeReplicate</span><span class="p">()</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">raft</span>) <span style="color:#a6e22e">becomeLeader</span>() {
+  <span style="color:#75715e">// 这里还有李响的一个TODO，也不知道什么时候会实现，哈哈
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// TODO(xiangli) remove the panic when the raft implementation is stable
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">state</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">StateFollower</span> {
+		panic(<span style="color:#e6db74">&#34;invalid transition [follower -&gt; leader]&#34;</span>)
+	}
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">step</span> = <span style="color:#a6e22e">stepLeader</span>
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">reset</span>(<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Term</span>)
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">tick</span> = <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">tickHeartbeat</span>
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">lead</span> = <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">id</span>
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">state</span> = <span style="color:#a6e22e">StateLeader</span>
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">prs</span>.<span style="color:#a6e22e">Progress</span>[<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">id</span>].<span style="color:#a6e22e">BecomeReplicate</span>()
 
-	<span class="nx">r</span><span class="p">.</span><span class="nx">pendingConfIndex</span> <span class="p">=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">raftLog</span><span class="p">.</span><span class="nf">lastIndex</span><span class="p">()</span>
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">pendingConfIndex</span> = <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">raftLog</span>.<span style="color:#a6e22e">lastIndex</span>()
 
-	<span class="nx">emptyEnt</span> <span class="o">:=</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">Entry</span><span class="p">{</span><span class="nx">Data</span><span class="p">:</span> <span class="kc">nil</span><span class="p">}</span>
-	<span class="k">if</span> <span class="p">!</span><span class="nx">r</span><span class="p">.</span><span class="nf">appendEntry</span><span class="p">(</span><span class="nx">emptyEnt</span><span class="p">)</span> <span class="p">{</span>
-		<span class="c1">// This won&#39;t happen because we just called reset() above.
-</span><span class="c1"></span>		<span class="nx">r</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nf">Panic</span><span class="p">(</span><span class="s">&#34;empty entry was dropped&#34;</span><span class="p">)</span>
-	<span class="p">}</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nf">reduceUncommittedSize</span><span class="p">([]</span><span class="nx">pb</span><span class="p">.</span><span class="nx">Entry</span><span class="p">{</span><span class="nx">emptyEnt</span><span class="p">})</span>
-	<span class="nx">r</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nf">Infof</span><span class="p">(</span><span class="s">&#34;%x became leader at term %d&#34;</span><span class="p">,</span> <span class="nx">r</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Term</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="nx">c</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">raft</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
-		<span class="nx">ID</span><span class="p">:</span>                        <span class="nb">uint64</span><span class="p">(</span><span class="nx">rc</span><span class="p">.</span><span class="nx">id</span><span class="p">),</span>
-		<span class="nx">ElectionTick</span><span class="p">:</span>              <span class="mi">10</span><span class="p">,</span>
-		<span class="nx">HeartbeatTick</span><span class="p">:</span>             <span class="mi">1</span><span class="p">,</span>
-		<span class="nx">Storage</span><span class="p">:</span>                   <span class="nx">rc</span><span class="p">.</span><span class="nx">raftStorage</span><span class="p">,</span>
-		<span class="nx">MaxSizePerMsg</span><span class="p">:</span>             <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
-		<span class="nx">MaxInflightMsgs</span><span class="p">:</span>           <span class="mi">256</span><span class="p">,</span>
-		<span class="c1">// 默认unCommitted大小为 2^30=1G
-</span><span class="c1"></span>		<span class="nx">MaxUncommittedEntriesSize</span><span class="p">:</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">30</span><span class="p">,</span>
-	<span class="p">}</span>
+	<span style="color:#a6e22e">emptyEnt</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">Entry</span>{<span style="color:#a6e22e">Data</span>: <span style="color:#66d9ef">nil</span>}
+	<span style="color:#66d9ef">if</span> !<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">appendEntry</span>(<span style="color:#a6e22e">emptyEnt</span>) {
+		<span style="color:#75715e">// This won&#39;t happen because we just called reset() above.
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Panic</span>(<span style="color:#e6db74">&#34;empty entry was dropped&#34;</span>)
+	}
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">reduceUncommittedSize</span>([]<span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">Entry</span>{<span style="color:#a6e22e">emptyEnt</span>})
+	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Infof</span>(<span style="color:#e6db74">&#34;%x became leader at term %d&#34;</span>, <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">id</span>, <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Term</span>)
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">raft</span>.<span style="color:#a6e22e">Config</span>{
+		<span style="color:#a6e22e">ID</span>:                        uint64(<span style="color:#a6e22e">rc</span>.<span style="color:#a6e22e">id</span>),
+		<span style="color:#a6e22e">ElectionTick</span>:              <span style="color:#ae81ff">10</span>,
+		<span style="color:#a6e22e">HeartbeatTick</span>:             <span style="color:#ae81ff">1</span>,
+		<span style="color:#a6e22e">Storage</span>:                   <span style="color:#a6e22e">rc</span>.<span style="color:#a6e22e">raftStorage</span>,
+		<span style="color:#a6e22e">MaxSizePerMsg</span>:             <span style="color:#ae81ff">1024</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">1024</span>,
+		<span style="color:#a6e22e">MaxInflightMsgs</span>:           <span style="color:#ae81ff">256</span>,
+		<span style="color:#75715e">// 默认unCommitted大小为 2^30=1G
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">MaxUncommittedEntriesSize</span>: <span style="color:#ae81ff">1</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">30</span>,
+	}
 </code></pre></div><h3 id="几个问题">几个问题</h3>
 <h4 id="选举不出来怎么办">选举不出来怎么办？</h4>
 <p>活着的<code>follower</code>不足，导致大家计票数都一样；比如3个节点，挂了一个，其他两个节点各得一票，无法胜出，怎么办呢？这个时候就会走超时逻辑，然后每个<code>follower</code>的选举随机计时器触发即可；</p>
@@ -391,31 +490,29 @@
 <p>不管投支持、反对票，都会将本地的投票计时器清0</p>
 </li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="k">case</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">MsgVote</span><span class="p">,</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">MsgPreVote</span><span class="p">:</span>
-		<span class="c1">// We can vote if this is a repeat of a vote we&#39;ve already cast...
-</span><span class="c1"></span>		<span class="nx">canVote</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Vote</span> <span class="o">==</span> <span class="nx">m</span><span class="p">.</span><span class="nx">From</span> <span class="o">||</span>
-			<span class="c1">// ...we haven&#39;t voted and we don&#39;t think there&#39;s a leader yet in this term...
-</span><span class="c1"></span>			<span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">Vote</span> <span class="o">==</span> <span class="nx">None</span> <span class="o">&amp;&amp;</span> <span class="nx">r</span><span class="p">.</span><span class="nx">lead</span> <span class="o">==</span> <span class="nx">None</span><span class="p">)</span> <span class="o">||</span>
-			<span class="c1">// ...or this is a PreVote for a future term...
-</span><span class="c1"></span>			<span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Type</span> <span class="o">==</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">MsgPreVote</span> <span class="o">&amp;&amp;</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Term</span> <span class="p">&gt;</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Term</span><span class="p">)</span>
-		<span class="c1">// ...and we believe the candidate is up to date.
-</span><span class="c1"></span>		<span class="c1">// 校验一下是不是最新的，
-</span><span class="c1"></span>		<span class="k">if</span> <span class="nx">canVote</span> <span class="o">&amp;&amp;</span> <span class="nx">r</span><span class="p">.</span><span class="nx">raftLog</span><span class="p">.</span><span class="nf">isUpToDate</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Index</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">LogTerm</span><span class="p">)</span> <span class="p">{</span>
-			<span class="nx">r</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="nx">pb</span><span class="p">.</span><span class="nx">Message</span><span class="p">{</span><span class="nx">To</span><span class="p">:</span> <span class="nx">m</span><span class="p">.</span><span class="nx">From</span><span class="p">,</span> <span class="nx">Term</span><span class="p">:</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Term</span><span class="p">,</span> <span class="nx">Type</span><span class="p">:</span> <span class="nf">voteRespMsgType</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Type</span><span class="p">)})</span>
-			<span class="k">if</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Type</span> <span class="o">==</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">MsgVote</span> <span class="p">{</span>
-				<span class="c1">// Only record real votes.
-</span><span class="c1"></span>				<span class="nx">r</span><span class="p">.</span><span class="nx">electionElapsed</span> <span class="p">=</span> <span class="mi">0</span>
-				<span class="nx">r</span><span class="p">.</span><span class="nx">Vote</span> <span class="p">=</span> <span class="nx">m</span><span class="p">.</span><span class="nx">From</span>
-			<span class="p">}</span>
-		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-			<span class="nx">r</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nf">Infof</span><span class="p">(</span><span class="s">&#34;%x [logterm: %d, index: %d, vote: %x] rejected %s from %x [logterm: %d, index: %d] at term %d&#34;</span><span class="p">,</span>
-				<span class="nx">r</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">r</span><span class="p">.</span><span class="nx">raftLog</span><span class="p">.</span><span class="nf">lastTerm</span><span class="p">(),</span> <span class="nx">r</span><span class="p">.</span><span class="nx">raftLog</span><span class="p">.</span><span class="nf">lastIndex</span><span class="p">(),</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Vote</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Type</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">From</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">LogTerm</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Index</span><span class="p">,</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Term</span><span class="p">)</span>
-			<span class="nx">r</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="nx">pb</span><span class="p">.</span><span class="nx">Message</span><span class="p">{</span><span class="nx">To</span><span class="p">:</span> <span class="nx">m</span><span class="p">.</span><span class="nx">From</span><span class="p">,</span> <span class="nx">Term</span><span class="p">:</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Term</span><span class="p">,</span> <span class="nx">Type</span><span class="p">:</span> <span class="nf">voteRespMsgType</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Type</span><span class="p">),</span> <span class="nx">Reject</span><span class="p">:</span> <span class="kc">true</span><span class="p">})</span>
-		<span class="p">}</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">case</span> <span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">MsgVote</span>, <span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">MsgPreVote</span>:
+		<span style="color:#75715e">// We can vote if this is a repeat of a vote we&#39;ve already cast...
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">canVote</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Vote</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">From</span> <span style="color:#f92672">||</span>
+			<span style="color:#75715e">// ...we haven&#39;t voted and we don&#39;t think there&#39;s a leader yet in this term...
+</span><span style="color:#75715e"></span>			(<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Vote</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">None</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">lead</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">None</span>) <span style="color:#f92672">||</span>
+			<span style="color:#75715e">// ...or this is a PreVote for a future term...
+</span><span style="color:#75715e"></span>			(<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Type</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">MsgPreVote</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Term</span> &gt; <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Term</span>)
+		<span style="color:#75715e">// ...and we believe the candidate is up to date.
+</span><span style="color:#75715e"></span>		<span style="color:#75715e">// 校验一下是不是最新的，
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">canVote</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">raftLog</span>.<span style="color:#a6e22e">isUpToDate</span>(<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Index</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">LogTerm</span>) {
+			<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">send</span>(<span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">Message</span>{<span style="color:#a6e22e">To</span>: <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">From</span>, <span style="color:#a6e22e">Term</span>: <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Term</span>, <span style="color:#a6e22e">Type</span>: <span style="color:#a6e22e">voteRespMsgType</span>(<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Type</span>)})
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Type</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">MsgVote</span> {
+				<span style="color:#75715e">// Only record real votes.
+</span><span style="color:#75715e"></span>				<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">electionElapsed</span> = <span style="color:#ae81ff">0</span>
+				<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Vote</span> = <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">From</span>
+			}
+		} <span style="color:#66d9ef">else</span> {
+			<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Infof</span>(<span style="color:#e6db74">&#34;%x [logterm: %d, index: %d, vote: %x] rejected %s from %x [logterm: %d, index: %d] at term %d&#34;</span>,
+				<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">id</span>, <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">raftLog</span>.<span style="color:#a6e22e">lastTerm</span>(), <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">raftLog</span>.<span style="color:#a6e22e">lastIndex</span>(), <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Vote</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Type</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">From</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">LogTerm</span>, <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Index</span>, <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Term</span>)
+			<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">send</span>(<span style="color:#a6e22e">pb</span>.<span style="color:#a6e22e">Message</span>{<span style="color:#a6e22e">To</span>: <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">From</span>, <span style="color:#a6e22e">Term</span>: <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Term</span>, <span style="color:#a6e22e">Type</span>: <span style="color:#a6e22e">voteRespMsgType</span>(<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Type</span>), <span style="color:#a6e22e">Reject</span>: <span style="color:#66d9ef">true</span>})
+		}
 </code></pre></div><h4 id="如何控制节点不发起投票">如何控制节点不发起投票</h4>
-<p>
-        <img class="mx-auto" alt="leader heartbeat" src="https://xibolun.github.io/img/etcd/etcd-election-heartbeat.jpg" />   
-    </p>
+<p><img src="/img/etcd/etcd-election-heartbeat.jpg" alt="leader heartbeat" loading="lazy" ></p>
 <p><code>leader</code>会向每个<code>follower</code>发一个心跳，每发一次就会将<code>follower</code>的投票计时器清0</p>
 <h4 id="来了新加节点怎么办">来了新加节点怎么办？</h4>
 <p>新加的节点默认是<code>follower</code>，此时它没有<code>leader</code>，<code>term</code>也会0，这时候会有两种情况</p>
@@ -425,301 +522,112 @@
 </ul>
 <h4 id="leader挂了怎么办">leader挂了怎么办？</h4>
 <p><code>leader</code>挂了，就不会再有心跳，<code>follower</code>进入选举过程；</p>
-<p>
-        <img class="mx-auto" alt="leader down" src="https://xibolun.github.io/img/etcd/etcd-election-leader-down.jpg" />   
-    </p>
+<p><img src="/img/etcd/etcd-election-leader-down.jpg" alt="leader down" loading="lazy" ></p>
 <h3 id="参考">参考</h3>
 <ul>
 <li><a href="http://thesecretlivesofdata.com/raft/">在线理解raft</a></li>
 </ul>
 
-        </div>
+    </div>
 
+    
+
+
+    <div class="post-tags">
         
-
-
-        
-
-<div class="post-archive">
-    <h2>See Also</h2>
-    <ul class="listing">
-        
-        <li><a href="https://xibolun.github.io/post/etcd/etcd%E5%85%A5%E9%97%A8/">etcd––入门</a></li>
-        
-    </ul>
-</div>
-
-
-        <div class="post-meta meta-tags">
+            <section>
+            <i class="iconfont icon-tag"></i>Tag(s):
             
-            <ul class="clearfix">
-                
-                <li><a href='https://xibolun.github.io/tags/etcd'>etcd</a></li>
-                
-            </ul>
+            <span class="tag"><a href="https://xibolun.github.io/tags/etcd/">
+                    #etcd</a></span>
             
-        </div>
-    </article>
-    
-    <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </section>
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> ·
+                <span><a href="https://xibolun.github.io">home</a></span>
+        </section>
+    </div>
 
-    
-    
-</div>
-
-                    <footer id="footer">
-    <div>
-        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+    <div class="post-nav">
+        
+        <a href="https://xibolun.github.io/post/etcd/etcd%E5%85%A5%E9%97%A8/" class="prev" rel="prev" title="etcd––入门"><i class="iconfont icon-left"></i>&nbsp;etcd––入门</a>
+        
+        
+        <a href="https://xibolun.github.io/post/etcd/etcd%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8B%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6/" class="next" rel="next" title="etcd––从源码看日志复制">etcd––从源码看日志复制&nbsp;<i class="iconfont icon-right"></i></a>
         
     </div>
-    <br />
-    <div>
-        <div class="github-badge">
-            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
-        </div>
-        <div class="github-badge">
-            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
-        </div>
+
+    <div class="post-comment">
+        
+            
+                <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.css">
+<script src="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.min.js"></script>
+<script>
+    const gitalk = new Gitalk({
+
+        clientID: '621dd77636c317069337',
+        clientSecret: '614d7596d823c41978f49c5434301ba8304da7d5',
+        repo: 'blog-commits',
+        owner: 'Mogeko',
+        admin: ['Mogeko'],
+        id: location.pathname, 
+        distractionFreeMode: false 
+    });
+    (function () {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('gitalk-container').innerHTML = 'Gitalk comments not available by default when the website is previewed locally.';
+            return;
+        }
+        gitalk.render('gitalk-container');
+    })();
+</script>
+
+            
+        
+    </div>
+</article>
+                </div>
+            </main>
+            <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2017 - 2021</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i>
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://xibolun.github.io">pengganyu</a> | </span>
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/Mogeko/Mogege" target="_blank" rel="external nofollow">Mogege</a></span>
     </div>
 </footer>
 
 
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
 
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-101106729-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script defer src="/js/vendor_main.min.js"></script>
 
 
 
 
 
 
-                </div>
 
-                <div id="secondary">
-    <section class="widget">
-        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">最近文章</h3>
-<ul class="widget-list">
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
-    </li>
-    
-</ul>
-    </section>
+<script src="https://cdn.jsdelivr.net/npm/pangu@4.0.7/dist/browser/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script> pangu.spacingPage();</script>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
-<ul class="widget-list">
-    
-    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/tool/">tool (10)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (11)</a></li>
-    
-</ul>
-    </section>
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
-<div class="tagcloud">
-    
-    <a href="https://xibolun.github.io/tags/about/">about</a>
-    
-    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
-    
-    <a href="https://xibolun.github.io/tags/css/">Css</a>
-    
-    <a href="https://xibolun.github.io/tags/curl/">curl</a>
-    
-    <a href="https://xibolun.github.io/tags/docker/">docker</a>
-    
-    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
-    
-    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
-    
-    <a href="https://xibolun.github.io/tags/git/">git</a>
-    
-    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
-    
-    <a href="https://xibolun.github.io/tags/go/">go</a>
-    
-    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
-    
-    <a href="https://xibolun.github.io/tags/istio/">istio</a>
-    
-    <a href="https://xibolun.github.io/tags/java/">java</a>
-    
-    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
-    
-    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
-    
-    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
-    
-    <a href="https://xibolun.github.io/tags/linux/">linux</a>
-    
-    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
-    
-    <a href="https://xibolun.github.io/tags/maven/">maven</a>
-    
-    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
-    
-    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
-    
-    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
-    
-    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
-    
-    <a href="https://xibolun.github.io/tags/python/">python</a>
-    
-    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/react/">react</a>
-    
-    <a href="https://xibolun.github.io/tags/redis/">redis</a>
-    
-    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
-    
-    <a href="https://xibolun.github.io/tags/spring/">spring</a>
-    
-    <a href="https://xibolun.github.io/tags/tool/">tool</a>
-    
-    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
-    
-    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6/">读书</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
-    
-</div>
-    </section>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title">其它</h3>
-        <ul class="widget-list">
-            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
-        </ul>
-    </section>
-</div>
-            </div>
         </div>
-    </div>
-</body>
-
+    </body>
 </html>

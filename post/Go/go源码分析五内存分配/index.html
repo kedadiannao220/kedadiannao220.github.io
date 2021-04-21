@@ -1,457 +1,372 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-
-    <title>Go源码分析(五)内存分配 | penggy Blog</title>
-    <meta property="og:title" content="Go源码分析(五)内存分配 - penggy Blog">
-    <meta property="og:type" content="article">
-        
-    <meta property="article:published_time" content='2019-09-20T22:52:32&#43;08:00'>
-        
-        
-    <meta property="article:modified_time" content='2019-09-20T22:52:32&#43;08:00'>
-        
-    <meta name="Keywords" content="">
-    <meta name="description" content="Go源码分析(五)内存分配">
-        
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noodp"/>
     <meta name="author" content="pengganyu">
-    <meta property="og:url" content="https://xibolun.github.io/post/go/go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%BA%94%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/">
-    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+    <meta name="description" content="Mogeko 的个人博客">
+    
+    
+    <link rel="prev" href="https://xibolun.github.io/post/kafka/kafka%E4%BA%8C%E6%93%8D%E4%BD%9C/" />
+    <link rel="next" href="https://xibolun.github.io/post/saltstack/saltstack%E4%B8%80%E5%88%9D%E6%8E%A2/" />
+    <link rel="canonical" href="https://xibolun.github.io/post/go/go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%BA%94%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <title>
+        
+        
+            Go源码分析(五)内存分配 | penggy blog
+        
+    </title>
+    <meta name="title" content="Go源码分析(五)内存分配 | penggy blog">
+    
+<link rel="stylesheet" href="/css/main.min.css">
 
-    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
-    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
-    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
     
-    
-    
-    
-    
-</head>
+ 
 
+<script type="application/ld+json">
+{
+    "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/xibolun.github.io"
+    },
+    "articleSection" : "post",
+    "name" : "Go源码分析(五)内存分配",
+    "headline" : "Go源码分析(五)内存分配",
+    "description" : "内存模型 分配逻辑 入口在 \/\/ src\/runtime\/malloc.go \/\/ implementation of new builtin \/\/ compiler (both frontend and SSA backend) knows the signature \/\/ of this function func newobject(typ *_type) unsafe.Pointer { return mallocgc(typ.size, typ, true) } mgallocgc里面主要看三个判断 c := gomcache() var x unsafe.Pointer noscan := typ ==",
+    "inLanguage" : "zh-cn",
+    "author" : "pengganyu",
+    "creator" : "pengganyu",
+    "publisher": "pengganyu",
+    "accountablePerson" : "pengganyu",
+    "copyrightHolder" : "pengganyu",
+    "copyrightYear" : "2019",
+    "datePublished": "2019-09-20 22:52:32 \u002b0800 CST",
+    "dateModified" : "2019-09-20 22:52:32 \u002b0800 CST",
+    "url" : "https:\/\/xibolun.github.io\/post\/go\/go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%BA%94%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D\/",
+    "wordCount" : "335",
+    "keywords" : [ "go", "penggy blog"]
+}
+</script>
 
-<body>
-    <header id="header" class="clearfix">
+  </head>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <body class="">
+        <div class="wrapper">
+            <nav class="navbar">
+    
+        <progress class="content_progress" max="0" value="0"></progress>
+    
     <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <a id="logo" href="https://xibolun.github.io">
-                        penggy Blog
-                    </a>
-                
-                
+        
+            <div class="navbar-header header-back2home-logo">
+                <span class="logo_mark" >>$</span>
+                <a href="https://xibolun.github.io">
+                    <span class="logo_text" >cd /home/</span>
+                    <span class="logo_cursor" ></span>
+                </a>
             </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://xibolun.github.io">首页</a>
+        
+        <div class="navbar-right">
+                
+                <span class="menu">
+                
+                <a class="menu-item" href="/post/" title="">Blog</a>
+                
+                <a class="menu-item" href="/tags/tool/" title="">Tools</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/books" title="">读书</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+                <span class="divide"></span>
+                <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a>
+                </span>
+        </div>
+    </div>
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
+    
+        <progress class="content_progress" max="0" value="0"></progress>
+    
+     <div class="container">
+        <div class="navbar">
+            <div class="navbar-header header-logo">
+                    <a href="https://xibolun.github.io">penggy blog</a>
+            </div>
+            <div class="navbar-right">
+                <div><a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a></div>
+                <div class="menu-toggle">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+     
+          <div class="menu" id="mobile-menu">
+                <nav class="mb-md">
                     
-                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
                     
-                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
+                        <a class="menu-item" href="/post/" title="">
+                            <h3>Blog</h3>
+                            <div class="menu-active"></div>
+                        </a>
                     
-                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
+                        <a class="menu-item" href="/tags/tool/" title="">
+                            <h3>Tools</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/categories/" title="">
+                            <h3>Categories</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/" title="">
+                            <h3>Tags</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/books" title="">
+                            <h3>读书</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/about/" title="">
+                            <h3>About</h3>
+                            <div class="menu-active"></div>
+                        </a>
                     
                 </nav>
-            </div>
         </div>
     </div>
-</header>
-
-    <div id="body">
-        <div class="container">
-            <div class="col-group">
-
-                <div class="col-8" id="main">
+</nav>
+            <main class="main">
+                <div class="container">
                     
-<div class="res-cons">
-    
-    <article class="post">
-        <header>
-            <h1 class="post-title">Go源码分析(五)内存分配</h1>
-        </header>
-        <date class="post-meta meta-date">
-            2019年9月20日
-        </date>
-        
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Go源码分析(五)内存分配</h1>
         <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a></span>
-            
+                
+                <span class="post-time">
+                    <time datetime=2019-09-20 itemprop="datePublished">2019-09-20</time>
+                </span>
+                
+                <i class="iconfont icon-folder"></i>
+                <span class="post-category">
+                        
+                        
+                        
+                          <a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/"> 技术文章, </a>
+                        
+                        
+                        
+                        
+                          <a href="https://xibolun.github.io/categories/go/"> go, </a>
+                        
+                        
+                </span>
+                <span class="post-word-count">335 words</span>
+                
+                ,
+                <span id="busuanzi_value_page_pv"></span>阅读
+                
         </div>
+    </header>
+
+    <div class="post-content">
+        
+
+        
+        
+
         
         
         
-        <div class="clear" style="display: none">
-            <div class="toc-article">
-                <div class="toc-title">文章目录</div>
-            </div>
-        </div>
         
-        <div class="post-content">
-            <h3 id="内存模型">内存模型</h3>
+        
+
+        
+        
+        
+
+        <h3 id="内存模型">内存模型</h3>
 <h3 id="分配逻辑">分配逻辑</h3>
 <p>入口在</p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// src/runtime/malloc.go
-</span><span class="c1">// implementation of new builtin
-</span><span class="c1">// compiler (both frontend and SSA backend) knows the signature
-</span><span class="c1">// of this function
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">newobject</span><span class="p">(</span><span class="nx">typ</span> <span class="o">*</span><span class="nx">_type</span><span class="p">)</span> <span class="nx">unsafe</span><span class="p">.</span><span class="nx">Pointer</span> <span class="p">{</span>
-	<span class="k">return</span> <span class="nf">mallocgc</span><span class="p">(</span><span class="nx">typ</span><span class="p">.</span><span class="nx">size</span><span class="p">,</span> <span class="nx">typ</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
-<span class="p">}</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// src/runtime/malloc.go
+</span><span style="color:#75715e">// implementation of new builtin
+</span><span style="color:#75715e">// compiler (both frontend and SSA backend) knows the signature
+</span><span style="color:#75715e">// of this function
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">newobject</span>(<span style="color:#a6e22e">typ</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">_type</span>) <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span> {
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">mallocgc</span>(<span style="color:#a6e22e">typ</span>.<span style="color:#a6e22e">size</span>, <span style="color:#a6e22e">typ</span>, <span style="color:#66d9ef">true</span>)
+}
 </code></pre></div><p><code>mgallocgc</code>里面主要看三个判断</p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="nx">c</span> <span class="o">:=</span> <span class="nf">gomcache</span><span class="p">()</span>
-	<span class="kd">var</span> <span class="nx">x</span> <span class="nx">unsafe</span><span class="p">.</span><span class="nx">Pointer</span>
-	<span class="nx">noscan</span> <span class="o">:=</span> <span class="nx">typ</span> <span class="o">==</span> <span class="kc">nil</span> <span class="o">||</span> <span class="nx">typ</span><span class="p">.</span><span class="nx">ptrdata</span> <span class="o">==</span> <span class="mi">0</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	<span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">gomcache</span>()
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">x</span> <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>
+	<span style="color:#a6e22e">noscan</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">typ</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">typ</span>.<span style="color:#a6e22e">ptrdata</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>
 	
-	<span class="c1">// maxSmallSize为32k
-</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">size</span> <span class="o">&lt;=</span> <span class="nx">maxSmallSize</span> <span class="p">{</span>
-	  <span class="c1">// 非指针，判断是否是小类型的对象，进行小类型分配 16byte
-</span><span class="c1"></span>	  <span class="c1">// 即mcache preP
-</span><span class="c1"></span>		<span class="k">if</span> <span class="nx">noscan</span> <span class="o">&amp;&amp;</span> <span class="nx">size</span> <span class="p">&lt;</span> <span class="nx">maxTinySize</span> <span class="p">{</span>
-					<span class="c1">// Tiny allocator.
-</span><span class="c1"></span>        <span class="c1">// 若小于 16byte，则走preP
-</span><span class="c1"></span>				<span class="k">if</span> <span class="nx">off</span><span class="o">+</span><span class="nx">size</span> <span class="o">&lt;=</span> <span class="nx">maxTinySize</span> <span class="o">&amp;&amp;</span> <span class="nx">c</span><span class="p">.</span><span class="nx">tiny</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">{</span>
-          <span class="c1">// The object fits into existing tiny block.
-</span><span class="c1"></span>          <span class="nx">x</span> <span class="p">=</span> <span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">tiny</span> <span class="o">+</span> <span class="nx">off</span><span class="p">)</span>
-          <span class="nx">c</span><span class="p">.</span><span class="nx">tinyoffset</span> <span class="p">=</span> <span class="nx">off</span> <span class="o">+</span> <span class="nx">size</span>
-          <span class="nx">c</span><span class="p">.</span><span class="nx">local_tinyallocs</span><span class="o">++</span>
-          <span class="nx">mp</span><span class="p">.</span><span class="nx">mallocing</span> <span class="p">=</span> <span class="mi">0</span>
-          <span class="nf">releasem</span><span class="p">(</span><span class="nx">mp</span><span class="p">)</span>
-          <span class="k">return</span> <span class="nx">x</span>
-        <span class="p">}</span>
-			<span class="c1">// Allocate a new maxTinySize block.
-</span><span class="c1"></span>			<span class="c1">// 走mspan的逻辑
-</span><span class="c1"></span>			<span class="nx">span</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">alloc</span><span class="p">[</span><span class="nx">tinySpanClass</span><span class="p">]</span>
-		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-		  <span class="c1">// 若不是小对象，则进入 mspan
-</span><span class="c1"></span>			<span class="kd">var</span> <span class="nx">sizeclass</span> <span class="kt">uint8</span>
-			<span class="c1">// 获取大小判断使用37个span当中哪一个
-</span><span class="c1"></span>			<span class="k">if</span> <span class="nx">size</span> <span class="o">&lt;=</span> <span class="nx">smallSizeMax</span><span class="o">-</span><span class="mi">8</span> <span class="p">{</span>
-				<span class="nx">sizeclass</span> <span class="p">=</span> <span class="nx">size_to_class8</span><span class="p">[(</span><span class="nx">size</span><span class="o">+</span><span class="nx">smallSizeDiv</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="nx">smallSizeDiv</span><span class="p">]</span>
-			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-				<span class="nx">sizeclass</span> <span class="p">=</span> <span class="nx">size_to_class128</span><span class="p">[(</span><span class="nx">size</span><span class="o">-</span><span class="nx">smallSizeMax</span><span class="o">+</span><span class="nx">largeSizeDiv</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="nx">largeSizeDiv</span><span class="p">]</span>
-			<span class="p">}</span>
-			<span class="nx">size</span> <span class="p">=</span> <span class="nb">uintptr</span><span class="p">(</span><span class="nx">class_to_size</span><span class="p">[</span><span class="nx">sizeclass</span><span class="p">])</span>
-			<span class="nx">spc</span> <span class="o">:=</span> <span class="nf">makeSpanClass</span><span class="p">(</span><span class="nx">sizeclass</span><span class="p">,</span> <span class="nx">noscan</span><span class="p">)</span>
-			<span class="c1">// 分配内存
-</span><span class="c1"></span>			<span class="nx">span</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">alloc</span><span class="p">[</span><span class="nx">spc</span><span class="p">]</span>
-			<span class="nx">v</span> <span class="o">:=</span> <span class="nf">nextFreeFast</span><span class="p">(</span><span class="nx">span</span><span class="p">)</span>
-
-			<span class="o">...</span><span class="p">.</span>
-		<span class="p">}</span>
-	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-		<span class="c1">// 大对象， 超过32k，进入largeAlloc，即mheap
-</span><span class="c1"></span>		<span class="kd">var</span> <span class="nx">s</span> <span class="o">*</span><span class="nx">mspan</span>
-		<span class="nx">shouldhelpgc</span> <span class="p">=</span> <span class="kc">true</span>
-		<span class="nf">systemstack</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-			<span class="nx">s</span> <span class="p">=</span> <span class="nf">largeAlloc</span><span class="p">(</span><span class="nx">size</span><span class="p">,</span> <span class="nx">needzero</span><span class="p">,</span> <span class="nx">noscan</span><span class="p">)</span>
-		<span class="p">})</span>
-		<span class="o">...</span>
-	<span class="p">}</span>
-</code></pre></div>
-        </div>
-
-        
-
-
-        
-
-<div class="post-archive">
-    <h2>See Also</h2>
-    <ul class="listing">
-        
-        <li><a href="https://xibolun.github.io/post/go/go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E5%9B%9B%E8%B0%83%E5%BA%A6%E5%99%A8/">Go源码分析(四)调度器</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/go/go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B8%89%E4%BB%8Emain.go%E5%BC%80%E5%A7%8B/">Go源码分析(三)从main.go开始</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/go/go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%BA%8Cdebug%E5%B7%A5%E5%85%B7/">Go源码分析(二)Debug工具</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/go/go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B8%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">Go源码分析(一)环境搭建</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/go/go-pprof/">Go pprof</a></li>
-        
-    </ul>
-</div>
-
-
-        <div class="post-meta meta-tags">
-            
-            <ul class="clearfix">
-                
-                <li><a href='https://xibolun.github.io/tags/go'>go</a></li>
-                
-            </ul>
-            
-        </div>
-    </article>
-    
-    <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
+	<span style="color:#75715e">// maxSmallSize为32k
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">size</span> <span style="color:#f92672">&lt;=</span> <span style="color:#a6e22e">maxSmallSize</span> {
+	  <span style="color:#75715e">// 非指针，判断是否是小类型的对象，进行小类型分配 16byte
+</span><span style="color:#75715e"></span>	  <span style="color:#75715e">// 即mcache preP
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">noscan</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">size</span> &lt; <span style="color:#a6e22e">maxTinySize</span> {
+					<span style="color:#75715e">// Tiny allocator.
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// 若小于 16byte，则走preP
+</span><span style="color:#75715e"></span>				<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">off</span><span style="color:#f92672">+</span><span style="color:#a6e22e">size</span> <span style="color:#f92672">&lt;=</span> <span style="color:#a6e22e">maxTinySize</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">tiny</span> <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span> {
+          <span style="color:#75715e">// The object fits into existing tiny block.
+</span><span style="color:#75715e"></span>          <span style="color:#a6e22e">x</span> = <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">tiny</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">off</span>)
+          <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">tinyoffset</span> = <span style="color:#a6e22e">off</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">size</span>
+          <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">local_tinyallocs</span><span style="color:#f92672">++</span>
+          <span style="color:#a6e22e">mp</span>.<span style="color:#a6e22e">mallocing</span> = <span style="color:#ae81ff">0</span>
+          <span style="color:#a6e22e">releasem</span>(<span style="color:#a6e22e">mp</span>)
+          <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">x</span>
         }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+			<span style="color:#75715e">// Allocate a new maxTinySize block.
+</span><span style="color:#75715e"></span>			<span style="color:#75715e">// 走mspan的逻辑
+</span><span style="color:#75715e"></span>			<span style="color:#a6e22e">span</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">alloc</span>[<span style="color:#a6e22e">tinySpanClass</span>]
+		} <span style="color:#66d9ef">else</span> {
+		  <span style="color:#75715e">// 若不是小对象，则进入 mspan
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">sizeclass</span> <span style="color:#66d9ef">uint8</span>
+			<span style="color:#75715e">// 获取大小判断使用37个span当中哪一个
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">size</span> <span style="color:#f92672">&lt;=</span> <span style="color:#a6e22e">smallSizeMax</span><span style="color:#f92672">-</span><span style="color:#ae81ff">8</span> {
+				<span style="color:#a6e22e">sizeclass</span> = <span style="color:#a6e22e">size_to_class8</span>[(<span style="color:#a6e22e">size</span><span style="color:#f92672">+</span><span style="color:#a6e22e">smallSizeDiv</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">/</span><span style="color:#a6e22e">smallSizeDiv</span>]
+			} <span style="color:#66d9ef">else</span> {
+				<span style="color:#a6e22e">sizeclass</span> = <span style="color:#a6e22e">size_to_class128</span>[(<span style="color:#a6e22e">size</span><span style="color:#f92672">-</span><span style="color:#a6e22e">smallSizeMax</span><span style="color:#f92672">+</span><span style="color:#a6e22e">largeSizeDiv</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">/</span><span style="color:#a6e22e">largeSizeDiv</span>]
+			}
+			<span style="color:#a6e22e">size</span> = uintptr(<span style="color:#a6e22e">class_to_size</span>[<span style="color:#a6e22e">sizeclass</span>])
+			<span style="color:#a6e22e">spc</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">makeSpanClass</span>(<span style="color:#a6e22e">sizeclass</span>, <span style="color:#a6e22e">noscan</span>)
+			<span style="color:#75715e">// 分配内存
+</span><span style="color:#75715e"></span>			<span style="color:#a6e22e">span</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">alloc</span>[<span style="color:#a6e22e">spc</span>]
+			<span style="color:#a6e22e">v</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">nextFreeFast</span>(<span style="color:#a6e22e">span</span>)
+
+			<span style="color:#f92672">...</span>.
+		}
+	} <span style="color:#66d9ef">else</span> {
+		<span style="color:#75715e">// 大对象， 超过32k，进入largeAlloc，即mheap
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">mspan</span>
+		<span style="color:#a6e22e">shouldhelpgc</span> = <span style="color:#66d9ef">true</span>
+		<span style="color:#a6e22e">systemstack</span>(<span style="color:#66d9ef">func</span>() {
+			<span style="color:#a6e22e">s</span> = <span style="color:#a6e22e">largeAlloc</span>(<span style="color:#a6e22e">size</span>, <span style="color:#a6e22e">needzero</span>, <span style="color:#a6e22e">noscan</span>)
+		})
+		<span style="color:#f92672">...</span>
+	}
+</code></pre></div>
+    </div>
 
     
-    
-</div>
 
-                    <footer id="footer">
-    <div>
-        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+
+    <div class="post-tags">
+        
+            <section>
+            <i class="iconfont icon-tag"></i>Tag(s):
+            
+            <span class="tag"><a href="https://xibolun.github.io/tags/go/">
+                    #go</a></span>
+            
+            </section>
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> ·
+                <span><a href="https://xibolun.github.io">home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav">
+        
+        <a href="https://xibolun.github.io/post/kafka/kafka%E4%BA%8C%E6%93%8D%E4%BD%9C/" class="prev" rel="prev" title="Kafka(二)操作"><i class="iconfont icon-left"></i>&nbsp;Kafka(二)操作</a>
+        
+        
+        <a href="https://xibolun.github.io/post/saltstack/saltstack%E4%B8%80%E5%88%9D%E6%8E%A2/" class="next" rel="next" title="SaltStack(一)初探">SaltStack(一)初探&nbsp;<i class="iconfont icon-right"></i></a>
         
     </div>
-    <br />
-    <div>
-        <div class="github-badge">
-            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
-        </div>
-        <div class="github-badge">
-            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
-        </div>
+
+    <div class="post-comment">
+        
+            
+                <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.css">
+<script src="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.min.js"></script>
+<script>
+    const gitalk = new Gitalk({
+
+        clientID: '621dd77636c317069337',
+        clientSecret: '614d7596d823c41978f49c5434301ba8304da7d5',
+        repo: 'blog-commits',
+        owner: 'Mogeko',
+        admin: ['Mogeko'],
+        id: location.pathname, 
+        distractionFreeMode: false 
+    });
+    (function () {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('gitalk-container').innerHTML = 'Gitalk comments not available by default when the website is previewed locally.';
+            return;
+        }
+        gitalk.render('gitalk-container');
+    })();
+</script>
+
+            
+        
+    </div>
+</article>
+                </div>
+            </main>
+            <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2017 - 2021</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i>
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://xibolun.github.io">pengganyu</a> | </span>
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/Mogeko/Mogege" target="_blank" rel="external nofollow">Mogege</a></span>
     </div>
 </footer>
 
 
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
 
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-101106729-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script defer src="/js/vendor_main.min.js"></script>
 
 
 
 
 
 
-                </div>
 
-                <div id="secondary">
-    <section class="widget">
-        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">最近文章</h3>
-<ul class="widget-list">
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
-    </li>
-    
-</ul>
-    </section>
+<script src="https://cdn.jsdelivr.net/npm/pangu@4.0.7/dist/browser/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script> pangu.spacingPage();</script>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
-<ul class="widget-list">
-    
-    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/tool/">tool (10)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (11)</a></li>
-    
-</ul>
-    </section>
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
-<div class="tagcloud">
-    
-    <a href="https://xibolun.github.io/tags/about/">about</a>
-    
-    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
-    
-    <a href="https://xibolun.github.io/tags/css/">Css</a>
-    
-    <a href="https://xibolun.github.io/tags/curl/">curl</a>
-    
-    <a href="https://xibolun.github.io/tags/docker/">docker</a>
-    
-    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
-    
-    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
-    
-    <a href="https://xibolun.github.io/tags/git/">git</a>
-    
-    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
-    
-    <a href="https://xibolun.github.io/tags/go/">go</a>
-    
-    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
-    
-    <a href="https://xibolun.github.io/tags/istio/">istio</a>
-    
-    <a href="https://xibolun.github.io/tags/java/">java</a>
-    
-    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
-    
-    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
-    
-    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
-    
-    <a href="https://xibolun.github.io/tags/linux/">linux</a>
-    
-    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
-    
-    <a href="https://xibolun.github.io/tags/maven/">maven</a>
-    
-    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
-    
-    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
-    
-    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
-    
-    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
-    
-    <a href="https://xibolun.github.io/tags/python/">python</a>
-    
-    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/react/">react</a>
-    
-    <a href="https://xibolun.github.io/tags/redis/">redis</a>
-    
-    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
-    
-    <a href="https://xibolun.github.io/tags/spring/">spring</a>
-    
-    <a href="https://xibolun.github.io/tags/tool/">tool</a>
-    
-    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
-    
-    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6/">读书</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
-    
-</div>
-    </section>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title">其它</h3>
-        <ul class="widget-list">
-            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
-        </ul>
-    </section>
-</div>
-            </div>
         </div>
-    </div>
-</body>
-
+    </body>
 </html>

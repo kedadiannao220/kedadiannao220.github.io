@@ -1,102 +1,207 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-
-    <title>Docker容器与容器云读书笔记（三）–Network | penggy Blog</title>
-    <meta property="og:title" content="Docker容器与容器云读书笔记（三）–Network - penggy Blog">
-    <meta property="og:type" content="article">
-        
-    <meta property="article:published_time" content='2020-05-29T09:13:38&#43;08:00'>
-        
-        
-    <meta property="article:modified_time" content='2020-05-29T09:13:38&#43;08:00'>
-        
-    <meta name="Keywords" content="">
-    <meta name="description" content="Docker容器与容器云读书笔记（三）–Network">
-        
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noodp"/>
     <meta name="author" content="pengganyu">
-    <meta property="og:url" content="https://xibolun.github.io/post/docker/docker%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%AE%B9%E5%99%A8%E4%BA%91%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%E4%B8%89network/">
-    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+    <meta name="description" content="Mogeko 的个人博客">
+    
+    
+    <link rel="prev" href="https://xibolun.github.io/post/docker/docker%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%AE%B9%E5%99%A8%E4%BA%91%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%E4%BA%8Ccgroup/" />
+    <link rel="next" href="https://xibolun.github.io/post/docker/docker%E8%BF%9B%E7%A8%8B/" />
+    <link rel="canonical" href="https://xibolun.github.io/post/docker/docker%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%AE%B9%E5%99%A8%E4%BA%91%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%E4%B8%89network/" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <title>
+        
+        
+            Docker容器与容器云读书笔记（三）–Network | penggy blog
+        
+    </title>
+    <meta name="title" content="Docker容器与容器云读书笔记（三）–Network | penggy blog">
+    
+<link rel="stylesheet" href="/css/main.min.css">
 
-    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
-    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
-    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
     
-    
-    
-    
-    
-</head>
+ 
 
+<script type="application/ld+json">
+{
+    "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/xibolun.github.io"
+    },
+    "articleSection" : "post",
+    "name" : "Docker容器与容器云读书笔记（三）–Network",
+    "headline" : "Docker容器与容器云读书笔记（三）–Network",
+    "description" : "网络基础 当启动docker的时候会默认创建一个docker0，这个便是和其他docker进行网络传输的网桥； docker0: flags=4099\u0026lt;UP,BROADCAST,MULTICAST\u0026gt; mtu 1500 inet 172.17.0.1 netmask 255.255.0.0 broadcast 0.0.0.0 ether 02:42:59:bf:40:e7 txqueuelen 0 (Ethernet) RX",
+    "inLanguage" : "zh-cn",
+    "author" : "pengganyu",
+    "creator" : "pengganyu",
+    "publisher": "pengganyu",
+    "accountablePerson" : "pengganyu",
+    "copyrightHolder" : "pengganyu",
+    "copyrightYear" : "2020",
+    "datePublished": "2020-05-29 09:13:38 \u002b0800 CST",
+    "dateModified" : "2020-05-29 09:13:38 \u002b0800 CST",
+    "url" : "https:\/\/xibolun.github.io\/post\/docker\/docker%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%AE%B9%E5%99%A8%E4%BA%91%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%E4%B8%89network\/",
+    "wordCount" : "1803",
+    "keywords" : [ "docker", "penggy blog"]
+}
+</script>
 
-<body>
-    <header id="header" class="clearfix">
+  </head>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <body class="">
+        <div class="wrapper">
+            <nav class="navbar">
+    
+        <progress class="content_progress" max="0" value="0"></progress>
+    
     <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <a id="logo" href="https://xibolun.github.io">
-                        penggy Blog
-                    </a>
-                
-                
+        
+            <div class="navbar-header header-back2home-logo">
+                <span class="logo_mark" >>$</span>
+                <a href="https://xibolun.github.io">
+                    <span class="logo_text" >cd /home/</span>
+                    <span class="logo_cursor" ></span>
+                </a>
             </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://xibolun.github.io">首页</a>
-                    
-                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
-                    
-                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
-                    
-                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
-                    
-                </nav>
-            </div>
+        
+        <div class="navbar-right">
+                
+                <span class="menu">
+                
+                <a class="menu-item" href="/post/" title="">Blog</a>
+                
+                <a class="menu-item" href="/tags/tool/" title="">Tools</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/books" title="">读书</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+                <span class="divide"></span>
+                <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a>
+                </span>
         </div>
     </div>
-</header>
-
-    <div id="body">
-        <div class="container">
-            <div class="col-group">
-
-                <div class="col-8" id="main">
-                    
-<div class="res-cons">
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">Docker容器与容器云读书笔记（三）–Network</h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年5月29日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://xibolun.github.io/categories/docker'>docker</a></span>
-            
-        </div>
-        
-        
-        
-        <div class="clear" style="display: none">
-            <div class="toc-article">
-                <div class="toc-title">文章目录</div>
+        <progress class="content_progress" max="0" value="0"></progress>
+    
+     <div class="container">
+        <div class="navbar">
+            <div class="navbar-header header-logo">
+                    <a href="https://xibolun.github.io">penggy blog</a>
+            </div>
+            <div class="navbar-right">
+                <div><a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a></div>
+                <div class="menu-toggle">
+                    <span></span><span></span><span></span>
+                </div>
             </div>
         </div>
+     
+          <div class="menu" id="mobile-menu">
+                <nav class="mb-md">
+                    
+                    
+                        <a class="menu-item" href="/post/" title="">
+                            <h3>Blog</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/tool/" title="">
+                            <h3>Tools</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/categories/" title="">
+                            <h3>Categories</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/" title="">
+                            <h3>Tags</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/books" title="">
+                            <h3>读书</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/about/" title="">
+                            <h3>About</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                </nav>
+        </div>
+    </div>
+</nav>
+            <main class="main">
+                <div class="container">
+                    
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Docker容器与容器云读书笔记（三）–Network</h1>
+        <div class="post-meta">
+                
+                <span class="post-time">
+                    <time datetime=2020-05-29 itemprop="datePublished">2020-05-29</time>
+                </span>
+                
+                <i class="iconfont icon-folder"></i>
+                <span class="post-category">
+                        
+                        
+                        
+                          <a href="https://xibolun.github.io/categories/docker/"> docker, </a>
+                        
+                        
+                </span>
+                <span class="post-word-count">1803 words</span>
+                
+                ,
+                <span id="busuanzi_value_page_pv"></span>阅读
+                
+        </div>
+    </header>
+
+    <div class="post-content">
         
-        <div class="post-content">
-            <h3 id="网络基础">网络基础</h3>
+
+        
+        
+
+        
+        
+        
+        
+        
+
+        
+        
+        
+
+        <h3 id="网络基础">网络基础</h3>
 <p>当启动<code>docker</code>的时候会默认创建一个<code>docker0</code>，这个便是和其他<code>docker</code>进行网络传输的网桥；</p>
 <pre><code>docker0: flags=4099&lt;UP,BROADCAST,MULTICAST&gt;  mtu 1500
         inet 172.17.0.1  netmask 255.255.0.0  broadcast 0.0.0.0
@@ -124,133 +229,133 @@ lo: flags=73&lt;UP,LOOPBACK,RUNNING&gt;  mtu 65536
         TX packets 64886  bytes 26146714 (24.9 MiB)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 </code></pre><p>你可以控制网卡的开启或关闭</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ifconfig docker0 down</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ifconfig docker0 up</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ifconfig docker0 down</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ifconfig docker0 up</span>
 </code></pre></div><p>默认的，<code>docker</code>自己也会自动创建三种网络，分别是<code>bridge</code>、<code>host</code>、<code>none</code></p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># docker network ls</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># docker network ls</span>
 NETWORK ID          NAME                DRIVER              SCOPE
-46b1a42ccb82        bridge              bridge              <span class="nb">local</span>
-6017ecfecfee        host                host                <span class="nb">local</span>
-5513d08af947        none                null                <span class="nb">local</span>
+46b1a42ccb82        bridge              bridge              local
+6017ecfecfee        host                host                local
+5513d08af947        none                null                local
 </code></pre></div><p><a href="https://github.com/moby/libnetwork/blob/master/docs/design.md">libnetwork</a>里面内置了<code>bridge driver</code>、<code>host driver</code>、<code>null driver</code>、<code>remote driver</code>、<code>overlay driver</code>；其中<code>overlay</code>的模式使用了vxlan的方式；</p>
 <p>这些网络都是由驱动创建出来的；在<code>docker</code>里面有好多的<code>driver</code>；你也可以自己写一个<code>driver</code>，只要实现<a href="https://github.com/moby/libnetwork/blob/master/driverapi/driverapi.go">driverapi</a>里面的方法即可，这就组成了<code>docker</code>的网络插件；</p>
 <h3 id="bridge原理">Bridge原理</h3>
 <p>前提需要保证，NETNS_LOCAL的属性为<code>off</code>，否则无法进行跨命名空间的操作；</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ethtool -k eth0 | grep netns-local</span>
-netns-local: off <span class="o">[</span>fixed<span class="o">]</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ethtool -k eth0 | grep netns-local</span>
+netns-local: off <span style="color:#f92672">[</span>fixed<span style="color:#f92672">]</span>
 </code></pre></div><p>创建两个<code>netns</code></p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip netns add ns1</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip netns add ns2</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip netns add ns1</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip netns add ns2</span>
 </code></pre></div><p>创建一个网桥</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link add br0 type bridge</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set br0 up</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link add br0 type bridge</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set br0 up</span>
 </code></pre></div><p>创建两对pair</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link add veth0 type veth peer name br-veth0</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link add veth1 type veth peer name br-veth1</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link add veth0 type veth peer name br-veth0</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link add veth1 type veth peer name br-veth1</span>
 </code></pre></div><p>将<code>veth0</code>放在<code>ns1</code>当中，<code>veth1</code>放在<code>ns</code>当中</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set veth0 netns ns1</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set veth1 netns ns2</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set veth0 netns ns1</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set veth1 netns ns2</span>
 </code></pre></div><p>将<code>br-veth0</code>和<code>br-veth1</code>分别设置在<code>br0</code>的网桥上面</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set br-veth0 master br0</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set br-veth1 master br0</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set br-veth0 up</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set br-veth1 up</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set br-veth0 master br0</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set br-veth1 master br0</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set br-veth0 up</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set br-veth1 up</span>
 </code></pre></div><p>设置IP地址到<code>veth0</code>和<code>veth1</code>上面</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip netns exec ns1 ip addr add 10.0.0.1/24 dev veth0</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip netns exec ns2 ip addr add 10.0.0.2/24 dev veth1</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip netns exec ns1 ip link set veth0 up</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip netns exec ns2 ip link set veth1 up</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip netns exec ns1 ip addr add 10.0.0.1/24 dev veth0</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip netns exec ns2 ip addr add 10.0.0.2/24 dev veth1</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip netns exec ns1 ip link set veth0 up</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip netns exec ns2 ip link set veth1 up</span>
 </code></pre></div><p>测试</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip netns exec ns1 ping 10.0.0.2</span>
-PING 10.0.0.2 <span class="o">(</span>10.0.0.2<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
-<span class="m">64</span> bytes from 10.0.0.2: <span class="nv">icmp_seq</span><span class="o">=</span><span class="m">1</span> <span class="nv">ttl</span><span class="o">=</span><span class="m">64</span> <span class="nv">time</span><span class="o">=</span>0.092 ms
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip netns exec ns1 ping 10.0.0.2</span>
+PING 10.0.0.2 <span style="color:#f92672">(</span>10.0.0.2<span style="color:#f92672">)</span> 56<span style="color:#f92672">(</span>84<span style="color:#f92672">)</span> bytes of data.
+<span style="color:#ae81ff">64</span> bytes from 10.0.0.2: icmp_seq<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> ttl<span style="color:#f92672">=</span><span style="color:#ae81ff">64</span> time<span style="color:#f92672">=</span>0.092 ms
 ^C
 --- 10.0.0.2 ping statistics ---
-<span class="m">1</span> packets transmitted, <span class="m">1</span> received, 0% packet loss, <span class="nb">time</span> 0ms
-rtt min/avg/max/mdev <span class="o">=</span> 0.092/0.092/0.092/0.000 ms
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip netns exec ns2 ping 10.0.0.1</span>
-PING 10.0.0.1 <span class="o">(</span>10.0.0.1<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
-<span class="m">64</span> bytes from 10.0.0.1: <span class="nv">icmp_seq</span><span class="o">=</span><span class="m">1</span> <span class="nv">ttl</span><span class="o">=</span><span class="m">64</span> <span class="nv">time</span><span class="o">=</span>0.063 ms
+<span style="color:#ae81ff">1</span> packets transmitted, <span style="color:#ae81ff">1</span> received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev <span style="color:#f92672">=</span> 0.092/0.092/0.092/0.000 ms
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip netns exec ns2 ping 10.0.0.1</span>
+PING 10.0.0.1 <span style="color:#f92672">(</span>10.0.0.1<span style="color:#f92672">)</span> 56<span style="color:#f92672">(</span>84<span style="color:#f92672">)</span> bytes of data.
+<span style="color:#ae81ff">64</span> bytes from 10.0.0.1: icmp_seq<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> ttl<span style="color:#f92672">=</span><span style="color:#ae81ff">64</span> time<span style="color:#f92672">=</span>0.063 ms
 </code></pre></div><p>两个Bridge的实现</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link add br0 type bridge</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link add br1 type bridge</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link add br1 type bridge^C</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link add br0-veth0 type veth peer name br1-veth0</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link add br0-veth1 type veth peer name br1-veth1</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set br0-veth0 master br0</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set br0-veth1 master br0</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set br1-veth0 master br1</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set br1-veth1 master br1</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip addr add 10.0.0.1/24 dev br0-veth0</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip addr add 10.0.0.1/24 dev br1-veth0</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip addr add 10.0.0.2/24 dev br0-veth1</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip addr add 10.0.0.2/24 dev br1-veth1</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set br0-veth0 up</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set br0-veth1 up</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set br1-veth0 up</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ip link set br1-veth1 up</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link add br0 type bridge</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link add br1 type bridge</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link add br1 type bridge^C</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link add br0-veth0 type veth peer name br1-veth0</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link add br0-veth1 type veth peer name br1-veth1</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set br0-veth0 master br0</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set br0-veth1 master br0</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set br1-veth0 master br1</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set br1-veth1 master br1</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip addr add 10.0.0.1/24 dev br0-veth0</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip addr add 10.0.0.1/24 dev br1-veth0</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip addr add 10.0.0.2/24 dev br0-veth1</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip addr add 10.0.0.2/24 dev br1-veth1</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set br0-veth0 up</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set br0-veth1 up</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set br1-veth0 up</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ip link set br1-veth1 up</span>
 </code></pre></div><h3 id="docker里面的bridge">Docker里面的Bridge</h3>
 <h4 id="使用docker0">使用<code>docker0</code></h4>
 <p>起一个容器</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># docker run -it --name container1  busybox</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># docker run -it --name container1  busybox</span>
 </code></pre></div><p>启动完成后，宿主机会多出来一个<code>veth</code>虚拟网卡</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">veth34fcc8f: <span class="nv">flags</span><span class="o">=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span class="m">1500</span>
-        inet6 fe80::34d0:4fff:fed0:fc04  prefixlen <span class="m">64</span>  scopeid 0x20&lt;link&gt;
-        ether 36:d0:4f:d0:fc:04  txqueuelen <span class="m">0</span>  <span class="o">(</span>Ethernet<span class="o">)</span>
-        RX packets <span class="m">8</span>  bytes <span class="m">656</span> <span class="o">(</span>656.0 B<span class="o">)</span>
-        RX errors <span class="m">0</span>  dropped <span class="m">0</span>  overruns <span class="m">0</span>  frame <span class="m">0</span>
-        TX packets <span class="m">16</span>  bytes <span class="m">1312</span> <span class="o">(</span>1.2 KiB<span class="o">)</span>
-        TX errors <span class="m">0</span>  dropped <span class="m">0</span> overruns <span class="m">0</span>  carrier <span class="m">0</span>  collisions <span class="m">0</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">veth34fcc8f: flags<span style="color:#f92672">=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span style="color:#ae81ff">1500</span>
+        inet6 fe80::34d0:4fff:fed0:fc04  prefixlen <span style="color:#ae81ff">64</span>  scopeid 0x20&lt;link&gt;
+        ether 36:d0:4f:d0:fc:04  txqueuelen <span style="color:#ae81ff">0</span>  <span style="color:#f92672">(</span>Ethernet<span style="color:#f92672">)</span>
+        RX packets <span style="color:#ae81ff">8</span>  bytes <span style="color:#ae81ff">656</span> <span style="color:#f92672">(</span>656.0 B<span style="color:#f92672">)</span>
+        RX errors <span style="color:#ae81ff">0</span>  dropped <span style="color:#ae81ff">0</span>  overruns <span style="color:#ae81ff">0</span>  frame <span style="color:#ae81ff">0</span>
+        TX packets <span style="color:#ae81ff">16</span>  bytes <span style="color:#ae81ff">1312</span> <span style="color:#f92672">(</span>1.2 KiB<span style="color:#f92672">)</span>
+        TX errors <span style="color:#ae81ff">0</span>  dropped <span style="color:#ae81ff">0</span> overruns <span style="color:#ae81ff">0</span>  carrier <span style="color:#ae81ff">0</span>  collisions <span style="color:#ae81ff">0</span>
 </code></pre></div><p>看看现在的网桥链路是怎么样的？</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># brctl show</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># brctl show</span>
 bridge name     bridge id               STP enabled     interfaces
 docker0         8000.024259bf40e7       no              veth34fcc8f
 </code></pre></div><p>容器里面的<code>etho0</code> &mdash;&gt; <code>veth34fcc8f</code> &mdash;&gt; <code>docker0</code> &mdash;-&gt; <code>etho</code></p>
 <p>也就是说，启动容器的时候，默认使用的网桥即为<code>docker0</code>，由于<code>docker0</code>是内置的，所以无法显式使用</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># docker run -it --name container1 --net docker0 busybox</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># docker run -it --name container1 --net docker0 busybox</span>
 /usr/bin/docker-current: Error response from daemon: network docker0 not found.
 </code></pre></div><h4 id="使用network-bridge">使用<code>network bridge</code></h4>
 <p>如果自己创建的网桥是怎么样的呢？</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># docker network create backend</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># docker network create backend</span>
 8ef64d30040c3f06938617bb08f8fed38e5d65ea3379ec46bc835e25eb3b9aa5
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># docker network create frontend</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># docker network create frontend</span>
 ac1f8effbeefd604ba2d4b91c1d10a3b0cea24e338ce72dedc99904e4b627891
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># docker network ls</span>
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># docker network ls</span>
 NETWORK ID          NAME                DRIVER              SCOPE
-8ef64d30040c        backend             bridge              <span class="nb">local</span>
-46b1a42ccb82        bridge              bridge              <span class="nb">local</span>
-ac1f8effbeef        frontend            bridge              <span class="nb">local</span>
-6017ecfecfee        host                host                <span class="nb">local</span>
-5513d08af947        none                null                <span class="nb">local</span>
-<span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># ifconfig</span>
-br-8ef64d30040c: <span class="nv">flags</span><span class="o">=</span>4099&lt;UP,BROADCAST,MULTICAST&gt;  mtu <span class="m">1500</span>
+8ef64d30040c        backend             bridge              local
+46b1a42ccb82        bridge              bridge              local
+ac1f8effbeef        frontend            bridge              local
+6017ecfecfee        host                host                local
+5513d08af947        none                null                local
+<span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ifconfig</span>
+br-8ef64d30040c: flags<span style="color:#f92672">=</span>4099&lt;UP,BROADCAST,MULTICAST&gt;  mtu <span style="color:#ae81ff">1500</span>
         inet 172.18.0.1  netmask 255.255.0.0  broadcast 0.0.0.0
-        ether 02:42:d7:03:f6:05  txqueuelen <span class="m">0</span>  <span class="o">(</span>Ethernet<span class="o">)</span>
-        RX packets <span class="m">0</span>  bytes <span class="m">0</span> <span class="o">(</span>0.0 B<span class="o">)</span>
-        RX errors <span class="m">0</span>  dropped <span class="m">0</span>  overruns <span class="m">0</span>  frame <span class="m">0</span>
-        TX packets <span class="m">0</span>  bytes <span class="m">0</span> <span class="o">(</span>0.0 B<span class="o">)</span>
-        TX errors <span class="m">0</span>  dropped <span class="m">0</span> overruns <span class="m">0</span>  carrier <span class="m">0</span>  collisions <span class="m">0</span>
+        ether 02:42:d7:03:f6:05  txqueuelen <span style="color:#ae81ff">0</span>  <span style="color:#f92672">(</span>Ethernet<span style="color:#f92672">)</span>
+        RX packets <span style="color:#ae81ff">0</span>  bytes <span style="color:#ae81ff">0</span> <span style="color:#f92672">(</span>0.0 B<span style="color:#f92672">)</span>
+        RX errors <span style="color:#ae81ff">0</span>  dropped <span style="color:#ae81ff">0</span>  overruns <span style="color:#ae81ff">0</span>  frame <span style="color:#ae81ff">0</span>
+        TX packets <span style="color:#ae81ff">0</span>  bytes <span style="color:#ae81ff">0</span> <span style="color:#f92672">(</span>0.0 B<span style="color:#f92672">)</span>
+        TX errors <span style="color:#ae81ff">0</span>  dropped <span style="color:#ae81ff">0</span> overruns <span style="color:#ae81ff">0</span>  carrier <span style="color:#ae81ff">0</span>  collisions <span style="color:#ae81ff">0</span>
 
-br-ac1f8effbeef: <span class="nv">flags</span><span class="o">=</span>4099&lt;UP,BROADCAST,MULTICAST&gt;  mtu <span class="m">1500</span>
+br-ac1f8effbeef: flags<span style="color:#f92672">=</span>4099&lt;UP,BROADCAST,MULTICAST&gt;  mtu <span style="color:#ae81ff">1500</span>
         inet 172.19.0.1  netmask 255.255.0.0  broadcast 0.0.0.0
-        ether 02:42:4d:5b:df:64  txqueuelen <span class="m">0</span>  <span class="o">(</span>Ethernet<span class="o">)</span>
-        RX packets <span class="m">0</span>  bytes <span class="m">0</span> <span class="o">(</span>0.0 B<span class="o">)</span>
-        RX errors <span class="m">0</span>  dropped <span class="m">0</span>  overruns <span class="m">0</span>  frame <span class="m">0</span>
-        TX packets <span class="m">0</span>  bytes <span class="m">0</span> <span class="o">(</span>0.0 B<span class="o">)</span>
-        TX errors <span class="m">0</span>  dropped <span class="m">0</span> overruns <span class="m">0</span>  carrier <span class="m">0</span>  collisions <span class="m">0</span>
+        ether 02:42:4d:5b:df:64  txqueuelen <span style="color:#ae81ff">0</span>  <span style="color:#f92672">(</span>Ethernet<span style="color:#f92672">)</span>
+        RX packets <span style="color:#ae81ff">0</span>  bytes <span style="color:#ae81ff">0</span> <span style="color:#f92672">(</span>0.0 B<span style="color:#f92672">)</span>
+        RX errors <span style="color:#ae81ff">0</span>  dropped <span style="color:#ae81ff">0</span>  overruns <span style="color:#ae81ff">0</span>  frame <span style="color:#ae81ff">0</span>
+        TX packets <span style="color:#ae81ff">0</span>  bytes <span style="color:#ae81ff">0</span> <span style="color:#f92672">(</span>0.0 B<span style="color:#f92672">)</span>
+        TX errors <span style="color:#ae81ff">0</span>  dropped <span style="color:#ae81ff">0</span> overruns <span style="color:#ae81ff">0</span>  carrier <span style="color:#ae81ff">0</span>  collisions <span style="color:#ae81ff">0</span>
 </code></pre></div><p>创建完<code>backend</code>、<code>frontend</code>后可以发现又多了两块网卡</p>
 <p>我们起动一个容器</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker run -it --name container1 --net backend busybox
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">docker run -it --name container1 --net backend busybox
 </code></pre></div><p>这个时候我们发现宿主机又多了一块网卡，它的ipv6地址与<code>backend</code>网络的<code>ipv6</code>在一个段内；</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">veth0edae48: <span class="nv">flags</span><span class="o">=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span class="m">1500</span>
-        inet6 fe80::587a:3fff:fe0b:df19  prefixlen <span class="m">64</span>  scopeid 0x20&lt;link&gt;
-        ether 5a:7a:3f:0b:df:19  txqueuelen <span class="m">0</span>  <span class="o">(</span>Ethernet<span class="o">)</span>
-        RX packets <span class="m">11</span>  bytes <span class="m">894</span> <span class="o">(</span>894.0 B<span class="o">)</span>
-        RX errors <span class="m">0</span>  dropped <span class="m">0</span>  overruns <span class="m">0</span>  frame <span class="m">0</span>
-        TX packets <span class="m">9</span>  bytes <span class="m">698</span> <span class="o">(</span>698.0 B<span class="o">)</span>
-        TX errors <span class="m">0</span>  dropped <span class="m">0</span> overruns <span class="m">0</span>  carrier <span class="m">0</span>  collisions <span class="m">0</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">veth0edae48: flags<span style="color:#f92672">=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span style="color:#ae81ff">1500</span>
+        inet6 fe80::587a:3fff:fe0b:df19  prefixlen <span style="color:#ae81ff">64</span>  scopeid 0x20&lt;link&gt;
+        ether 5a:7a:3f:0b:df:19  txqueuelen <span style="color:#ae81ff">0</span>  <span style="color:#f92672">(</span>Ethernet<span style="color:#f92672">)</span>
+        RX packets <span style="color:#ae81ff">11</span>  bytes <span style="color:#ae81ff">894</span> <span style="color:#f92672">(</span>894.0 B<span style="color:#f92672">)</span>
+        RX errors <span style="color:#ae81ff">0</span>  dropped <span style="color:#ae81ff">0</span>  overruns <span style="color:#ae81ff">0</span>  frame <span style="color:#ae81ff">0</span>
+        TX packets <span style="color:#ae81ff">9</span>  bytes <span style="color:#ae81ff">698</span> <span style="color:#f92672">(</span>698.0 B<span style="color:#f92672">)</span>
+        TX errors <span style="color:#ae81ff">0</span>  dropped <span style="color:#ae81ff">0</span> overruns <span style="color:#ae81ff">0</span>  carrier <span style="color:#ae81ff">0</span>  collisions <span style="color:#ae81ff">0</span>
 </code></pre></div><p>而容器里面的只有<code>eth0</code>，但是在上面添加了<code>172.18</code>和<code>fe80:42:</code>的网段</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">/ <span class="c1"># ifconfig</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">/ <span style="color:#75715e"># ifconfig</span>
 eth0      Link encap:Ethernet  HWaddr 02:42:AC:12:00:02
           inet addr:172.18.0.2  Bcast:0.0.0.0  Mask:255.255.0.0
           inet6 addr: fe80::42:acff:fe12:2/64 Scope:Link
@@ -258,7 +363,7 @@ eth0      Link encap:Ethernet  HWaddr 02:42:AC:12:00:02
           RX packets:9 errors:0 dropped:0 overruns:0 frame:0
           TX packets:11 errors:0 dropped:0 overruns:0 carrier:0
           collisions:0 txqueuelen:0
-          RX bytes:698 <span class="o">(</span>698.0 B<span class="o">)</span>  TX bytes:894 <span class="o">(</span>894.0 B<span class="o">)</span>
+          RX bytes:698 <span style="color:#f92672">(</span>698.0 B<span style="color:#f92672">)</span>  TX bytes:894 <span style="color:#f92672">(</span>894.0 B<span style="color:#f92672">)</span>
 
 lo        Link encap:Local Loopback
           inet addr:127.0.0.1  Mask:255.0.0.0
@@ -267,306 +372,115 @@ lo        Link encap:Local Loopback
           RX packets:0 errors:0 dropped:0 overruns:0 frame:0
           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
           collisions:0 txqueuelen:1000
-          RX bytes:0 <span class="o">(</span>0.0 B<span class="o">)</span>  TX bytes:0 <span class="o">(</span>0.0 B<span class="o">)</span>
+          RX bytes:0 <span style="color:#f92672">(</span>0.0 B<span style="color:#f92672">)</span>  TX bytes:0 <span style="color:#f92672">(</span>0.0 B<span style="color:#f92672">)</span>
 </code></pre></div><p>看一下现在的网桥链路</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>root@CloudBoot-dev-2-103 ~<span class="o">]</span><span class="c1"># brctl show</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@CloudBoot-dev-2-103 ~<span style="color:#f92672">]</span><span style="color:#75715e"># brctl show</span>
 bridge name             bridge id               STP enabled     interfaces
 br-8ef64d30040c         8000.0242d703f605       no              veth0edae48
 br-ac1f8effbeef         8000.02424d5bdf64       no
 docker0                 8000.024259bf40e7       no
 </code></pre></div><p>通讯方式是怎么样的呢？容器里面的<code>eth0</code> &mdash;&gt; <code>veth0edae48</code> &mdash;&gt; <code>br-8ef64d300f0c</code> &mdash;-&gt; <code>eth0</code>；使用自己定义的网络还是使用默认的风格都是一样的原理；容器外面需要有<code>veth</code>与里面的<code>eth0</code>进行通讯，外面需要有指定的网桥与宿主机的<code>eth0</code>进行通讯；</p>
 
-        </div>
+    </div>
 
-        
-
-
-        
-
-<div class="post-archive">
-    <h2>See Also</h2>
-    <ul class="listing">
-        
-        <li><a href="https://xibolun.github.io/post/docker/docker%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%AE%B9%E5%99%A8%E4%BA%91%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%E4%BA%8Ccgroup/">Docker容器与容器云读书笔记（二）–CGroup</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/docker/docker%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%AE%B9%E5%99%A8%E4%BA%91%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%E4%B8%80namespace/">Docker容器与容器云读书笔记（一）–Namespace</a></li>
-        
-        <li><a href="https://xibolun.github.io/post/docker/docker/">Docker学习</a></li>
-        
-    </ul>
-</div>
+    
 
 
-        <div class="post-meta meta-tags">
+    <div class="post-tags">
+        
+            <section>
+            <i class="iconfont icon-tag"></i>Tag(s):
             
-            <ul class="clearfix">
-                
-                <li><a href='https://xibolun.github.io/tags/docker'>docker</a></li>
-                
-            </ul>
+            <span class="tag"><a href="https://xibolun.github.io/tags/docker/">
+                    #docker</a></span>
             
-        </div>
-    </article>
-    
-    <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </section>
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> ·
+                <span><a href="https://xibolun.github.io">home</a></span>
+        </section>
+    </div>
 
-    
-    
-</div>
-
-                    <footer id="footer">
-    <div>
-        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+    <div class="post-nav">
+        
+        <a href="https://xibolun.github.io/post/docker/docker%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%AE%B9%E5%99%A8%E4%BA%91%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%E4%BA%8Ccgroup/" class="prev" rel="prev" title="Docker容器与容器云读书笔记（二）–CGroup"><i class="iconfont icon-left"></i>&nbsp;Docker容器与容器云读书笔记（二）–CGroup</a>
+        
+        
+        <a href="https://xibolun.github.io/post/docker/docker%E8%BF%9B%E7%A8%8B/" class="next" rel="next" title="Docker守护进程">Docker守护进程&nbsp;<i class="iconfont icon-right"></i></a>
         
     </div>
-    <br />
-    <div>
-        <div class="github-badge">
-            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
-        </div>
-        <div class="github-badge">
-            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
-        </div>
+
+    <div class="post-comment">
+        
+            
+                <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.css">
+<script src="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.min.js"></script>
+<script>
+    const gitalk = new Gitalk({
+
+        clientID: '621dd77636c317069337',
+        clientSecret: '614d7596d823c41978f49c5434301ba8304da7d5',
+        repo: 'blog-commits',
+        owner: 'Mogeko',
+        admin: ['Mogeko'],
+        id: location.pathname, 
+        distractionFreeMode: false 
+    });
+    (function () {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('gitalk-container').innerHTML = 'Gitalk comments not available by default when the website is previewed locally.';
+            return;
+        }
+        gitalk.render('gitalk-container');
+    })();
+</script>
+
+            
+        
+    </div>
+</article>
+                </div>
+            </main>
+            <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2017 - 2021</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i>
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://xibolun.github.io">pengganyu</a> | </span>
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/Mogeko/Mogege" target="_blank" rel="external nofollow">Mogege</a></span>
     </div>
 </footer>
 
 
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
 
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-101106729-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script defer src="/js/vendor_main.min.js"></script>
 
 
 
 
 
 
-                </div>
 
-                <div id="secondary">
-    <section class="widget">
-        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">最近文章</h3>
-<ul class="widget-list">
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
-    </li>
-    
-</ul>
-    </section>
+<script src="https://cdn.jsdelivr.net/npm/pangu@4.0.7/dist/browser/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script> pangu.spacingPage();</script>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
-<ul class="widget-list">
-    
-    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/tool/">tool (10)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (11)</a></li>
-    
-</ul>
-    </section>
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
-<div class="tagcloud">
-    
-    <a href="https://xibolun.github.io/tags/about/">about</a>
-    
-    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
-    
-    <a href="https://xibolun.github.io/tags/css/">Css</a>
-    
-    <a href="https://xibolun.github.io/tags/curl/">curl</a>
-    
-    <a href="https://xibolun.github.io/tags/docker/">docker</a>
-    
-    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
-    
-    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
-    
-    <a href="https://xibolun.github.io/tags/git/">git</a>
-    
-    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
-    
-    <a href="https://xibolun.github.io/tags/go/">go</a>
-    
-    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
-    
-    <a href="https://xibolun.github.io/tags/istio/">istio</a>
-    
-    <a href="https://xibolun.github.io/tags/java/">java</a>
-    
-    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
-    
-    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
-    
-    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
-    
-    <a href="https://xibolun.github.io/tags/linux/">linux</a>
-    
-    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
-    
-    <a href="https://xibolun.github.io/tags/maven/">maven</a>
-    
-    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
-    
-    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
-    
-    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
-    
-    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
-    
-    <a href="https://xibolun.github.io/tags/python/">python</a>
-    
-    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/react/">react</a>
-    
-    <a href="https://xibolun.github.io/tags/redis/">redis</a>
-    
-    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
-    
-    <a href="https://xibolun.github.io/tags/spring/">spring</a>
-    
-    <a href="https://xibolun.github.io/tags/tool/">tool</a>
-    
-    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
-    
-    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6/">读书</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
-    
-</div>
-    </section>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title">其它</h3>
-        <ul class="widget-list">
-            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
-        </ul>
-    </section>
-</div>
-            </div>
         </div>
-    </div>
-</body>
-
+    </body>
 </html>

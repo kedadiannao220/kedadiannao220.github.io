@@ -1,104 +1,209 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-
-    <title>MySql日常杂学 | penggy Blog</title>
-    <meta property="og:title" content="MySql日常杂学 - penggy Blog">
-    <meta property="og:type" content="article">
-        
-    <meta property="article:published_time" content='2017-04-27T23:36:24&#43;08:00'>
-        
-        
-    <meta property="article:modified_time" content='2020-02-24T23:50:38&#43;08:00'>
-        
-    <meta name="Keywords" content="">
-    <meta name="description" content="MySql日常杂学">
-        
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noodp"/>
     <meta name="author" content="pengganyu">
-    <meta property="og:url" content="https://xibolun.github.io/post/mysql/mysql/">
-    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+    <meta name="description" content="Mogeko 的个人博客">
+    
+    
+    <link rel="prev" href="https://xibolun.github.io/post/spring/spring-resttemplate/" />
+    <link rel="next" href="https://xibolun.github.io/post/tools/trash/" />
+    <link rel="canonical" href="https://xibolun.github.io/post/mysql/mysql/" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <title>
+        
+        
+            MySql日常杂学 | penggy blog
+        
+    </title>
+    <meta name="title" content="MySql日常杂学 | penggy blog">
+    
+<link rel="stylesheet" href="/css/main.min.css">
 
-    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
-    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
-    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
     
-    
-    
-    
-    
-</head>
+ 
 
+<script type="application/ld+json">
+{
+    "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/xibolun.github.io"
+    },
+    "articleSection" : "post",
+    "name" : "MySql日常杂学",
+    "headline" : "MySql日常杂学",
+    "description" : "MySql日常杂学 安装 wget -i -c http:\/\/dev.mysql.com\/get\/mysql57-community-release-el7-10.noarch.rpm yum -y install mysql57-community-release-el7-10.noarch.rpm yum -y install mysql-community-server 启动相关 \/etc\/init.d\/mysqld start \/etc\/init.d\/mysqld stop \/etc\/init.d\/mysqld restart service mysqld restart service mysqld stop service mysqld start 其他命令 mysql -uroot -pP@ssw0rd -h55.6.8.142 hf-csa --default-character-set=utf8 mysql -uoot -pP@ssw0rd hf-csa -default-character-set=utf8 \u0026lt; db_qdn672.sql mysqldump --opt --protocol=TCP --user=\u0027root\u0027 --password=\u0027P@ssw0rd\u0027 --host=\u002755.6.8.142\u0027 -all-databases --result-file=\u002720170619.sql\u0027 mysqldump --opt --protocol=TCP",
+    "inLanguage" : "zh-cn",
+    "author" : "pengganyu",
+    "creator" : "pengganyu",
+    "publisher": "pengganyu",
+    "accountablePerson" : "pengganyu",
+    "copyrightHolder" : "pengganyu",
+    "copyrightYear" : "2017",
+    "datePublished": "2017-04-27 23:36:24 \u002b0800 CST",
+    "dateModified" : "2017-04-27 23:36:24 \u002b0800 CST",
+    "url" : "https:\/\/xibolun.github.io\/post\/mysql\/mysql\/",
+    "wordCount" : "1595",
+    "keywords" : [ "mysql", "penggy blog"]
+}
+</script>
 
-<body>
-    <header id="header" class="clearfix">
+  </head>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <body class="">
+        <div class="wrapper">
+            <nav class="navbar">
+    
+        <progress class="content_progress" max="0" value="0"></progress>
+    
     <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <a id="logo" href="https://xibolun.github.io">
-                        penggy Blog
-                    </a>
-                
-                
+        
+            <div class="navbar-header header-back2home-logo">
+                <span class="logo_mark" >>$</span>
+                <a href="https://xibolun.github.io">
+                    <span class="logo_text" >cd /home/</span>
+                    <span class="logo_cursor" ></span>
+                </a>
             </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://xibolun.github.io">首页</a>
-                    
-                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
-                    
-                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
-                    
-                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
-                    
-                </nav>
-            </div>
+        
+        <div class="navbar-right">
+                
+                <span class="menu">
+                
+                <a class="menu-item" href="/post/" title="">Blog</a>
+                
+                <a class="menu-item" href="/tags/tool/" title="">Tools</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/books" title="">读书</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+                <span class="divide"></span>
+                <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a>
+                </span>
         </div>
     </div>
-</header>
-
-    <div id="body">
-        <div class="container">
-            <div class="col-group">
-
-                <div class="col-8" id="main">
-                    
-<div class="res-cons">
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">MySql日常杂学</h1>
-        </header>
-        <date class="post-meta meta-date">
-            2017年4月27日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a></span>
-            
-        </div>
-        
-        
-        
-        <div class="clear" style="display: none">
-            <div class="toc-article">
-                <div class="toc-title">文章目录</div>
+        <progress class="content_progress" max="0" value="0"></progress>
+    
+     <div class="container">
+        <div class="navbar">
+            <div class="navbar-header header-logo">
+                    <a href="https://xibolun.github.io">penggy blog</a>
+            </div>
+            <div class="navbar-right">
+                <div><a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a></div>
+                <div class="menu-toggle">
+                    <span></span><span></span><span></span>
+                </div>
             </div>
         </div>
+     
+          <div class="menu" id="mobile-menu">
+                <nav class="mb-md">
+                    
+                    
+                        <a class="menu-item" href="/post/" title="">
+                            <h3>Blog</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/tool/" title="">
+                            <h3>Tools</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/categories/" title="">
+                            <h3>Categories</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/" title="">
+                            <h3>Tags</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/books" title="">
+                            <h3>读书</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/about/" title="">
+                            <h3>About</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                </nav>
+        </div>
+    </div>
+</nav>
+            <main class="main">
+                <div class="container">
+                    
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">MySql日常杂学</h1>
+        <div class="post-meta">
+                
+                <span class="post-time">
+                    <time datetime=2017-04-27 itemprop="datePublished">2017-04-27</time>
+                </span>
+                
+                <i class="iconfont icon-folder"></i>
+                <span class="post-category">
+                        
+                        
+                        
+                          <a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/"> 技术文章, </a>
+                        
+                        
+                </span>
+                <span class="post-word-count">1595 words</span>
+                
+                ,
+                <span id="busuanzi_value_page_pv"></span>阅读
+                
+        </div>
+    </header>
+
+    <div class="post-content">
         
-        <div class="post-content">
-            <h1 id="mysql日常杂学">MySql日常杂学</h1>
+
+        
+        
+
+        
+        
+        
+        
+        
+
+        
+        
+        
+
+        <h1 id="mysql日常杂学">MySql日常杂学</h1>
 <h3 id="安装">安装</h3>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
 yum -y install mysql57-community-release-el7-10.noarch.rpm
 yum -y install mysql-community-server
 </code></pre></div><h2 id="启动相关">启动相关</h2>
@@ -164,8 +269,8 @@ SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'hf-csa'; // 查询
  SHOW TABLE STATUS where name like 'SRV_BP_APP_NODE_VER';    # 查看某表的状态
 
 </code></pre><h4 id="修改密码">修改密码</h4>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">UPDATE user SET <span class="nv">authentication_string</span> <span class="o">=</span> PASSWORD<span class="o">(</span><span class="s1">&#39;xxxxx&#39;</span><span class="o">)</span> WHERE <span class="nv">User</span> <span class="o">=</span> <span class="s1">&#39;root&#39;</span> AND <span class="nv">Host</span> <span class="o">=</span> <span class="s1">&#39;%&#39;</span><span class="p">;</span>
-UPDATE user SET <span class="nv">authentication_string</span> <span class="o">=</span> PASSWORD<span class="o">(</span><span class="s1">&#39;xxxxx&#39;</span><span class="o">)</span> WHERE <span class="nv">User</span> <span class="o">=</span> <span class="s1">&#39;root&#39;</span> AND <span class="nv">Host</span> <span class="o">=</span> <span class="s1">&#39;localhost&#39;</span><span class="p">;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">UPDATE user SET authentication_string <span style="color:#f92672">=</span> PASSWORD<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;xxxxx&#39;</span><span style="color:#f92672">)</span> WHERE User <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;root&#39;</span> AND Host <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;%&#39;</span>;
+UPDATE user SET authentication_string <span style="color:#f92672">=</span> PASSWORD<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;xxxxx&#39;</span><span style="color:#f92672">)</span> WHERE User <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;root&#39;</span> AND Host <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;localhost&#39;</span>;
 FLUSH PRIVILEGES
 </code></pre></div><h2 id="语法相关">语法相关</h2>
 <h3 id="left-joinright-join-inner-join">LEFT JOIN，RIGHT JOIN, INNER JOIN</h3>
@@ -185,11 +290,11 @@ lsof -i:3306
 # 查看mysql的进程，同时可以看到mysql的一些文件位置
 ps ax | grep mysqld 
 </code></pre><h3 id="设置允许远程连接">设置允许远程连接</h3>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">GRANT</span> <span class="k">ALL</span> <span class="k">PRIVILEGES</span> <span class="k">ON</span> <span class="o">*</span><span class="p">.</span><span class="o">*</span> <span class="k">TO</span> <span class="s1">&#39;root&#39;</span><span class="o">@</span><span class="s1">&#39;%&#39;</span> <span class="n">IDENTIFIED</span> <span class="k">BY</span> <span class="s1">&#39;Yunjikeji@123&#39;</span> <span class="k">WITH</span> <span class="k">GRANT</span> <span class="k">OPTION</span><span class="p">;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">GRANT</span> <span style="color:#66d9ef">ALL</span> <span style="color:#66d9ef">PRIVILEGES</span> <span style="color:#66d9ef">ON</span> <span style="color:#f92672">*</span>.<span style="color:#f92672">*</span> <span style="color:#66d9ef">TO</span> <span style="color:#e6db74">&#39;root&#39;</span><span style="color:#f92672">@</span><span style="color:#e6db74">&#39;%&#39;</span> IDENTIFIED <span style="color:#66d9ef">BY</span> <span style="color:#e6db74">&#39;Yunjikeji@123&#39;</span> <span style="color:#66d9ef">WITH</span> <span style="color:#66d9ef">GRANT</span> <span style="color:#66d9ef">OPTION</span>;
 
-<span class="k">update</span> <span class="k">user</span> <span class="k">set</span> <span class="n">authentication_string</span><span class="o">=</span><span class="n">PASSWORD</span><span class="p">(</span><span class="s2">&#34;Yunjikeji#123&#34;</span><span class="p">)</span> <span class="k">where</span> <span class="k">User</span><span class="o">=</span><span class="s1">&#39;root&#39;</span><span class="p">;</span>
+<span style="color:#66d9ef">update</span> <span style="color:#66d9ef">user</span> <span style="color:#66d9ef">set</span> authentication_string<span style="color:#f92672">=</span>PASSWORD(<span style="color:#e6db74">&#34;Yunjikeji#123&#34;</span>) <span style="color:#66d9ef">where</span> <span style="color:#66d9ef">User</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#39;root&#39;</span>;
 
-<span class="n">FLUSH</span> <span class="k">PRIVILEGES</span><span class="p">;</span>
+FLUSH <span style="color:#66d9ef">PRIVILEGES</span>;
 </code></pre></div><h3 id="error-1045-28000-access-denied-for-user-rootlocalhost-using-password-yes">ERROR 1045 (28000): Access denied for user &lsquo;root&rsquo;@&lsquo;localhost&rsquo; (using password: YES)</h3>
 <pre><code class="language-{.mysql}" data-lang="{.mysql}">-- 进入安全模式
 ➜  ~ mysqld_safe --skip-grant-tables &amp;
@@ -246,304 +351,126 @@ sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
 <li><a href="https://www.aneasystone.com/archives/2017/10/solving-dead-locks-one.html">解决死锁之路（终结篇） - 再见死锁</a></li>
 </ul>
 <h4 id="一个存储过程">一个存储过程</h4>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql">
-<span class="k">DELIMITER</span> <span class="p">;;</span>
-<span class="k">DROP</span> <span class="k">PROCEDURE</span> <span class="k">IF</span> <span class="k">EXISTS</span> <span class="n">DisinctInsp</span><span class="p">;</span>
-<span class="k">CREATE</span> <span class="k">PROCEDURE</span> <span class="n">DisinctInsp</span><span class="p">()</span>
-<span class="k">BEGIN</span>
-  <span class="k">DECLARE</span> <span class="n">sns</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">64</span><span class="p">);</span>
-	<span class="k">DECLARE</span> <span class="n">cur1</span> <span class="k">CURSOR</span> <span class="k">FOR</span> <span class="k">SELECT</span> <span class="n">sn</span> <span class="k">FROM</span> <span class="n">inspection</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">sn</span><span class="p">;</span>
-	<span class="k">OPEN</span> <span class="n">cur1</span><span class="p">;</span>
-	<span class="n">map_loop</span><span class="p">:</span>
-		<span class="n">LOOP</span>
-			<span class="k">FETCH</span> <span class="n">cur1</span> <span class="k">INTO</span> <span class="n">sns</span><span class="p">;</span>
-			<span class="k">DELETE</span> <span class="k">FROM</span> <span class="n">inspection_latest</span> <span class="k">WHERE</span> <span class="n">sn</span> <span class="o">=</span> <span class="n">sns</span> <span class="k">AND</span> <span class="n">id</span> <span class="o">!=</span> <span class="p">(</span><span class="k">SELECT</span> <span class="k">max</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">inspection</span> <span class="k">WHERE</span> <span class="n">sn</span> <span class="o">=</span> <span class="n">sns</span><span class="p">);</span>
-		<span class="k">END</span> <span class="n">LOOP</span> <span class="n">map_loop</span><span class="p">;</span>
-<span class="k">END</span><span class="p">;</span>
-<span class="k">DELIMITER</span> <span class="p">;;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
+<span style="color:#66d9ef">DELIMITER</span> ;;
+<span style="color:#66d9ef">DROP</span> <span style="color:#66d9ef">PROCEDURE</span> <span style="color:#66d9ef">IF</span> <span style="color:#66d9ef">EXISTS</span> DisinctInsp;
+<span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">PROCEDURE</span> DisinctInsp()
+<span style="color:#66d9ef">BEGIN</span>
+  <span style="color:#66d9ef">DECLARE</span> sns varchar(<span style="color:#ae81ff">64</span>);
+	<span style="color:#66d9ef">DECLARE</span> cur1 <span style="color:#66d9ef">CURSOR</span> <span style="color:#66d9ef">FOR</span> <span style="color:#66d9ef">SELECT</span> sn <span style="color:#66d9ef">FROM</span> inspection <span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> sn;
+	<span style="color:#66d9ef">OPEN</span> cur1;
+	map_loop:
+		LOOP
+			<span style="color:#66d9ef">FETCH</span> cur1 <span style="color:#66d9ef">INTO</span> sns;
+			<span style="color:#66d9ef">DELETE</span> <span style="color:#66d9ef">FROM</span> inspection_latest <span style="color:#66d9ef">WHERE</span> sn <span style="color:#f92672">=</span> sns <span style="color:#66d9ef">AND</span> id <span style="color:#f92672">!=</span> (<span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">max</span>(id) <span style="color:#66d9ef">FROM</span> inspection <span style="color:#66d9ef">WHERE</span> sn <span style="color:#f92672">=</span> sns);
+		<span style="color:#66d9ef">END</span> LOOP map_loop;
+<span style="color:#66d9ef">END</span>;
+<span style="color:#66d9ef">DELIMITER</span> ;;
 
 
-<span class="k">CALL</span> <span class="n">DisinctInsp</span><span class="p">;</span>
+<span style="color:#66d9ef">CALL</span> DisinctInsp;
 
 </code></pre></div>
-        </div>
+    </div>
 
+    
+
+
+    <div class="post-tags">
         
-
-
+            <section>
+            <i class="iconfont icon-tag"></i>Tag(s):
+            
+            <span class="tag"><a href="https://xibolun.github.io/tags/mysql/">
+                    #mysql</a></span>
+            
+            </section>
         
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> ·
+                <span><a href="https://xibolun.github.io">home</a></span>
+        </section>
+    </div>
 
-
-        <div class="post-meta meta-tags">
-            
-            <ul class="clearfix">
-                
-                <li><a href='https://xibolun.github.io/tags/mysql'>mysql</a></li>
-                
-            </ul>
-            
-        </div>
-    </article>
-    
-    <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
-    
-    
-</div>
-
-                    <footer id="footer">
-    <div>
-        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+    <div class="post-nav">
+        
+        <a href="https://xibolun.github.io/post/spring/spring-resttemplate/" class="prev" rel="prev" title="Spring-RestTemplate"><i class="iconfont icon-left"></i>&nbsp;Spring-RestTemplate</a>
+        
+        
+        <a href="https://xibolun.github.io/post/tools/trash/" class="next" rel="next" title="mac避免rm -rf悲剧">mac避免rm -rf悲剧&nbsp;<i class="iconfont icon-right"></i></a>
         
     </div>
-    <br />
-    <div>
-        <div class="github-badge">
-            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
-        </div>
-        <div class="github-badge">
-            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
-        </div>
+
+    <div class="post-comment">
+        
+            
+                <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.css">
+<script src="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.min.js"></script>
+<script>
+    const gitalk = new Gitalk({
+
+        clientID: '621dd77636c317069337',
+        clientSecret: '614d7596d823c41978f49c5434301ba8304da7d5',
+        repo: 'blog-commits',
+        owner: 'Mogeko',
+        admin: ['Mogeko'],
+        id: location.pathname, 
+        distractionFreeMode: false 
+    });
+    (function () {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('gitalk-container').innerHTML = 'Gitalk comments not available by default when the website is previewed locally.';
+            return;
+        }
+        gitalk.render('gitalk-container');
+    })();
+</script>
+
+            
+        
+    </div>
+</article>
+                </div>
+            </main>
+            <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2017 - 2021</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i>
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://xibolun.github.io">pengganyu</a> | </span>
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/Mogeko/Mogege" target="_blank" rel="external nofollow">Mogege</a></span>
     </div>
 </footer>
 
 
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
 
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-101106729-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script defer src="/js/vendor_main.min.js"></script>
 
 
 
 
 
 
-                </div>
 
-                <div id="secondary">
-    <section class="widget">
-        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">最近文章</h3>
-<ul class="widget-list">
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
-    </li>
-    
-</ul>
-    </section>
+<script src="https://cdn.jsdelivr.net/npm/pangu@4.0.7/dist/browser/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script> pangu.spacingPage();</script>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
-<ul class="widget-list">
-    
-    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/tool/">tool (10)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (11)</a></li>
-    
-</ul>
-    </section>
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
-<div class="tagcloud">
-    
-    <a href="https://xibolun.github.io/tags/about/">about</a>
-    
-    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
-    
-    <a href="https://xibolun.github.io/tags/css/">Css</a>
-    
-    <a href="https://xibolun.github.io/tags/curl/">curl</a>
-    
-    <a href="https://xibolun.github.io/tags/docker/">docker</a>
-    
-    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
-    
-    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
-    
-    <a href="https://xibolun.github.io/tags/git/">git</a>
-    
-    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
-    
-    <a href="https://xibolun.github.io/tags/go/">go</a>
-    
-    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
-    
-    <a href="https://xibolun.github.io/tags/istio/">istio</a>
-    
-    <a href="https://xibolun.github.io/tags/java/">java</a>
-    
-    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
-    
-    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
-    
-    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
-    
-    <a href="https://xibolun.github.io/tags/linux/">linux</a>
-    
-    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
-    
-    <a href="https://xibolun.github.io/tags/maven/">maven</a>
-    
-    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
-    
-    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
-    
-    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
-    
-    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
-    
-    <a href="https://xibolun.github.io/tags/python/">python</a>
-    
-    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/react/">react</a>
-    
-    <a href="https://xibolun.github.io/tags/redis/">redis</a>
-    
-    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
-    
-    <a href="https://xibolun.github.io/tags/spring/">spring</a>
-    
-    <a href="https://xibolun.github.io/tags/tool/">tool</a>
-    
-    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
-    
-    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6/">读书</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
-    
-</div>
-    </section>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title">其它</h3>
-        <ul class="widget-list">
-            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
-        </ul>
-    </section>
-</div>
-            </div>
         </div>
-    </div>
-</body>
-
+    </body>
 </html>

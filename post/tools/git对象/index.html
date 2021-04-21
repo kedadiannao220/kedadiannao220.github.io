@@ -1,110 +1,215 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-
-    <title>Git对象 | penggy Blog</title>
-    <meta property="og:title" content="Git对象 - penggy Blog">
-    <meta property="og:type" content="article">
-        
-    <meta property="article:published_time" content='2020-10-10T16:58:14&#43;08:00'>
-        
-        
-    <meta property="article:modified_time" content='2020-10-10T16:58:14&#43;08:00'>
-        
-    <meta name="Keywords" content="">
-    <meta name="description" content="Git对象">
-        
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noodp"/>
     <meta name="author" content="pengganyu">
-    <meta property="og:url" content="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/">
-    <link rel="shortcut icon" href='https://xibolun.github.io/favicon.ico'  type="image/x-icon">
+    <meta name="description" content="Mogeko 的个人博客">
+    
+    
+    <link rel="prev" href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" />
+    <link rel="next" href="https://xibolun.github.io/post/tools/codeql/" />
+    <link rel="canonical" href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <title>
+        
+        
+            Git对象 | penggy blog
+        
+    </title>
+    <meta name="title" content="Git对象 | penggy blog">
+    
+<link rel="stylesheet" href="/css/main.min.css">
 
-    <link rel="stylesheet" href='https://xibolun.github.io/css/normalize.css'>
-    <link rel="stylesheet" href='https://xibolun.github.io/css/style.css'>
-    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
     
-    
-    
-    
-    
-</head>
+ 
 
+<script type="application/ld+json">
+{
+    "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/xibolun.github.io"
+    },
+    "articleSection" : "post",
+    "name" : "Git对象",
+    "headline" : "Git对象",
+    "description" : "一个常规操作 先看一个常规的操作； mkdir \/tmp\/common cd \/tmp\/common git init echo \u0026#34;text content\u0026#34; \u0026gt; test.txt git add . 上述几个命令就是创建一个目录，并将其初始化为git工程，添加一个文件，然后使用g",
+    "inLanguage" : "zh-cn",
+    "author" : "pengganyu",
+    "creator" : "pengganyu",
+    "publisher": "pengganyu",
+    "accountablePerson" : "pengganyu",
+    "copyrightHolder" : "pengganyu",
+    "copyrightYear" : "2020",
+    "datePublished": "2020-10-10 16:58:14 \u002b0800 CST",
+    "dateModified" : "2020-10-10 16:58:14 \u002b0800 CST",
+    "url" : "https:\/\/xibolun.github.io\/post\/tools\/git%E5%AF%B9%E8%B1%A1\/",
+    "wordCount" : "1084",
+    "keywords" : [ "git", "penggy blog"]
+}
+</script>
 
-<body>
-    <header id="header" class="clearfix">
+  </head>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <body class="">
+        <div class="wrapper">
+            <nav class="navbar">
+    
+        <progress class="content_progress" max="0" value="0"></progress>
+    
     <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <a id="logo" href="https://xibolun.github.io">
-                        penggy Blog
-                    </a>
-                
-                
+        
+            <div class="navbar-header header-back2home-logo">
+                <span class="logo_mark" >>$</span>
+                <a href="https://xibolun.github.io">
+                    <span class="logo_text" >cd /home/</span>
+                    <span class="logo_cursor" ></span>
+                </a>
             </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://xibolun.github.io">首页</a>
-                    
-                    <a  href="https://xibolun.github.io/books/readbooklist/" title="读书">读书</a>
-                    
-                    <a  href="https://xibolun.github.io/archives/" title="归档">归档</a>
-                    
-                    <a  href="https://xibolun.github.io/about/" title="关于">关于</a>
-                    
-                </nav>
-            </div>
+        
+        <div class="navbar-right">
+                
+                <span class="menu">
+                
+                <a class="menu-item" href="/post/" title="">Blog</a>
+                
+                <a class="menu-item" href="/tags/tool/" title="">Tools</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/books" title="">读书</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+                <span class="divide"></span>
+                <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a>
+                </span>
         </div>
     </div>
-</header>
-
-    <div id="body">
-        <div class="container">
-            <div class="col-group">
-
-                <div class="col-8" id="main">
-                    
-<div class="res-cons">
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">Git对象</h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年10月10日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0'>技术文章</a></span>
-            
-        </div>
-        
-        
-        
-        <div class="clear" style="display: none">
-            <div class="toc-article">
-                <div class="toc-title">文章目录</div>
+        <progress class="content_progress" max="0" value="0"></progress>
+    
+     <div class="container">
+        <div class="navbar">
+            <div class="navbar-header header-logo">
+                    <a href="https://xibolun.github.io">penggy blog</a>
+            </div>
+            <div class="navbar-right">
+                <div><a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-dark-mode"></i></a></div>
+                <div class="menu-toggle">
+                    <span></span><span></span><span></span>
+                </div>
             </div>
         </div>
+     
+          <div class="menu" id="mobile-menu">
+                <nav class="mb-md">
+                    
+                    
+                        <a class="menu-item" href="/post/" title="">
+                            <h3>Blog</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/tool/" title="">
+                            <h3>Tools</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/categories/" title="">
+                            <h3>Categories</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/tags/" title="">
+                            <h3>Tags</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/books" title="">
+                            <h3>读书</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                        <a class="menu-item" href="/about/" title="">
+                            <h3>About</h3>
+                            <div class="menu-active"></div>
+                        </a>
+                    
+                </nav>
+        </div>
+    </div>
+</nav>
+            <main class="main">
+                <div class="container">
+                    
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Git对象</h1>
+        <div class="post-meta">
+                
+                <span class="post-time">
+                    <time datetime=2020-10-10 itemprop="datePublished">2020-10-10</time>
+                </span>
+                
+                <i class="iconfont icon-folder"></i>
+                <span class="post-category">
+                        
+                        
+                        
+                          <a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/"> 技术文章, </a>
+                        
+                        
+                </span>
+                <span class="post-word-count">1084 words</span>
+                
+                ,
+                <span id="busuanzi_value_page_pv"></span>阅读
+                
+        </div>
+    </header>
+
+    <div class="post-content">
         
-        <div class="post-content">
-            <h3 id="一个常规操作">一个常规操作</h3>
+
+        
+        
+
+        
+        
+        
+        
+        
+
+        
+        
+        
+
+        <h3 id="一个常规操作">一个常规操作</h3>
 <p>先看一个常规的操作；</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">mkdir /tmp/common
-<span class="nb">cd</span> /tmp/common
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">mkdir /tmp/common
+cd /tmp/common
 git init
-<span class="nb">echo</span> <span class="s2">&#34;text content&#34;</span> &gt; test.txt
+echo <span style="color:#e6db74">&#34;text content&#34;</span> &gt; test.txt
 git add .
 </code></pre></div><p>上述几个命令就是创建一个目录，并将其初始化为git工程，添加一个文件，然后使用<code>git add</code>添加至缓冲区，先不要提交；由于<code>git</code>的存储对象都是放在<code>objects</code>目录下面，这个时间看看<code>objects</code>目录的信息</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">➜  common git:<span class="o">(</span>master<span class="o">)</span> ✗ find .git/objects -type f
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜  common git:<span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> ✗ find .git/objects -type f
 .git/objects/d6/70460b4b4aece5915caf5c68d12f560a9fe3e4
 </code></pre></div><p>有了一个<code>d6</code>开头的文件夹，里面有一个<code>70460b4b4aece5915caf5c68d12f560a9fe3e4</code>文件；</p>
 <p>文件的内容即为<code>test.txt</code>里面的内容</p>
@@ -117,31 +222,31 @@ test content
 <pre><code>➜  common git:(master) git cat-file -t d670460b4b4aece5915caf5c68d12f560a9fe3e4
 blob
 </code></pre><p>然后我们再执行<code>commit</code>操作，看看发生了什么</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">➜  common git:<span class="o">(</span>master<span class="o">)</span> ✗ gcam <span class="s2">&#34;add file test.txt&#34;</span>
-<span class="o">[</span>master <span class="o">(</span>root-commit<span class="o">)</span> 1411e43<span class="o">]</span> add file test.txt
- <span class="m">1</span> file changed, <span class="m">1</span> insertion<span class="o">(</span>+<span class="o">)</span>
- create mode <span class="m">100644</span> text.txt
-</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">➜  common git:<span class="o">(</span>master<span class="o">)</span> find .git/objects -type f
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜  common git:<span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> ✗ gcam <span style="color:#e6db74">&#34;add file test.txt&#34;</span>
+<span style="color:#f92672">[</span>master <span style="color:#f92672">(</span>root-commit<span style="color:#f92672">)</span> 1411e43<span style="color:#f92672">]</span> add file test.txt
+ <span style="color:#ae81ff">1</span> file changed, <span style="color:#ae81ff">1</span> insertion<span style="color:#f92672">(</span>+<span style="color:#f92672">)</span>
+ create mode <span style="color:#ae81ff">100644</span> text.txt
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜  common git:<span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> find .git/objects -type f
 .git/objects/d6/70460b4b4aece5915caf5c68d12f560a9fe3e4
 .git/objects/e5/ad8d7c68ffd2b55209ab9a1078600fb7deeb3d
 .git/objects/14/11e43caf627123774c1d6fcbf8478f5f57d38f
 </code></pre></div><p>发现<code>objects</code>目录里面多了几个文件；继续看看他们的信息</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">➜  common git:<span class="o">(</span>master<span class="o">)</span> git cat-file -t e5ad8d7c68ffd2b55209ab9a1078600fb7deeb3d
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜  common git:<span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> git cat-file -t e5ad8d7c68ffd2b55209ab9a1078600fb7deeb3d
 tree
-➜  common git:<span class="o">(</span>master<span class="o">)</span> git cat-file -p e5ad8d7c68ffd2b55209ab9a1078600fb7deeb3d
-<span class="m">100644</span> blob d670460b4b4aece5915caf5c68d12f560a9fe3e4    text.txt
-➜  common git:<span class="o">(</span>master<span class="o">)</span> git cat-file -t 1411e43caf627123774c1d6fcbf8478f5f57d38f
+➜  common git:<span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> git cat-file -p e5ad8d7c68ffd2b55209ab9a1078600fb7deeb3d
+<span style="color:#ae81ff">100644</span> blob d670460b4b4aece5915caf5c68d12f560a9fe3e4    text.txt
+➜  common git:<span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> git cat-file -t 1411e43caf627123774c1d6fcbf8478f5f57d38f
 commit
-➜  common git:<span class="o">(</span>master<span class="o">)</span> git cat-file -p 1411e43caf627123774c1d6fcbf8478f5f57d38f
+➜  common git:<span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> git cat-file -p 1411e43caf627123774c1d6fcbf8478f5f57d38f
 tree e5ad8d7c68ffd2b55209ab9a1078600fb7deeb3d
-author pengganyu &lt;peng_gy@163.com&gt; <span class="m">1602320472</span> +0800
-committer pengganyu &lt;peng_gy@163.com&gt; <span class="m">1602320472</span> +0800
+author pengganyu &lt;peng_gy@163.com&gt; <span style="color:#ae81ff">1602320472</span> +0800
+committer pengganyu &lt;peng_gy@163.com&gt; <span style="color:#ae81ff">1602320472</span> +0800
 
 add file test.txt
 </code></pre></div><p><code>e5ad8d7c68ffd2b55209ab9a1078600fb7deeb3d</code>是一个<code>tree</code>格式的对象，里面存储着<code>text.txt</code>，简单理解为它是一个目录，里面为<code>text.txt</code></p>
 <p><code>1411e43caf627123774c1d6fcbf8478f5f57d38f</code>是一个<code>commit</code>格式的对象，里面存储着提交的信息；关联的目录为<code>e5ad8d7c68ffd2b55209ab9a1078600fb7deeb3d</code>;</p>
 <p>而<code>commit</code>的信息也会存放在<code>COMMIT_EDITMSG</code>里面</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">➜  common git:<span class="o">(</span>master<span class="o">)</span> cat .git/COMMIT_EDITMSG
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">➜  common git:<span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> cat .git/COMMIT_EDITMSG
 add file test.txt
 </code></pre></div><h3 id="存储区说明">存储区说明</h3>
 <ul>
@@ -163,24 +268,24 @@ add file test.txt
 <h3 id="脱离命令实现">脱离命令实现</h3>
 <p><code>git</code>有上层命令，类似<code>git add/status/commit/pull/push......</code>，约有30个；还有底层命令，类似<code>git cat-file/hash-objects/wirte-tree......</code></p>
 <p>下面我们来使用底层命令来实现上面的操作；</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">mkdir /tmp/common
-<span class="nb">cd</span> /tmp/common
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">mkdir /tmp/common
+cd /tmp/common
 git init
-<span class="nb">echo</span> <span class="s2">&#34;text content&#34;</span> &gt; test.txt
+echo <span style="color:#e6db74">&#34;text content&#34;</span> &gt; test.txt
 </code></pre></div><p>前置操作一样；</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1">## 对test.txt进行hash处理，处理完成，在对象区里面存储了一个blob对象</span>
-➜  common git:<span class="o">(</span>master<span class="o">)</span> ✗ git hash-object -w test.txt
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e">## 对test.txt进行hash处理，处理完成，在对象区里面存储了一个blob对象</span>
+➜  common git:<span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> ✗ git hash-object -w test.txt
 d670460b4b4aece5915caf5c68d12f560a9fe3e4
-<span class="c1">## 更新索引，添加文件至仓库</span>
-➜  common git:<span class="o">(</span>master<span class="o">)</span> ✗ git update-index --add test.txt
-<span class="c1">## 以当前文件目录为tree，将索引写入</span>
-➜  common git:<span class="o">(</span>master<span class="o">)</span> ✗ git write-tree
+<span style="color:#75715e">## 更新索引，添加文件至仓库</span>
+➜  common git:<span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> ✗ git update-index --add test.txt
+<span style="color:#75715e">## 以当前文件目录为tree，将索引写入</span>
+➜  common git:<span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> ✗ git write-tree
 80865964295ae2f11d27383e5f9c0b58a8ef21da
-<span class="c1">## 创建提交的commit存储对象</span>
-➜  common git:<span class="o">(</span>master<span class="o">)</span> ✗ <span class="nb">echo</span> <span class="s2">&#34;add test.txt&#34;</span> <span class="p">|</span> git commit-tree<span class="se">\ </span>80865964295ae2f11d27383e5f9c0b58a8ef21da
+<span style="color:#75715e">## 创建提交的commit存储对象</span>
+➜  common git:<span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> ✗ echo <span style="color:#e6db74">&#34;add test.txt&#34;</span> | git commit-tree<span style="color:#ae81ff">\ </span>80865964295ae2f11d27383e5f9c0b58a8ef21da
 139617a6c21c532bcc957b84b99e95a9b693ae7d
-<span class="c1">## 查看log日志</span>
-➜  common git:<span class="o">(</span>master<span class="o">)</span> ✗ git log --stat 139617a6c21c532bcc957b84b99e95a9b693ae7d
+<span style="color:#75715e">## 查看log日志</span>
+➜  common git:<span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> ✗ git log --stat 139617a6c21c532bcc957b84b99e95a9b693ae7d
 </code></pre></div><h3 id="参考">参考</h3>
 <ul>
 <li>
@@ -191,293 +296,106 @@ d670460b4b4aece5915caf5c68d12f560a9fe3e4
 </li>
 </ul>
 
-        </div>
+    </div>
 
+    
+
+
+    <div class="post-tags">
         
-
-
-        
-
-<div class="post-archive">
-    <h2>See Also</h2>
-    <ul class="listing">
-        
-        <li><a href="https://xibolun.github.io/post/tools/git/">Git学习</a></li>
-        
-    </ul>
-</div>
-
-
-        <div class="post-meta meta-tags">
+            <section>
+            <i class="iconfont icon-tag"></i>Tag(s):
             
-            <ul class="clearfix">
-                
-                <li><a href='https://xibolun.github.io/tags/git'>git</a></li>
-                
-            </ul>
+            <span class="tag"><a href="https://xibolun.github.io/tags/git/">
+                    #git</a></span>
             
-        </div>
-    </article>
-    
-    <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "xibolun" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </section>
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> ·
+                <span><a href="https://xibolun.github.io">home</a></span>
+        </section>
+    </div>
 
-    
-    
-</div>
-
-                    <footer id="footer">
-    <div>
-        &copy; 2021 <a href="https://xibolun.github.io">penggy Blog By pengganyu</a>
+    <div class="post-nav">
+        
+        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" class="prev" rel="prev" title="windows激活"><i class="iconfont icon-left"></i>&nbsp;windows激活</a>
+        
+        
+        <a href="https://xibolun.github.io/post/tools/codeql/" class="next" rel="next" title="CodeQL">CodeQL&nbsp;<i class="iconfont icon-right"></i></a>
         
     </div>
-    <br />
-    <div>
-        <div class="github-badge">
-            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
-        </div>
-        <div class="github-badge">
-            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
-        </div>
+
+    <div class="post-comment">
+        
+            
+                <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.css">
+<script src="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.min.js"></script>
+<script>
+    const gitalk = new Gitalk({
+
+        clientID: '621dd77636c317069337',
+        clientSecret: '614d7596d823c41978f49c5434301ba8304da7d5',
+        repo: 'blog-commits',
+        owner: 'Mogeko',
+        admin: ['Mogeko'],
+        id: location.pathname, 
+        distractionFreeMode: false 
+    });
+    (function () {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('gitalk-container').innerHTML = 'Gitalk comments not available by default when the website is previewed locally.';
+            return;
+        }
+        gitalk.render('gitalk-container');
+    })();
+</script>
+
+            
+        
+    </div>
+</article>
+                </div>
+            </main>
+            <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2017 - 2021</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i>
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://xibolun.github.io">pengganyu</a> | </span>
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/Mogeko/Mogege" target="_blank" rel="external nofollow">Mogege</a></span>
     </div>
 </footer>
 
 
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='https://xibolun.github.io/js/totop.js?v=0.0.0' async=""></script>
 
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-101106729-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script defer src="/js/vendor_main.min.js"></script>
 
 
 
 
 
 
-                </div>
 
-                <div id="secondary">
-    <section class="widget">
-        <form id="search" action='//www.google.com/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://xibolun.github.io">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">最近文章</h3>
-<ul class="widget-list">
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E4%BB%8E%E6%BA%90%E7%A0%81%E7%9C%8Bsidecar%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86/" title="Istio—从源码看Sidecar注入原理">Istio—从源码看Sidecar注入原理</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/istio/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Istio 1.8—环境搭建">Istio 1.8—环境搭建</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/" title="M1 Goland无法debug">M1 Goland无法debug</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/mac-m1/" title="M1的艰辛使用之旅">M1的艰辛使用之旅</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8sadmission-controllers/" title="k8s—admission controllers">k8s—admission controllers</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/k8s/k8s%E5%88%A0%E9%99%A4namespace/" title="k8s—强制删除namespace">k8s—强制删除namespace</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/docker/gitbook%E4%BD%BF%E7%94%A8dockerfile/" title="GitBook使用Dockerfile">GitBook使用Dockerfile</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/codeql/" title="CodeQL">CodeQL</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/git%E5%AF%B9%E8%B1%A1/" title="Git对象">Git对象</a>
-    </li>
-    
-    <li>
-        <a href="https://xibolun.github.io/post/tools/win%E6%BF%80%E6%B4%BB/" title="windows激活">windows激活</a>
-    </li>
-    
-</ul>
-    </section>
+<script src="https://cdn.jsdelivr.net/npm/pangu@4.0.7/dist/browser/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script> pangu.spacingPage();</script>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/categories/'>分类</a></h3>
-<ul class="widget-list">
-    
-    <li><a href="https://xibolun.github.io/categories/docker/">docker (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/etcd/">etcd (6)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/go/">go (1)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/istio/">istio (2)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/k8s/">k8s (15)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/tool/">tool (10)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章 (115)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈 (4)</a></li>
-    
-    <li><a href="https://xibolun.github.io/categories/%E8%AF%BB%E4%B9%A6/">读书 (11)</a></li>
-    
-</ul>
-    </section>
 
-    <section class="widget">
-        <h3 class="widget-title"><a href='https://xibolun.github.io/tags/'>标签</a></h3>
-<div class="tagcloud">
-    
-    <a href="https://xibolun.github.io/tags/about/">about</a>
-    
-    <a href="https://xibolun.github.io/tags/activemq/">ActiveMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/ansible/">ansible</a>
-    
-    <a href="https://xibolun.github.io/tags/css/">Css</a>
-    
-    <a href="https://xibolun.github.io/tags/curl/">curl</a>
-    
-    <a href="https://xibolun.github.io/tags/docker/">docker</a>
-    
-    <a href="https://xibolun.github.io/tags/dubbo/">dubbo</a>
-    
-    <a href="https://xibolun.github.io/tags/etcd/">etcd</a>
-    
-    <a href="https://xibolun.github.io/tags/git/">git</a>
-    
-    <a href="https://xibolun.github.io/tags/gitbook/">gitbook</a>
-    
-    <a href="https://xibolun.github.io/tags/go/">go</a>
-    
-    <a href="https://xibolun.github.io/tags/hugo/">hugo</a>
-    
-    <a href="https://xibolun.github.io/tags/istio/">istio</a>
-    
-    <a href="https://xibolun.github.io/tags/java/">java</a>
-    
-    <a href="https://xibolun.github.io/tags/jwt/">jwt</a>
-    
-    <a href="https://xibolun.github.io/tags/k8s/">k8s</a>
-    
-    <a href="https://xibolun.github.io/tags/kafka/">kafka</a>
-    
-    <a href="https://xibolun.github.io/tags/linux/">linux</a>
-    
-    <a href="https://xibolun.github.io/tags/lxc/">lxc</a>
-    
-    <a href="https://xibolun.github.io/tags/maven/">maven</a>
-    
-    <a href="https://xibolun.github.io/tags/mongo/">Mongo</a>
-    
-    <a href="https://xibolun.github.io/tags/mysql/">mysql</a>
-    
-    <a href="https://xibolun.github.io/tags/neo4j/">neo4j</a>
-    
-    <a href="https://xibolun.github.io/tags/nginx/">nginx</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheues/">prometheues</a>
-    
-    <a href="https://xibolun.github.io/tags/prometheus/">prometheus</a>
-    
-    <a href="https://xibolun.github.io/tags/python/">python</a>
-    
-    <a href="https://xibolun.github.io/tags/rabbitmq/">RabbitMQ</a>
-    
-    <a href="https://xibolun.github.io/tags/react/">react</a>
-    
-    <a href="https://xibolun.github.io/tags/redis/">redis</a>
-    
-    <a href="https://xibolun.github.io/tags/saltstack/">saltstack</a>
-    
-    <a href="https://xibolun.github.io/tags/spring/">spring</a>
-    
-    <a href="https://xibolun.github.io/tags/tool/">tool</a>
-    
-    <a href="https://xibolun.github.io/tags/%E4%BF%A1%E4%BB%B0/">信仰</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a>
-    
-    <a href="https://xibolun.github.io/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
-    
-    <a href="https://xibolun.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6/">读书</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%AF%BB%E4%B9%A6%E5%88%97%E8%A1%A8/">读书列表</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BD%AF%E4%BB%B6%E6%80%9D%E6%83%B3/">软件思想</a>
-    
-    <a href="https://xibolun.github.io/tags/%E8%BF%90%E7%BB%B4/">运维</a>
-    
-</div>
-    </section>
 
-    
 
-    <section class="widget">
-        <h3 class="widget-title">其它</h3>
-        <ul class="widget-list">
-            <li><a href="https://xibolun.github.io/index.xml">文章 RSS</a></li>
-        </ul>
-    </section>
-</div>
-            </div>
         </div>
-    </div>
-</body>
-
+    </body>
 </html>
