@@ -319,29 +319,15 @@ awk  -F <span style="color:#e6db74">&#39;-&#39;</span> <span style="color:#e6db7
     <div class="post-comment">
         
             
-                <div id="gitalk-container"></div>
-<link rel="stylesheet" href="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.css">
-<script src="https://cdn.bootcss.com/gitalk/1.5.2/gitalk.min.js"></script>
-<script>
-    const gitalk = new Gitalk({
-
-        clientID: '621dd77636c317069337',
-        clientSecret: 'c6a258cc1f4300f2da872961334eeef4b63f8d18',
-        repo: 'blog-commits',
-        owner: 'xibolun',
-        admin: ['xibolun'],
-        id: location.pathname, 
-        distractionFreeMode: false 
-    });
-    (function () {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('gitalk-container').innerHTML = 'Gitalk comments not available by default when the website is previewed locally.';
-            return;
-        }
-        gitalk.render('gitalk-container');
-    })();
-</script>
-
+                <div id="utteranc-container">
+    <script src='https://utteranc.es/client.js'
+        repo='xibolun/xibolun.github.io'
+        issue-term='pathname'
+        theme='github-light'
+        crossorigin='anonymous'
+        async>
+    </script>
+</div>
             
         
     </div>
