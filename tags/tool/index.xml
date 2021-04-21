@@ -9,10 +9,10 @@
     <lastBuildDate>Mon, 18 Jan 2021 14:50:13 +0800</lastBuildDate><atom:link href="https://xibolun.github.io/tags/tool/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>M1 Goland无法debug</title>
-      <link>https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/</link>
+      <link>https://xibolun.github.io/post/golang/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/</link>
       <pubDate>Mon, 18 Jan 2021 14:50:13 +0800</pubDate>
       
-      <guid>https://xibolun.github.io/post/go/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/</guid>
+      <guid>https://xibolun.github.io/post/golang/%E5%85%B3%E4%BA%8Egoland%E6%97%A0%E6%B3%95debug%E7%9A%84%E9%97%AE%E9%A2%98/</guid>
       <description>起因 新版本的m1是ARM架构，在安装完2020.03版本的Goland后，非debug启动正常，但debug启动的时候报错如下： rosetta error: failed to allocate vm</description>
     </item>
     
