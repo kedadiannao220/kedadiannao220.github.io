@@ -82,7 +82,7 @@
     <item>
       <title>Lxc使用笔记</title>
       <link>https://xibolun.github.io/post/container/lxc/</link>
-      <pubDate>Sun, 16 Feb 2020 22:11:21 +0800</pubDate>
+      <pubDate>Thu, 20 Feb 2020 22:11:21 +0800</pubDate>
       
       <guid>https://xibolun.github.io/post/container/lxc/</guid>
       <description>什么是LXC？ LXC（Linux Container）的缩写，Linux操作系统级别的虚拟化技术，利用命名空间保证进程的隔离，及cgroup技</description>

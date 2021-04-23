@@ -89,6 +89,15 @@
     </item>
     
     <item>
+      <title>k8s(七)––Dashboard</title>
+      <link>https://xibolun.github.io/post/k8s/k8s%E4%B8%83dashboard/</link>
+      <pubDate>Tue, 18 Feb 2020 16:31:49 +0800</pubDate>
+      
+      <guid>https://xibolun.github.io/post/k8s/k8s%E4%B8%83dashboard/</guid>
+      <description>K8s(七)—Dashboard Dashboard是K8s的管理界面，发行版本列表为：dashbaord/releases；主要是安装完成之</description>
+    </item>
+    
+    <item>
       <title>k8s(六)––Secret</title>
       <link>https://xibolun.github.io/post/k8s/k8s%E5%85%ADsecret/</link>
       <pubDate>Sun, 16 Feb 2020 10:53:23 +0800</pubDate>
